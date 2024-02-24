@@ -2,6 +2,7 @@
 import sqlite3
 
 conn = sqlite3.connect("forum.db")
+conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 
 
@@ -40,6 +41,12 @@ def get_post_by_id(post_id):
     sql = "SELECT * FROM posts WHERE post_id = ?"
     cur.execute(sql, (post_id,))
     return cur.fetchone()
+
+
+def get_all_posts():
+    sql = "SELECT * FROM posts"
+    cur.execute(sql)
+    return cur.fetchall()
 
 
 def get_comment_by_id(comment_id):
