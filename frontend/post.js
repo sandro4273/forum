@@ -11,7 +11,7 @@ function getPostIdFromUrl() {
 
 
 async function loadComments(post_id){
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/")
+    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/")
     const comments = await response.json();
     const commentsArray = comments["result"];
     for(let i = 0; i < commentsArray.length; i++){

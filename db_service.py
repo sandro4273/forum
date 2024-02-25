@@ -67,6 +67,12 @@ def update_username(user_id, new_name):
         cur.execute(sql, (new_name, user_id))
 
 
+def update_post_title(post_id, new_title):
+    with conn:
+        sql = "UPDATE posts SET title = ? WHERE post_id = ?"
+        cur.execute(sql, (new_title, post_id))
+
+
 def update_post_content(post_id, new_content):
     with conn:
         sql = "UPDATE posts SET content = ? WHERE post_id = ?"
