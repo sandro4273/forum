@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from typing import Annotated
+from fastapi import Body, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import db_service
@@ -40,9 +41,14 @@ async def get_all_posts():
     return {"result": db_service.get_all_posts()}
 
 
-@app.get("/post/id/{post_id}/comments/")
+@app.get("/post/id/{post_id}/comments/all/")
 async def get_comments_of_post(post_id: int):
     return {"result": db_service.get_comments_of_post(post_id)}
+
+
+@app.get("/post/id/{post_id}/comments/id/{comment_id}/")
+async def get_comment_by_id(post_id: int, comment_id: int):
+    return {"result": db_service.get_comment_by_id(comment_id)}
 
 
 @app.post("/post/create_post/")
@@ -53,9 +59,22 @@ async def create_post(post: Post):
     return post
 
 
-@app.post("/post/{post_id}/create_comment")
+@app.post("/post/id/{post_id}/create_comment/")
 async def create_comment(post_id: int, comment: Comment):
     db_service.create_comment(post_id,
                               comment.user_id,
                               comment.content)
     return comment
+
+
+@app.put("/post/id/{post_id}/")
+async def update_post(post_id: int, new_title: Annotated[str, Body()], new_content: Annotated[str, Body()]):
+    db_service.update_post_title(post_id, new_title)
+    db_service.update_post_content(post_id, new_content)
+    return new_content
+
+
+@app.put("/post/id/{post_id}/comments/id/{comment_id}/")
+async def update_comment(post_id: int, comment_id: int, new_content: Annotated[str, Body()]): # str in Request sende, ned JSON
+    db_service.update_comment_content(comment_id, new_content)
+    return new_content
