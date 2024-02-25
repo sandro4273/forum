@@ -61,9 +61,13 @@ async def create_post(post: Post):
 
 @app.post("/post/id/{post_id}/create_comment/")
 async def create_comment(post_id: int, comment: Comment):
-    db_service.create_comment(post_id,
-                              comment.user_id,
-                              comment.content)
+    # Testen, ob ein Post mit post_id existiert
+    if(db_service.get_post_by_id(post_id)):
+        db_service.create_comment(post_id,
+                                comment.user_id,
+                                comment.content)
+    else:
+        return {"Failed": "Post does not exist"}
     return comment
 
 
