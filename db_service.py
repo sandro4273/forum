@@ -85,9 +85,13 @@ def update_comment_content(comment_id, new_content):
         cur.execute(sql, (new_content, comment_id))
 
 
-def delete_post(post_id):
+def delete_post_with_comments(post_id):
     with conn:
+        # Post Löschen
         sql = "DELETE FROM posts WHERE post_id = ?"
+        cur.execute(sql, (post_id,))
+        # Dazugehörige Kommentare Löschen
+        sql = "DELETE FROM comments WHERE post_id = ?"
         cur.execute(sql, (post_id,))
 
 

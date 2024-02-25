@@ -78,3 +78,15 @@ async def update_post(post_id: int, new_title: Annotated[str, Body()], new_conte
 async def update_comment(post_id: int, comment_id: int, new_content: Annotated[str, Body()]): # str in Request sende, ned JSON
     db_service.update_comment_content(comment_id, new_content)
     return new_content
+
+
+@app.delete("post/id/{post_id}/")
+async def delete_post_with_comments(post_id: int):  # Beim Löschen von einem Post sollen die Kommentare ebenfalls gelöscht werden
+    db_service.delete_post_with_comments(post_id)
+    return {}
+
+
+@app.delete("post/id/{post_id}/comments/id/{comment_id}")
+async def delete_comment_by_id(post_id: int, comment_id: int):
+    db_service.delete_comment(comment_id)
+    return {}
