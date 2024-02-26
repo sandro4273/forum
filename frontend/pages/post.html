@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post</title>
+    <script type="text/javascript" src="/frontend/constants.js"></script>
+</head>
+
+
+<body>
+    <div id="post">
+        <h2 id="postTitle"></h2>
+        <p id="postContent"></p>
+    </div>
+    <hr>
+        <form name="createComment">
+            <label>Kommentar verfassen</label><br>
+            <input type="text" name="commentContent" style="height: 50px;"><br> <br>
+            <button id="submitComment">Absenden</button>
+
+        </form>
+    <hr>
+    <p align="center">Kommentare</p>
+    <div id="commentList">
+        <!-- Liste von Kommentaren -->
+    </div>
+</body>
+
+<script type="text/javascript" src="/frontend/scripts/post.js"></script>
+</html>
