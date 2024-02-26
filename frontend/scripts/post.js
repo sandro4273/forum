@@ -18,7 +18,7 @@ function getPostIdFromUrl() {
 
 async function loadPost(post_id){
     // Post laden
-    const response = await fetch(BACKENDURL + "post/id/" + post_id);
+    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
     const post = await response.json();
     const postTitle = post["result"]["title"];
     const postContent = post["result"]["content"];
