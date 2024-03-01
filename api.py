@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import db_service
 
-app = FastAPI()
+app = FastAPI() #test
 
 origins = [
     "http://localhost",
