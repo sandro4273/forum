@@ -2,7 +2,7 @@
 async function onLoad() {
     const chatId = getChatIdFromUrl();
     const chatTitle = document.querySelector("#chatTitle");
-    const messageList = document.querySelector("#messageList");
+    document.querySelector("#sendMessage").addEventListener("click", sendMessage);
 
     const partnerUsername = await getUsernameById(await getChatPartnerId(chatId, 1));
     chatTitle.textContent = "Chat mit " + partnerUsername
@@ -31,6 +31,7 @@ async function getChatPartnerId(chat_id, user1) {
 }
 
 async function loadMessages(chat_id) {
+    const messageList = document.querySelector("#messageList");
     // Load all messages of chat
     const response = await fetch(BACKENDURL + "chat/id/" + chat_id + "/messages/all/");
     const messages = await response.json();
@@ -49,6 +50,29 @@ async function loadMessages(chat_id) {
     }
 
 }
+
+
+async function sendMessage(event) {
+    event.preventDefault();
+    
+    const chatId = getChatIdFromUrl();
+    const messageContent = document.querySelector("#messageContent");
+    const message = messageContent.value.trim();
+
+    const body = {
+        "user_id": 1, // Account-System noch nicht implementiert
+        "message": message
+    }
+    const response = await fetch(
+        BACKENDURL + "chat/id/" + chatId + "/create_message/", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+    res = await response.json();
+    return response;
+}
+
 
 // execute onLoad when page is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
