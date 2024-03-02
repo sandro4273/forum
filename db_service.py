@@ -31,6 +31,20 @@ def create_comment(post_id, user_id, content):
     return cur.lastrowid
 
 
+def create_chat_msg(chat_id, user_id, message):
+    sql = "INSERT INTO chat_messages (chat_id, sent_by, message) VALUES (?, ?, ?)"
+    cur.execute(sql, (chat_id, user_id, message))
+    conn.commit()
+    return cur.lastrowid
+
+
+def create_chat(user1, user2):
+    sql = "INSERT INTO chats (user1, user2) VALUES (?, ?)"
+    cur.execute(sql, (user1, user2))
+    conn.commit()
+    return cur.lastrowid
+
+
 def get_user_by_id(user_id):
     sql = "SELECT * FROM users WHERE user_id = ?"
     cur.execute(sql, (user_id,))
@@ -58,6 +72,24 @@ def get_comment_by_id(comment_id):
 def get_comments_of_post(post_id):
     sql = "SELECT * FROM comments WHERE post_id = ?"
     cur.execute(sql, (post_id,))
+    return cur.fetchall()
+
+
+def get_chat_message(msg_id):
+    sql = "SELECT * FROM chat_messages WHERE msg_id = ?"
+    cur.execute(sql, (msg_id,))
+    return cur.fetchone()
+
+
+def get_messages_of_chat(chat_id):
+    sql = "SELECT * FROM chat_messages WHERE chat_id = ?"
+    cur.execute(sql, (chat_id,))
+    return cur.fetchall()
+
+
+def get_chats_of_user(user_id):
+    sql = "SELECT chat_id FROM chats WHERE user1 = ? OR user2 = ?"
+    cur.execute(sql, (user_id, user_id))
     return cur.fetchall()
 
 
@@ -99,3 +131,17 @@ def delete_comment(comment_id):
     with conn:
         sql = "DELETE FROM comments WHERE comment_id = ?"
         cur.execute(sql, (comment_id, ))
+
+
+def check_chat_exists(user1, user2):
+    if user1 == user2:
+        return True
+    sql = "SELECT chat_id FROM chats WHERE (user1 = ? AND user2 = ?) OR (user1 = ? AND user2 = ?)"
+    cur.execute(sql, (user1, user2, user2, user1))
+    return cur.fetchone()
+
+
+def check_user_exists(user_id):
+    sql = "SELECT * FROM users WHERE user_id = ?"
+    cur.execute(sql, (user_id,))
+    return cur.fetchone()
