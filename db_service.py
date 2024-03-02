@@ -75,10 +75,21 @@ def get_comments_of_post(post_id):
     return cur.fetchall()
 
 
+def get_chat_by_id(chat_id):
+    sql = "SELECT * FROM chats WHERE chat_id = ?"
+    cur.execute(sql, (chat_id,))
+    return cur.fetchone()
+
 def get_chat_message(msg_id):
     sql = "SELECT * FROM chat_messages WHERE msg_id = ?"
     cur.execute(sql, (msg_id,))
     return cur.fetchone()
+
+
+def get_messages_of_chat(chat_id):
+    sql = "SELECT * FROM chat_messages WHERE chat_id = ?"
+    cur.execute(sql, (chat_id,))
+    return cur.fetchall()
 
 
 def get_chats_of_user(user_id):

@@ -51,6 +51,16 @@ async def get_comment_by_id(post_id: int, comment_id: int):
     return {"result": db_service.get_comment_by_id(comment_id)}
 
 
+@app.get("/user/id/{user_id}/")
+async def get_user_by_id(user_id: int):
+    return {"result": db_service.get_user_by_id(user_id)}
+
+
+@app.get("/chat/id/{chat_id}/")
+async def get_chat_by_id(chat_id: int):
+    return {"result": db_service.get_chat_by_id(chat_id)}
+
+
 @app.get("/chat/id/{chat_id}/messages/all/")
 async def get_messages_of_chat(chat_id: int):
     return {"result": db_service.get_messages_of_chat(chat_id)}
