@@ -1,12 +1,16 @@
 // Executed when chat.html is loaded
 async function onLoad() {
+    // Get partner username
     const chatId = getChatIdFromUrl();
-    const chatTitle = document.querySelector("#chatTitle");
-    document.querySelector("#sendMessage").addEventListener("click", sendMessage);
+    const partnerId = await getChatPartnerId(chatId, 1);
+    const partnerUsername = await getUsernameById(partnerId);
 
-    const partnerUsername = await getUsernameById(await getChatPartnerId(chatId, 1));
+    // Set chat title as Chat mit [partnerUsername]
+    const chatTitle = document.querySelector("#chatTitle");
     chatTitle.textContent = "Chat mit " + partnerUsername
-    console.log(await getChatPartnerId(chatId, 1)); // Account-System noch nicht implementiert
+
+    // Add event listener to send message button and load messages
+    document.querySelector("#sendMessage").addEventListener("click", sendMessage);
     loadMessages(chatId);
 }
 
@@ -37,13 +41,14 @@ async function loadMessages(chat_id) {
     const messages = await response.json();
     const messagesArray = messages["result"];
 
-    // Create HTML elements and append them
+    // Create HTML elements for each message and append them
     for (let i = 0; i < messagesArray.length; i++) {
         // get message content  
         const msgContent = messagesArray[i]["message"];
-
+        // get username of sender
         const sentById = messagesArray[i]["sent_by"];
         const username = await getUsernameById(sentById);
+        // insert HTML element
         const newElement = document.createElement('p');
         newElement.textContent = username + ": " + msgContent;
         messageList.append(newElement);
@@ -54,11 +59,12 @@ async function loadMessages(chat_id) {
 
 async function sendMessage(event) {
     event.preventDefault();
-    
+    // Extract chatId and message content
     const chatId = getChatIdFromUrl();
     const messageContent = document.querySelector("#messageContent");
     const message = messageContent.value.trim();
 
+    // API request
     const body = {
         "user_id": 1, // Account-System noch nicht implementiert
         "message": message
