@@ -1,3 +1,4 @@
+// Executed when chatOverview.html is loaded
 function onLoad() {
     loadChats();
 }
