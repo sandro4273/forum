@@ -81,16 +81,11 @@ def get_chat_message(msg_id):
     return cur.fetchone()
 
 
-def get_messages_of_chat(chat_id):
-    sql = "SELECT * FROM chat_messages WHERE chat_id = ?"
-    cur.execute(sql, (chat_id,))
-    return cur.fetchall()
-
-
 def get_chats_of_user(user_id):
-    sql = "SELECT chat_id FROM chats WHERE user1 = ? OR user2 = ?"
-    cur.execute(sql, (user_id, user_id))
-    return cur.fetchall()
+    # Select chat_id, both user_ids and the username of the other user
+    sql = "SELECT chats.*, users.username as other_username FROM chats JOIN users ON (chats.user1 = users.user_id OR chats.user2 = users.user_id) WHERE (chats.user1 = ? OR chats.user2 = ?) AND users.user_id != ?"
+    cur.execute(sql, (user_id, user_id, user_id))
+    return cur.fetchall()   # response looks like: [{"chat_id": 1, "user1": 1, "user2": 2, "other_username": "user2"}]
 
 
 def update_username(user_id, new_name):
