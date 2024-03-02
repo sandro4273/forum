@@ -51,6 +51,26 @@ async def get_comment_by_id(post_id: int, comment_id: int):
     return {"result": db_service.get_comment_by_id(comment_id)}
 
 
+@app.get("/user/id/{user_id}/")
+async def get_user_by_id(user_id: int):
+    return {"result": db_service.get_user_by_id(user_id)}
+
+
+@app.get("/chat/id/{chat_id}/")
+async def get_chat_by_id(chat_id: int):
+    return {"result": db_service.get_chat_by_id(chat_id)}
+
+
+@app.get("/chat/id/{chat_id}/messages/all/")
+async def get_messages_of_chat(chat_id: int):
+    return {"result": db_service.get_messages_of_chat(chat_id)}
+
+
+@app.get("/user/id/{user_id}/chats/all/")
+async def get_chats_of_user(user_id: int):
+    return {"result": db_service.get_chats_of_user(user_id)}
+
+
 @app.post("/post/create_post/")
 async def create_post(post: Post):
     db_service.create_post(post.user_id,
@@ -69,6 +89,25 @@ async def create_comment(post_id: int, comment: Comment):
     else:
         return {"Failed": "Post does not exist"}
     return comment
+
+
+@app.post("/chat/create_chat/")
+async def create_chat(user1: Annotated[int, Body()], user2: Annotated[int, Body()]):
+    # Check if chat already exists
+    if db_service.check_chat_exists(user1, user2):
+        return {"message": "Chat already exists"}
+    # Check if both users exist
+    if not db_service.check_user_exists(user1) or not db_service.check_user_exists(user2):
+        return {"message": "User does not exist"}
+    
+    db_service.create_chat(user1, user2)
+    return {"user1": user1, "user2": user2}
+
+
+@app.post("/chat/id/{chat_id}/create_message/")
+async def create_chat_message(chat_id: int, user_id: Annotated[int, Body()], message: Annotated[str, Body()]):
+    db_service.create_chat_msg(chat_id, user_id, message)
+    return {"chat_id": chat_id, "user_id": user_id, "message": message}
 
 
 @app.put("/post/id/{post_id}/")
