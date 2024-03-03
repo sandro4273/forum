@@ -4,13 +4,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import db_service
 
-app = FastAPI() #test
+app = FastAPI()  # test
 
 origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://localhost:5500",
-    "http://127.0.0.1:5500"
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:63342"
 ]
 
 app.add_middleware( CORSMiddleware,
