@@ -1,7 +1,9 @@
 from typing import Annotated
-from fastapi import Body, FastAPI
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import jwt  # JSON Web Token for user authentication
+from datetime import datetime, timedelta
 import db_service
 
 app = FastAPI()  # test
@@ -35,6 +37,11 @@ class Comment(BaseModel):
 
 class SignupData(BaseModel):
     username: str
+    email: str
+    password: str
+
+
+class LoginData(BaseModel):
     email: str
     password: str
 
@@ -86,6 +93,28 @@ async def create_user(user_data: SignupData):
                            user_data.password)
     return user_data
 
+
+SECRET_KEY = "your-secret-key"  # obviously needs to be moved outside public codebase later
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+def create_access_token(user_id: int):
+    to_encode = {"user_id": user_id}
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+@app.post("/user/login/")
+async def login_user(login_data: LoginData):
+    user_id = db_service.login_user(login_data.email, login_data.password)
+    if user_id:
+        access_token = create_access_token(user_id)
+        return {"access_token": access_token, "token_type": "bearer"}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @app.post("/post/create_post/")
 async def create_post(post: Post):
