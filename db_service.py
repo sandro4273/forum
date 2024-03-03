@@ -10,6 +10,18 @@ def close_db():
     conn.close()
 
 
+def login_user(email, password):
+    sql = "SELECT user_id FROM users WHERE email = ? AND password = ?"
+    cur.execute(sql, (email, password))
+
+    result = cur.fetchone()
+
+    if result:
+        return result[0]  # user_id
+    else:
+        return None
+
+
 def create_user(username, email, password):
     sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
     cur.execute(sql, (username, email, password))

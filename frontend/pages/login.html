@@ -8,14 +8,15 @@
 <body>
     <h1>Anmelden</h1>
     <form name="login">
-        <label for="username">E-Mail</label><br>
-        <input type="text" name="email" required><br> <br>
+        <label for="email">E-Mail</label><br>
+        <input type="text" id="email" name="email" required><br> <br>
 
         <label for="password">Passwort</label><br>
-        <input type="password" name="password" required><br> <br>
+        <input type="password" id="password" name="password" required><br> <br>
 
         <button id="submitButton" type="button">Anmelden</button>
     </form>
+    <p id="errorMessage" style="color: red; display: none;">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
 </body>
 
 <script type="text/javascript" src="/ProgProjekt_Forum/frontend/scripts/login.js"></script>

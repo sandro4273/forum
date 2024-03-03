@@ -21,8 +21,7 @@ async function submitSignupForm(){
     } else {
         console.error("Error signing up:", response.statusText);
         document.getElementById("errorMessage").style.display = "block";
-        console.error("Error signing up:", response.statusText);
     }
 }
 
-window.addEventListener("DOMContentLoaded", onLoad());
+window.addEventListener("DOMContentLoaded", onLoad);
