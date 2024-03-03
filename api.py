@@ -15,11 +15,11 @@ origins = [
     "http://127.0.0.1:63342"
 ]
 
-app.add_middleware( CORSMiddleware,
-                    allow_origins=origins, 
-                    allow_credentials=True, 
-                    allow_methods=["*"], 
-                    allow_headers=["*"])
+app.add_middleware(CORSMiddleware,
+                   allow_origins=origins,
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 
 class Post(BaseModel):
@@ -31,6 +31,12 @@ class Post(BaseModel):
 class Comment(BaseModel):
     user_id: int
     content: str
+
+
+class SignupData(BaseModel):
+    username: str
+    email: str
+    password: str
 
 
 @app.get("/post/id/{post_id}/")
@@ -73,6 +79,14 @@ async def get_chats_of_user(user_id: int):
     return {"result": db_service.get_chats_of_user(user_id)}
 
 
+@app.post("/user/signup/")
+async def create_user(user_data: SignupData):
+    db_service.create_user(user_data.username,
+                           user_data.email,
+                           user_data.password)
+    return user_data
+
+
 @app.post("/post/create_post/")
 async def create_post(post: Post):
     db_service.create_post(post.user_id,
@@ -84,10 +98,10 @@ async def create_post(post: Post):
 @app.post("/post/id/{post_id}/create_comment/")
 async def create_comment(post_id: int, comment: Comment):
     # Testen, ob ein Post mit post_id existiert
-    if(db_service.get_post_by_id(post_id)):
+    if db_service.get_post_by_id(post_id):
         db_service.create_comment(post_id,
-                                comment.user_id,
-                                comment.content)
+                                  comment.user_id,
+                                  comment.content)
     else:
         return {"Failed": "Post does not exist"}
     return comment
