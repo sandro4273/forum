@@ -8,14 +8,31 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-async function checkToken(){
-    const token = localStorage.getItem("token");
-        if (token) {
-            console.log("Token found:", token)
+async function checkAuthToken(){
+    const auth_token = localStorage.getItem("AuthToken");
+        if (auth_token) {
+            console.log("Token found:", auth_token)
             // Decode the token to extract user information
-            const decodedToken = parseJwt(token);
+            const decodedToken = parseJwt(auth_token);
             const userId = decodedToken.user_id;
-            const response = await fetch(BACKENDURL + "user/id/" + userId + "/");
+            const response = await fetch(
+                BACKENDURL + `user/id/${userId}/`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${auth_token}` // Include the token in the Authorization header
+                }
+            });
+
+            if (!response.ok) {
+                // Token is invalid, remove it from local storage
+                localStorage.removeItem("AuthToken");
+                // Display authentication buttons
+                document.getElementById("authButtons").style.display = "block";
+                document.getElementById("loggedInUser").style.display = "none";
+                return;
+            }
+
             const user = await response.json();
 
             // Display the user ID
@@ -47,11 +64,11 @@ async function loadPosts(){     // Spöter mal en max. azahl vo gladene Posts ib
 }
 
 async function logout(){
-    localStorage.removeItem("token");
+    localStorage.removeItem("AuthToken");
     window.location.reload();
 }
 
 document.getElementById("logoutButton").addEventListener("click", logout);
 
 loadPosts();
-checkToken();
+checkAuthToken();

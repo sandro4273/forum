@@ -1,8 +1,10 @@
 from typing import Annotated
-from fastapi import Body, FastAPI, HTTPException, status
+from fastapi import Body, FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr, constr, field_validator
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, EmailStr, field_validator
 import jwt  # JSON Web Token for user authentication
+from jwt import PyJWTError
 from datetime import datetime, timedelta
 import db_service
 
@@ -74,6 +76,33 @@ class LoginData(BaseModel):
     password: str
 
 
+security = HTTPBearer()
+
+SECRET_KEY = "your-secret-key"  # obviously needs to be moved outside public codebase later
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+def create_access_token(user_id: int):
+    to_encode = {"user_id": user_id}
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("user_id")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        return user_id
+    except PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 @app.get("/post/id/{post_id}/")
 async def get_post_by_id(post_id: int):
     return {"result": db_service.get_post_by_id(post_id)}
@@ -95,7 +124,10 @@ async def get_comment_by_id(post_id: int, comment_id: int):
 
 
 @app.get("/user/id/{user_id}/")
-async def get_user_by_id(user_id: int):
+async def get_user_by_id(user_id: int, current_user_id: int = Depends(get_current_user_id)):
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="You are not allowed to access this resource")
+
     return {"result": db_service.get_user_by_id(user_id)}
 
 
@@ -116,31 +148,18 @@ async def get_chats_of_user(user_id: int):
 
 @app.post("/user/signup/")
 async def create_user(user_data: SignupData):
-    print("hello")
     db_service.create_user(user_data.username,
                            user_data.email,
                            user_data.password)
     return user_data
-
-SECRET_KEY = "your-secret-key"  # obviously needs to be moved outside public codebase later
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
-def create_access_token(user_id: int):
-    to_encode = {"user_id": user_id}
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 
 @app.post("/user/login/")
 async def login_user(login_data: LoginData):
     user_id = db_service.login_user(login_data.email, login_data.password)
     if user_id:
-        access_token = create_access_token(user_id)
-        return {"access_token": access_token, "token_type": "bearer"}
+        auth_token = create_access_token(user_id)
+        return {"auth_token": auth_token, "token_type": "bearer"}
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
