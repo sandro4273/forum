@@ -22,6 +22,18 @@ def login_user(email, password):
         return None
 
 
+def username_exists(username: str) -> bool:
+    sql = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)"
+    cur.execute(sql, (username,))
+    return cur.fetchone()[0] == 1
+
+
+def email_exists(email: str) -> bool:
+    sql = "SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)"
+    cur.execute(sql, (email,))
+    return cur.fetchone()[0] == 1
+
+
 def create_user(username, email, password):
     sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
     cur.execute(sql, (username, email, password))

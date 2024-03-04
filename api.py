@@ -1,7 +1,7 @@
 from typing import Annotated
-from fastapi import Body, FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, constr, field_validator
 import jwt  # JSON Web Token for user authentication
 from datetime import datetime, timedelta
 import db_service
@@ -37,8 +37,36 @@ class Comment(BaseModel):
 
 class SignupData(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
+
+    @field_validator("username")
+    def username_validator(cls, v):
+        if not v.isalnum():
+            raise ValueError("Username must be alphanumeric")
+        if db_service.username_exists(v):
+            raise ValueError("Username already exists")
+        return v
+
+    @field_validator("email")
+    def email_validator(cls, v):
+        if db_service.email_exists(v):
+            raise ValueError("Email already exists")
+        return v
+
+    @field_validator("password")
+    def password_validator(cls, v):
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+
+        special_characters = set("!@#$%^&*()-_+=~`[]{}|;:'\",.<>/?\\")
+        if not any(c.isupper() for c in v) or \
+           not any(c.islower() for c in v) or \
+           not any(c.isdigit() for c in v) or \
+           not any(c in special_characters for c in v):
+            raise ValueError("Password must have at least one uppercase letter, one lowercase letter, one digit and a "
+                             "special character")
+        return v
 
 
 class LoginData(BaseModel):
@@ -88,11 +116,11 @@ async def get_chats_of_user(user_id: int):
 
 @app.post("/user/signup/")
 async def create_user(user_data: SignupData):
+    print("hello")
     db_service.create_user(user_data.username,
                            user_data.email,
                            user_data.password)
     return user_data
-
 
 SECRET_KEY = "your-secret-key"  # obviously needs to be moved outside public codebase later
 ALGORITHM = "HS256"
