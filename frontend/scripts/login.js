@@ -17,10 +17,9 @@ async function submitLoginForm(){
 
     if (response.ok) {
         const res = await response.json();
-        localStorage.setItem("token", res.access_token);
+        localStorage.setItem("AuthToken", res.auth_token);
         window.location.href = "/ProgProjekt_Forum/frontend/index.html";
     } else {
-        console.error("Error logging in:", response.statusText);
         document.getElementById("errorMessage").style.display = "block";
     }
 }
