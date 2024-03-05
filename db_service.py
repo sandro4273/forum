@@ -75,6 +75,12 @@ def get_user_by_id(user_id):
     return cur.fetchone()
 
 
+def get_username_by_id(user_id):
+    sql = "SELECT username FROM users WHERE user_id = ?"
+    cur.execute(sql, (user_id,))
+    return cur.fetchone()[0]
+
+
 def get_post_by_id(post_id):
     sql = "SELECT * FROM posts WHERE post_id = ?"
     cur.execute(sql, (post_id,))
