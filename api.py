@@ -15,8 +15,7 @@ origins = [
     "http://localhost:8000",
     "http://localhost:5500",
     "http://127.0.0.1:5500",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:63342"
+    "http://127.0.0.1:8000"
 ]
 
 app.add_middleware(CORSMiddleware,
@@ -27,7 +26,6 @@ app.add_middleware(CORSMiddleware,
 
 
 class Post(BaseModel):
-    user_id: int
     title: str
     content: str
 
@@ -91,6 +89,7 @@ def create_access_token(user_id: int):
     return encoded_jwt
 
 
+@app.get("/get_current_user_id/")
 async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
@@ -144,12 +143,14 @@ async def get_user_by_id(user_id: int, current_user_id: int = Depends(get_curren
 
     return {"result": db_service.get_user_by_id(user_id)}
 
+
 @app.get("/user/id/{user_id}/username/")
 async def get_username_by_id(user_id: int):
     username = db_service.get_username_by_id(user_id)
     if username is None:
         raise HTTPException(status_code=404, detail="User not found")
     return {"username": username}
+
 
 @app.get("/chat/id/{chat_id}/")
 async def get_chat_by_id(chat_id: int):
@@ -183,12 +184,11 @@ async def login_user(login_data: LoginData):
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+
 @app.post("/post/create_post/")
-async def create_post(post: Post):
-    db_service.create_post(post.user_id,
-                           post.title,
-                           post.content)
-    return post
+async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)):
+    post_id = db_service.create_post(current_user_id, post.title, post.content)
+    return post_id
 
 
 @app.post("/post/id/{post_id}/create_comment/")
