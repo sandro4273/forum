@@ -103,6 +103,20 @@ async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depend
     except PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+
+@app.get("/get_current_user/")
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("user_id")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        return db_service.get_user_by_id(user_id)
+    except PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 @app.get("/post/id/{post_id}/")
 async def get_post_by_id(post_id: int):
     return {"result": db_service.get_post_by_id(post_id)}
