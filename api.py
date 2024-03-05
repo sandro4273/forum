@@ -144,6 +144,12 @@ async def get_user_by_id(user_id: int, current_user_id: int = Depends(get_curren
 
     return {"result": db_service.get_user_by_id(user_id)}
 
+@app.get("/user/id/{user_id}/username/")
+async def get_username_by_id(user_id: int):
+    username = db_service.get_username_by_id(user_id)
+    if username is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"username": username}
 
 @app.get("/chat/id/{chat_id}/")
 async def get_chat_by_id(chat_id: int):
