@@ -32,39 +32,69 @@ async function loadPost(post_id){
 async function loadComments(post_id){
     // Kommentare laden
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/");
-    const comments = await response.json();
-    const commentsArray = comments["result"];
+    const commentsData = await response.json();
+    const comments = commentsData["result"];
 
     // HTML Elemente erstellen und einfügen
-    for(let i = 0; i < commentsArray.length; i++){
-        const newElement = document.createElement('p');
-        newElement.textContent = commentsArray[i]["content"];
-        commentList.append(newElement);
+    for(let i = 0; i < comments.length; i++){
+        const comment = comments[i];
+
+        // Get username of the user who created the comment
+        const usernameResponse = await fetch(BACKENDURL + "user/id/" + comment["user_id"] + "/username/");
+        const usernameData = await usernameResponse.json();
+        const username = usernameData["username"];
+
+        // Create a container for the comment
+        const commentContainer = document.createElement('div');
+
+        // Display creation time (in gray)
+        const creationTimeElement = document.createElement('span');
+        creationTimeElement.textContent = comment["created_at"];
+        creationTimeElement.style.color = "gray";
+        commentContainer.appendChild(creationTimeElement);
+
+        // Display user ID
+        const userIDElement = document.createElement('span');
+        userIDElement.textContent = " - " + username + ": ";
+        commentContainer.appendChild(userIDElement);
+
+        // Display comment content
+        const commentContentElement = document.createElement('span');
+        commentContentElement.textContent = comment["content"];
+        commentContainer.appendChild(commentContentElement);
+
+        // Append the comment container to the comment list
+        commentList.appendChild(commentContainer);
     }
 }
 
 
 async function createComment(event, post_id){
     event.preventDefault();
-    // Kommentar extrahieren
+    // Extract content from form
     const content = document.forms["createComment"]["commentContent"].value;
 
-    // Kommentar senden
     const body = {
-        "user_id": 1, // Account-System noch nicht implementiert
-        "content": content,
+        "content": content
     }
-    const response = await fetch(
+
+    // Create comment
+    const auth_token = localStorage.getItem("AuthToken");
+
+    const create_comment_response = await fetch(
         BACKENDURL + "post/id/" + post_id + "/create_comment/", {
             method: "POST", 
-            headers: {"Content-Type" : "application/json"},
+            headers: {
+                "Content-Type" : "application/json",
+                "Authorization": `Bearer ${auth_token}`
+            },
             body: JSON.stringify(body),
         });
-    // Kommentarfeld leeren
+
+    // Clear comment form
     document.forms["createComment"]["commentContent"].value = "";
 
-    res = await response;
-    return response;
+    return await create_comment_response.json();
 }
 
 

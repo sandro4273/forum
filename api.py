@@ -192,12 +192,10 @@ async def create_post(post: Post, current_user_id: int = Depends(get_current_use
 
 
 @app.post("/post/id/{post_id}/create_comment/")
-async def create_comment(post_id: int, comment: Comment):
-    # Testen, ob ein Post mit post_id existiert
-    if db_service.get_post_by_id(post_id):
-        db_service.create_comment(post_id,
-                                  comment.user_id,
-                                  comment.content)
+async def create_comment(post_id: int, comment: Comment, current_user_id: int = Depends(get_current_user_id)):
+    # Check if post exists and a user is logged in
+    if db_service.get_post_by_id(post_id) and current_user_id:
+        db_service.create_comment(post_id, current_user_id, comment.content)
     else:
         return {"Failed": "Post does not exist"}
     return comment
