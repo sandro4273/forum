@@ -18,7 +18,7 @@ async function submitLoginForm(){
     if (response.ok) {
         const res = await response.json();
         localStorage.setItem("AuthToken", res.auth_token);
-        window.location.href = "/ProgProjekt_Forum/frontend/index.html";
+        window.location.href = "/frontend/index.html";
     } else {
         document.getElementById("errorMessage").style.display = "block";
     }
