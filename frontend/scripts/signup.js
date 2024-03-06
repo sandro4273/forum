@@ -17,7 +17,7 @@ async function submitSignupForm(){
         });
 
     if (response.ok) {
-        window.location.href = "/ProgProjekt_Forum/frontend/pages/login.html";
+        window.location.href = "/frontend/pages/login.html";
     } else {
         const errorData = await response.json();
 

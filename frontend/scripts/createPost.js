@@ -31,7 +31,7 @@ async function submitForm(){
     let post_id = await create_post_response.json();
 
     // Redirect to the post page
-    window.location.href = "/ProgProjekt_Forum/frontend/pages/post.html?id=" + post_id;
+    window.location.href = "/frontend/pages/post.html?id=" + post_id;
 
     return post_id;
 }
