@@ -1,4 +1,4 @@
-// Funktion wird ausgeführt wenn Seite geladen ist
+// function is called when the page is fully loaded
 function onLoad(){
     document.querySelector("#submitButton").addEventListener("click", submitForm);
 
@@ -36,5 +36,5 @@ async function submitForm(){
     return post_id;
 }
 
-// Init ausführen wenn Seite geladen ist
+// execute onLoad when page is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
