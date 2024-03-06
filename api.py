@@ -31,7 +31,6 @@ class Post(BaseModel):
 
 
 class Comment(BaseModel):
-    user_id: int
     content: str
 
 
