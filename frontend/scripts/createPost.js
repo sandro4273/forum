@@ -1,4 +1,4 @@
-// Funktion wird ausgeführt wenn Seite geladen ist
+// function is called when the page is fully loaded
 function onLoad(){
     document.querySelector("#submitButton").addEventListener("click", submitForm);
 
@@ -6,12 +6,12 @@ function onLoad(){
 
 
 async function submitForm(){
-    // Titel und Text extrahieren
+    // extract title and content from form
     const postTitle = document.forms["createPost"]["postTitle"].value;
     const postContent = document.forms["createPost"]["postContent"].value;
 
     // API request
-    const body= {   "user_id": 1,   // Account-System noch nicht implementiert
+    const body= {   "user_id": 1,   // account system not implemented yet
                     "title": postTitle,
                     "content": postContent};
     const response = await fetch(
@@ -26,5 +26,5 @@ async function submitForm(){
     // Redirect to post
 }
 
-// Init ausführen wenn Seite geladen ist
+// execute onLoad when page is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());

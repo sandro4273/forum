@@ -17,25 +17,25 @@ function getPostIdFromUrl() {
 
 
 async function loadPost(post_id){
-    // Post laden
+    // load post
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
     const post = await response.json();
     const postTitle = post["result"]["title"];
     const postContent = post["result"]["content"];
     
-    // HTML Elemente einfügen
+    // insert post into HTML
     document.querySelector("#postTitle").textContent = postTitle;
     document.querySelector("#postContent").textContent = postContent;
 }
 
 
 async function loadComments(post_id){
-    // Kommentare laden
+    // load comments
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/");
     const comments = await response.json();
     const commentsArray = comments["result"];
 
-    // HTML Elemente erstellen und einfügen
+    // create HTML elements for each comment and insert them
     for(let i = 0; i < commentsArray.length; i++){
         const newElement = document.createElement('p');
         newElement.textContent = commentsArray[i]["content"];
@@ -46,12 +46,12 @@ async function loadComments(post_id){
 
 async function createComment(event, post_id){
     event.preventDefault();
-    // Kommentar extrahieren
+    // extract comment content
     const content = document.forms["createComment"]["commentContent"].value;
 
-    // Kommentar senden
+    // send comment to backend
     const body = {
-        "user_id": 1, // Account-System noch nicht implementiert
+        "user_id": 1, // account system not implemented yet
         "content": content,
     }
     const response = await fetch(
@@ -60,7 +60,7 @@ async function createComment(event, post_id){
             headers: {"Content-Type" : "application/json"},
             body: JSON.stringify(body),
         });
-    // Kommentarfeld leeren
+    // empty comment form
     document.forms["createComment"]["commentContent"].value = "";
 
     res = await response;
@@ -68,5 +68,5 @@ async function createComment(event, post_id){
 }
 
 
-// Init ausführen wenn Seite geladen ist
+// execute onLoad when page is loaded
 window.addEventListener("DOMContentLoaded", onLoad());
