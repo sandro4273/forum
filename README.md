@@ -8,3 +8,5 @@ Anleitung:
 5. pydantic e-mail validator installieren ('pip install pydantic[email]')
 6. Backendserver mit 'uvicorn api:app --reload' starten
 7. index.html als Live-Server starten (Bei VS Code Icon unten rechts)
+
+Bei CORS error die localhost-Adresse bei api.py in origins hereinkopieren
