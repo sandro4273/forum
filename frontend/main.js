@@ -1,3 +1,7 @@
+// Programmierprojekt Forum, 06.03.2024
+// Luca Flühler, Lucien Ruffet, Sandro Kuster
+// Beschreibung: Hauptseite des Forums
+
 const postList = document.querySelector("#postList");
 
 async function showCurrentUser(){
@@ -38,7 +42,7 @@ async function showCurrentUser(){
     document.getElementById("loggedInUser").style.display = "block";
 }
 
-async function loadPosts(){     // Spöter mal en max. azahl vo gladene Posts ibaue
+async function loadPosts(){     // TODO: Query for filtering posts
     const response = await fetch(BACKENDURL + "post/all/")
     const postsData = await response.json();
     const posts = postsData["result"];
@@ -51,6 +55,7 @@ async function loadPosts(){     // Spöter mal en max. azahl vo gladene Posts ib
         const postElement = document.createElement('p');
         postElement.innerHTML = `<a href="${FRONTENDURL}frontend/pages/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username}`;
         postList.append(postElement);
+
     }
 }
 

@@ -1,4 +1,7 @@
-# Simple CRUD operations for users, posts and comments
+# Programmierprojekt Forum, 06.03.2024
+# Luca Flühler, Lucien Ruffet, Sandro Kuster
+# Beschreibung: Datenbank-Service für das Forum
+
 import sqlite3
 
 conn = sqlite3.connect("forum.db")
@@ -34,6 +37,7 @@ def email_exists(email: str) -> bool:
     return cur.fetchone()[0] == 1
 
 
+# Create functions
 def create_user(username, email, password):
     sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
     cur.execute(sql, (username, email, password))
@@ -69,6 +73,7 @@ def create_chat(user1, user2):
     return cur.lastrowid
 
 
+# Read functions
 def get_user_by_id(user_id):
     sql = "SELECT * FROM users WHERE user_id = ?"
     cur.execute(sql, (user_id,))
@@ -129,6 +134,7 @@ def get_chats_of_user(user_id):
     return cur.fetchall()   # response looks like: [{"chat_id": 1, "user1": 1, "user2": 2, "other_username": "user2"}]
 
 
+# Update functions
 def update_username(user_id, new_name):
     with conn:
         sql = "UPDATE users SET username = ? WHERE user_id = ?"
@@ -153,12 +159,13 @@ def update_comment_content(comment_id, new_content):
         cur.execute(sql, (new_content, comment_id))
 
 
+# Delete functions
 def delete_post_with_comments(post_id):
     with conn:
-        # Post Löschen
+        # Delete Post
         sql = "DELETE FROM posts WHERE post_id = ?"
         cur.execute(sql, (post_id,))
-        # Dazugehörige Kommentare Löschen
+        # Delete Comments of Post
         sql = "DELETE FROM comments WHERE post_id = ?"
         cur.execute(sql, (post_id,))
 
@@ -169,6 +176,7 @@ def delete_comment(comment_id):
         cur.execute(sql, (comment_id, ))
 
 
+# other functions
 def check_chat_exists(user1, user2):
     if user1 == user2:
         return True

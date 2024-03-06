@@ -17,20 +17,20 @@ function getPostIdFromUrl() {
 
 
 async function loadPost(post_id){
-    // Post laden
+    // load post
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
     const post = await response.json();
     const postTitle = post["result"]["title"];
     const postContent = post["result"]["content"];
     
-    // HTML Elemente einfügen
+    // insert post into HTML
     document.querySelector("#postTitle").textContent = postTitle;
     document.querySelector("#postContent").textContent = postContent;
 }
 
 
 async function loadComments(post_id){
-    // Kommentare laden
+    // load comments
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/");
     const commentsData = await response.json();
     const comments = commentsData["result"];
@@ -71,6 +71,7 @@ async function loadComments(post_id){
 
 async function createComment(event, post_id){
     event.preventDefault();
+
     // Extract content from form
     const content = document.forms["createComment"]["commentContent"].value;
 
@@ -98,5 +99,5 @@ async function createComment(event, post_id){
 }
 
 
-// Init ausführen wenn Seite geladen ist
+// execute onLoad when page is loaded
 window.addEventListener("DOMContentLoaded", onLoad());

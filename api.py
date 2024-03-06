@@ -1,3 +1,7 @@
+# Programmierprojekt Forum, 06.03.2024
+# Luca Flühler, Lucien Ruffet, Sandro Kuster
+# Beschreibung: API für das Forum mit FastAPI
+
 from typing import Annotated
 from fastapi import Body, FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,8 +12,9 @@ from jwt import PyJWTError
 from datetime import datetime, timedelta
 import db_service
 
-app = FastAPI()  # test
+app = FastAPI()
 
+# In case of CORS error, add your local host to the list of origins
 origins = [
     "http://localhost",
     "http://localhost:8000",
@@ -89,6 +94,7 @@ def create_access_token(user_id: int):
     return encoded_jwt
 
 
+# Get Requests
 @app.get("/get_current_user_id/")
 async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
@@ -116,12 +122,13 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+        
 @app.get("/post/id/{post_id}/")
 async def get_post_by_id(post_id: int):
     return {"result": db_service.get_post_by_id(post_id)}
 
 
-@app.get("/post/all/")     # Spöter query dass nur en max. azahl an posts glade werded
+@app.get("/post/all/")     # TODO: Implement query parameters for filtering
 async def get_all_posts():
     return {"result": db_service.get_all_posts()}
 
@@ -167,6 +174,7 @@ async def get_chats_of_user(user_id: int):
     return {"result": db_service.get_chats_of_user(user_id)}
 
 
+  # Post-Requests
 @app.post("/user/signup/")
 async def create_user(user_data: SignupData):
     db_service.create_user(user_data.username,
@@ -220,6 +228,7 @@ async def create_chat_message(chat_id: int, user_id: Annotated[int, Body()], mes
     return {"chat_id": chat_id, "user_id": user_id, "message": message}
 
 
+# Put-Requests
 @app.put("/post/id/{post_id}/")
 async def update_post(post_id: int, new_title: Annotated[str, Body()], new_content: Annotated[str, Body()]):
     db_service.update_post_title(post_id, new_title)
@@ -228,13 +237,14 @@ async def update_post(post_id: int, new_title: Annotated[str, Body()], new_conte
 
 
 @app.put("/post/id/{post_id}/comments/id/{comment_id}/")
-async def update_comment(post_id: int, comment_id: int, new_content: Annotated[str, Body()]): # str in Request sende, ned JSON
+async def update_comment(post_id: int, comment_id: int, new_content: Annotated[str, Body()]): # Note: Send a string in your request body, not a JSON
     db_service.update_comment_content(comment_id, new_content)
     return new_content
 
 
+# Delete-Requests
 @app.delete("post/id/{post_id}/")
-async def delete_post_with_comments(post_id: int):  # Beim Löschen von einem Post sollen die Kommentare ebenfalls gelöscht werden
+async def delete_post_with_comments(post_id: int):  # When deleting a post, all comments of the post are deleted as well
     db_service.delete_post_with_comments(post_id)
     return {}
 
