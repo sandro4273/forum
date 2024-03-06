@@ -41,7 +41,6 @@ async function showCurrentUser(){
 async function loadPosts(){     // Spöter mal en max. azahl vo gladene Posts ibaue
     const response = await fetch(BACKENDURL + "post/all/")
     const postsData = await response.json();
-    console.log(postsData); // Debugging
     const posts = postsData["result"];
 
     for (let i = 0; i < posts.length; i++) {

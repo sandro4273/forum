@@ -6,28 +6,17 @@ function onLoad(){
 
 
 async function submitForm(){
-    // Titel und Text extrahieren
+    // Extract text and title from form
     const post_title = document.forms["createPost"]["postTitle"].value;
     const post_content = document.forms["createPost"]["postContent"].value;
 
-    // Retrieve the user_id of the logged in user
-    const auth_token = localStorage.getItem("AuthToken");
-    const user_id_response = await fetch(
-        BACKENDURL + `get_current_user_id/`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${auth_token}`
-        }
-    });
-
-    const user_id = await user_id_response.json();
-
-    // Create post with user_id, title and content
     const body= {
         "title": post_title,
         "content": post_content
     };
+
+    // Create post and retrieve the post_id
+    const auth_token = localStorage.getItem("AuthToken");
 
     const create_post_response = await fetch(
         BACKENDURL + "post/create_post/", {
@@ -40,7 +29,10 @@ async function submitForm(){
         });
 
     let post_id = await create_post_response.json();
+
+    // Redirect to the post page
     window.location.href = "/ProgProjekt_Forum/frontend/pages/post.html?id=" + post_id;
+
     return post_id;
 }
 
