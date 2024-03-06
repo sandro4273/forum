@@ -13,6 +13,30 @@ def close_db():
     conn.close()
 
 
+def login_user(email, password):
+    sql = "SELECT user_id FROM users WHERE email = ? AND password = ?"
+    cur.execute(sql, (email, password))
+
+    result = cur.fetchone()
+
+    if result:
+        return result[0]  # user_id
+    else:
+        return None
+
+
+def username_exists(username: str) -> bool:
+    sql = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)"
+    cur.execute(sql, (username,))
+    return cur.fetchone()[0] == 1
+
+
+def email_exists(email: str) -> bool:
+    sql = "SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)"
+    cur.execute(sql, (email,))
+    return cur.fetchone()[0] == 1
+
+
 # Create functions
 def create_user(username, email, password):
     sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
@@ -54,6 +78,12 @@ def get_user_by_id(user_id):
     sql = "SELECT * FROM users WHERE user_id = ?"
     cur.execute(sql, (user_id,))
     return cur.fetchone()
+
+
+def get_username_by_id(user_id):
+    sql = "SELECT username FROM users WHERE user_id = ?"
+    cur.execute(sql, (user_id,))
+    return cur.fetchone()[0]
 
 
 def get_post_by_id(post_id):

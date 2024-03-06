@@ -3,9 +3,13 @@
 # Beschreibung: API für das Forum mit FastAPI
 
 from typing import Annotated
-from fastapi import Body, FastAPI
+from fastapi import Body, FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, EmailStr, field_validator
+import jwt  # JSON Web Token for user authentication
+from jwt import PyJWTError
+from datetime import datetime, timedelta
 import db_service
 
 app = FastAPI()
@@ -15,18 +19,18 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://localhost:5500",
-    "http://127.0.0.1:5500"
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:8000"
 ]
 
-app.add_middleware( CORSMiddleware,
-                    allow_origins=origins, 
-                    allow_credentials=True, 
-                    allow_methods=["*"], 
-                    allow_headers=["*"])
+app.add_middleware(CORSMiddleware,
+                   allow_origins=origins,
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"])
 
 
 class Post(BaseModel):
-    user_id: int
     title: str
     content: str
 
@@ -36,7 +40,89 @@ class Comment(BaseModel):
     content: str
 
 
-# Get-Requests
+class SignupData(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+
+    @field_validator("username")
+    def username_validator(cls, v):
+        if not v.isalnum():
+            raise ValueError("Username must be alphanumeric")
+        if db_service.username_exists(v):
+            raise ValueError("Username already exists")
+        return v
+
+    @field_validator("email")
+    def email_validator(cls, v):
+        if db_service.email_exists(v):
+            raise ValueError("Email already exists")
+        return v
+
+    @field_validator("password")
+    def password_validator(cls, v):
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+
+        special_characters = set("!@#$%^&*()-_+=~`[]{}|;:'\",.<>/?\\")
+        if not any(c.isupper() for c in v) or \
+           not any(c.islower() for c in v) or \
+           not any(c.isdigit() for c in v) or \
+           not any(c in special_characters for c in v):
+            raise ValueError("Password must have at least one uppercase letter, one lowercase letter, one digit and a "
+                             "special character")
+        return v
+
+
+class LoginData(BaseModel):
+    email: str
+    password: str
+
+
+security = HTTPBearer()
+
+SECRET_KEY = "your-secret-key"  # obviously needs to be moved outside public codebase later
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+def create_access_token(user_id: int):
+    to_encode = {"user_id": user_id}
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+# Get Requests
+@app.get("/get_current_user_id/")
+async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("user_id")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        return user_id
+    except PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@app.get("/get_current_user/")
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("user_id")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        return db_service.get_user_by_id(user_id)
+    except PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+        
 @app.get("/post/id/{post_id}/")
 async def get_post_by_id(post_id: int):
     return {"result": db_service.get_post_by_id(post_id)}
@@ -58,8 +144,19 @@ async def get_comment_by_id(post_id: int, comment_id: int):
 
 
 @app.get("/user/id/{user_id}/")
-async def get_user_by_id(user_id: int):
+async def get_user_by_id(user_id: int, current_user_id: int = Depends(get_current_user_id)):
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="You are not allowed to access this resource")
+
     return {"result": db_service.get_user_by_id(user_id)}
+
+
+@app.get("/user/id/{user_id}/username/")
+async def get_username_by_id(user_id: int):
+    username = db_service.get_username_by_id(user_id)
+    if username is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"username": username}
 
 
 @app.get("/chat/id/{chat_id}/")
@@ -77,22 +174,36 @@ async def get_chats_of_user(user_id: int):
     return {"result": db_service.get_chats_of_user(user_id)}
 
 
-# Post-Requests
+  # Post-Requests
+@app.post("/user/signup/")
+async def create_user(user_data: SignupData):
+    db_service.create_user(user_data.username,
+                           user_data.email,
+                           user_data.password)
+    return user_data
+
+
+@app.post("/user/login/")
+async def login_user(login_data: LoginData):
+    user_id = db_service.login_user(login_data.email, login_data.password)
+    if user_id:
+        auth_token = create_access_token(user_id)
+        return {"auth_token": auth_token, "token_type": "bearer"}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
 @app.post("/post/create_post/")
-async def create_post(post: Post):
-    db_service.create_post(post.user_id,
-                           post.title,
-                           post.content)
-    return post
+async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)):
+    post_id = db_service.create_post(current_user_id, post.title, post.content)
+    return post_id
 
 
 @app.post("/post/id/{post_id}/create_comment/")
-async def create_comment(post_id: int, comment: Comment):
-    # Testen, ob ein Post mit post_id existiert
-    if(db_service.get_post_by_id(post_id)):
-        db_service.create_comment(post_id,
-                                comment.user_id,
-                                comment.content)
+async def create_comment(post_id: int, comment: Comment, current_user_id: int = Depends(get_current_user_id)):
+    # Check if post exists and a user is logged in
+    if db_service.get_post_by_id(post_id) and current_user_id:
+        db_service.create_comment(post_id, current_user_id, comment.content)
     else:
         return {"Failed": "Post does not exist"}
     return comment
