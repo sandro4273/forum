@@ -6,24 +6,34 @@ function onLoad(){
 
 
 async function submitForm(){
-    // extract title and content from form
-    const postTitle = document.forms["createPost"]["postTitle"].value;
-    const postContent = document.forms["createPost"]["postContent"].value;
+    // Extract text and title from form
+    const post_title = document.forms["createPost"]["postTitle"].value;
+    const post_content = document.forms["createPost"]["postContent"].value;
 
-    // API request
-    const body= {   "user_id": 1,   // account system not implemented yet
-                    "title": postTitle,
-                    "content": postContent};
-    const response = await fetch(
+    const body= {
+        "title": post_title,
+        "content": post_content
+    };
+
+    // Create post and retrieve the post_id
+    const auth_token = localStorage.getItem("AuthToken");
+
+    const create_post_response = await fetch(
         BACKENDURL + "post/create_post/", {
             method: "POST", 
-            headers: {"Content-Type" : "application/json"},
+            headers: {
+                "Content-Type" : "application/json",
+                "Authorization": `Bearer ${auth_token}`
+            },
             body: JSON.stringify(body),
         });
-    res = await response.json();
-    return response;
-    
-    // Redirect to post
+
+    let post_id = await create_post_response.json();
+
+    // Redirect to the post page
+    window.location.href = "/ProgProjekt_Forum/frontend/pages/post.html?id=" + post_id;
+
+    return post_id;
 }
 
 // execute onLoad when page is fully loaded
