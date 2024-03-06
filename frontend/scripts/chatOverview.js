@@ -5,7 +5,7 @@ function onLoad() {
 
 async function loadChats() {
     // Load all chats of user
-    const response = await fetch(BACKENDURL + "user/id/1/chats/all/"); // Account-System noch nicht implementiert
+    const response = await fetch(BACKENDURL + "user/id/1/chats/all/"); // account system not implemented yet
     const chats = await response.json();
     const chatsArray = chats["result"];
     console.log(chatsArray);
@@ -20,5 +20,5 @@ async function loadChats() {
     }
 }
 
-// onLoad ausführen wenn Seite vollständig geladen ist
+// execute onLoad when page is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
