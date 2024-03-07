@@ -53,9 +53,10 @@ async function loadTags(post_id){
     const tagsData = await response.json();
     const tags = tagsData["result"];
 
+    // Check if there are any tags
+    document.querySelector("#tags").style.display = tags.length > 0 ? "block" : "none";
     // Create HTML elements for each tag
     const tagList = document.querySelector("#tags");
-    //tagList.innerHTML = ""; // Clear the tag list
 
     for(let i = 0; i < tags.length; i++){
         const tag = tags[i];
