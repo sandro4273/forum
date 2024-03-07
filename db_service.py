@@ -52,6 +52,21 @@ def create_post(user_id, title, content):
     return cur.lastrowid
 
 
+def create_tag(tag_name):
+    # Check if tag already exists
+    sql = "SELECT tag_id FROM tags WHERE tag_name = ?"
+    cur.execute(sql, (tag_name,))
+    result = cur.fetchone()
+    if result:  # tag already exists
+        return result[0] # return tag_id
+    
+    # otherwise create new tag
+    sql = "INSERT INTO tags (tag_name) VALUES (?)"
+    cur.execute(sql, (tag_name,))
+    conn.commit()
+    return cur.lastrowid
+
+
 def create_comment(post_id, user_id, content):
     sql = "INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)"
     cur.execute(sql, (post_id, user_id, content))
@@ -95,6 +110,18 @@ def get_post_by_id(post_id):
 def get_all_posts():
     sql = "SELECT * FROM posts"
     cur.execute(sql)
+    return cur.fetchall()
+
+
+def get_tags_of_post(post_id):
+    sql = "SELECT tags.tag_name FROM tags JOIN post_tags ON tags.tag_id = post_tags.tag_id WHERE post_tags.post_id = ?"
+    cur.execute(sql, (post_id,))
+    return cur.fetchall()
+
+
+def get_posts_with_tag(tag_name):
+    sql = "SELECT posts.* FROM posts JOIN post_tags ON posts.post_id = post_tags.post_id JOIN tags ON post_tags.tag_id = tags.tag_id WHERE tags.tag_name = ?"
+    cur.execute(sql, (tag_name,))
     return cur.fetchall()
 
 
@@ -151,6 +178,24 @@ def update_post_content(post_id, new_content):
     with conn:
         sql = "UPDATE posts SET content = ? WHERE post_id = ?"
         cur.execute(sql, (new_content, post_id))
+
+
+def update_tags_of_post(post_id, new_tags :list):
+    with conn:
+        # Delete old tags
+        sql = "DELETE FROM post_tags WHERE post_id = ?"
+        cur.execute(sql, (post_id,))
+        # Add new tags
+        for tag in new_tags:
+            tag_id = create_tag(tag)
+            sql = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)"
+            cur.execute(sql, (post_id, tag_id))
+
+
+def add_tag_to_post(post_id, tag_name):
+    tag_id = create_tag(tag_name)
+    sql = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)"
+    cur.execute(sql, (post_id, tag_id))
 
 
 def update_comment_content(comment_id, new_content):
