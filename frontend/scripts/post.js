@@ -7,6 +7,7 @@ function onLoad(){
 
     toggleCommentFormVisibility();
     loadPost(postId);
+    loadTags(postId);
     loadComments(postId);
 }
 
@@ -46,6 +47,23 @@ async function loadPost(post_id){
     document.querySelector("#postContent").textContent = postContent;
 }
 
+async function loadTags(post_id){
+    // load tags
+    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/tags/all/");
+    const tagsData = await response.json();
+    const tags = tagsData["result"];
+
+    // Create HTML elements for each tag
+    const tagList = document.querySelector("#tags");
+    //tagList.innerHTML = ""; // Clear the tag list
+
+    for(let i = 0; i < tags.length; i++){
+        const tag = tags[i];
+        const tagElement = document.createElement('span');
+        tagElement.textContent = tag["tag_name"] + "  |  ";
+        tagList.appendChild(tagElement);
+    }
+}
 
 async function loadComments(post_id){
     // load comments
