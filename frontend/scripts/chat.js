@@ -2,16 +2,31 @@
 async function onLoad() {
     // Get partner username
     const chatId = getChatIdFromUrl();
-    const partnerId = await getChatPartnerId(chatId, 1);
-    const partnerUsername = await getUsernameById(partnerId);
+    const chatData = await fetch(BACKENDURL + "chat/id/" + chatId + "/");
+    const chat = await chatData.json();
+    const user1Id = chat["result"]["user1"];
+    const user2Id = chat["result"]["user2"];
 
-    // Set chat title as Chat mit [partnerUsername]
+    const currentUserId = await getCurrentUserId();
+
+    // Must be logged in to access the chat
+    if (!currentUserId) return;
+
+    // Check if current user is permitted to access the chat
+    const isChatPartner = await isUserChatPartner(currentUserId);
+    if (!await isUserChatPartner(currentUserId)) return;
+
+    // Get partner id
+    const partnerId = currentUserId === user1Id ? user2Id : user1Id;
+
+    // Set chat title
+    const partnerUsername = await getUsernameById(partnerId);
     const chatTitle = document.querySelector("#chatTitle");
     chatTitle.textContent = "Chat mit " + partnerUsername
 
     // Add event listener to send message button and load messages
     document.querySelector("#sendMessage").addEventListener("click", sendMessage);
-    loadMessages(chatId);
+    await loadMessages(chatId);
 }
 
 function getChatIdFromUrl() {
@@ -20,33 +35,51 @@ function getChatIdFromUrl() {
 }
 
 async function getUsernameById(user_id) {
-    const response = await fetch(BACKENDURL + "user/id/" + user_id + "/");
+    const response = await fetch(BACKENDURL + "user/id/" + user_id + "/username/");
     const user = await response.json();
-    return user["result"]["username"];
+    return user["username"];
 }
 
+async function isUserChatPartner(userId) {
+    const chatId = getChatIdFromUrl();
+    const chatData = await fetch(BACKENDURL + "chat/id/" + chatId + "/");
+    const chat = await chatData.json();
+    const user1Id = chat["result"]["user1"];
+    const user2Id = chat["result"]["user2"];
 
-async function getChatPartnerId(chat_id, user1) {
-    const response = await fetch(BACKENDURL + "chat/id/" + chat_id + "/");
-    const chat = await response.json();
-    // Partner ID is the user_id of the other user in the chat
-    const partner_id = chat["result"]["user1"] == user1 ? chat["result"]["user2"] : chat["result"]["user1"];
-    return partner_id;
+    return userId === user1Id || userId === user2Id;
+}
+
+async function getCurrentUserId() {
+    const response = await fetch(
+        BACKENDURL + "get_current_user_id/", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("AuthToken")}`
+            }
+        }
+    );
+
+    // If no user is logged in, return null
+    if (!response.ok) return null;
+    return await response.json();
 }
 
 async function loadMessages(chat_id) {
     const messageList = document.querySelector("#messageList");
+
     // Load all messages of chat
     const response = await fetch(BACKENDURL + "chat/id/" + chat_id + "/messages/all/");
-    const messages = await response.json();
-    const messagesArray = messages["result"];
+    const messagesData = await response.json();
+    const messages = messagesData["result"];
 
     // Create HTML elements for each message and append them
-    for (let i = 0; i < messagesArray.length; i++) {
+    for (let i = 0; i < messages.length; i++) {
         // get message content  
-        const msgContent = messagesArray[i]["message"];
+        const msgContent = messages[i]["message"];
         // get username of sender
-        const sentById = messagesArray[i]["sent_by"];
+        const sentById = messages[i]["sent_by"];
         const username = await getUsernameById(sentById);
         // insert HTML element
         const newElement = document.createElement('p');
@@ -59,6 +92,7 @@ async function loadMessages(chat_id) {
 
 async function sendMessage(event) {
     event.preventDefault();
+
     // Extract chatId and message content
     const chatId = getChatIdFromUrl();
     const messageContent = document.querySelector("#messageContent");

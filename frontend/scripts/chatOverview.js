@@ -5,19 +5,32 @@ function onLoad() {
 
 async function loadChats() {
     // Load all chats of user
-    const response = await fetch(BACKENDURL + "user/id/1/chats/all/"); // account system not implemented yet
-    const chats = await response.json();
-    const chatsArray = chats["result"];
-    console.log(chatsArray);
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "user/chats/all/", {
+            method: "GET",
+            headers: {
+                "Content-Type" : "application/json",
+                "Authorization": `Bearer ${auth_token}`
+            }
+        }
+    );
+
+    const chatsData = await response.json();
+    const chats = chatsData["result"];
+    // console.log(chatsData);
 
     // Create HTML elements and append them
-    for (let i = 0; i < chatsArray.length; i++) {
+    chats.forEach(chat => {
         const link = document.createElement('a');
-        link.setAttribute("href", FRONTENDURL + "frontend/pages/chat.html?id=" + chatsArray[i]["chat_id"]);
-        const newElement = document.createElement('p');
-        newElement.appendChild(link).textContent = chatsArray[i]["other_username"];
-        document.querySelector("#chatList").append(newElement);
-    }
+        link.href = `${FRONTENDURL}frontend/pages/chat.html?id=${chat.chat_id}`;
+        link.textContent = chat.other_username;
+
+        const chatElement = document.createElement('p');
+        chatElement.appendChild(link);
+
+        document.querySelector("#chatList").appendChild(chatElement);
+    });
 }
 
 // execute onLoad when page is fully loaded
