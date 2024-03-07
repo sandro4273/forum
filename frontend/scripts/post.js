@@ -1,12 +1,30 @@
 // Funktion wird ausgeführt wenn Seite geladen ist
 function onLoad(){
-    const commentList = document.querySelector("#commentList");
+    // Get post ID from URL
     let postId = getPostIdFromUrl();
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     //console.log(postId);
 
+    toggleCommentFormVisibility();
     loadPost(postId);
     loadComments(postId);
+}
+
+async function toggleCommentFormVisibility(){
+    // Check if user is logged in
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + `get_current_user_id/`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${auth_token}`
+        }
+    });
+
+    // If user is logged in, display the comment form
+    const commentForm = document.getElementById('commentForm');
+    commentForm.style.display = response.ok ? 'block' : 'none';
 }
 
 // Extract the post ID from the URL
@@ -35,7 +53,10 @@ async function loadComments(post_id){
     const commentsData = await response.json();
     const comments = commentsData["result"];
 
-    // HTML Elemente erstellen und einfügen
+    // Create HTML elements for each comment
+    const commentList = document.querySelector("#commentList");
+    commentList.innerHTML = ""; // Clear the comment list
+
     for(let i = 0; i < comments.length; i++){
         const comment = comments[i];
 
@@ -91,6 +112,9 @@ async function createComment(event, post_id){
             },
             body: JSON.stringify(body),
         });
+
+    // Reload comments
+    loadComments(post_id);
 
     // Clear comment form
     document.forms["createComment"]["commentContent"].value = "";
