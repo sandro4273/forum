@@ -168,9 +168,9 @@ async def get_messages_of_chat(chat_id: int):
     return {"result": db_service.get_messages_of_chat(chat_id)}
 
 
-@app.get("/user/id/{user_id}/chats/all/")
-async def get_chats_of_user(user_id: int):
-    return {"result": db_service.get_chats_of_user(user_id)}
+@app.get("/user/chats/all/")
+async def get_chats_of_user(current_user_id: int = Depends(get_current_user_id)):
+    return {"result": db_service.get_chats_of_user(current_user_id)}
 
 
   # Post-Requests
