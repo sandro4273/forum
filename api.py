@@ -11,6 +11,7 @@ import jwt  # JSON Web Token for user authentication
 from jwt import PyJWTError
 from datetime import datetime, timedelta
 import db_service
+import tag_management as tm
 
 app = FastAPI()
 
@@ -132,6 +133,16 @@ async def get_all_posts():
     return {"result": db_service.get_all_posts()}
 
 
+@app.get("/post/tag/{tag}/")  # Maybe use query parameters instead of path parameters
+async def get_posts_with_tag(tag: str):
+    return {"result": db_service.get_posts_with_tag(tag)}
+
+
+@app.get("/post/id/{post_id}/tags/all/")
+async def get_tags_of_post(post_id: int):
+    return {"result": db_service.get_tags_of_post(post_id)}
+
+
 @app.get("/post/id/{post_id}/comments/all/")
 async def get_comments_of_post(post_id: int):
     return {"result": db_service.get_comments_of_post(post_id)}
@@ -173,7 +184,7 @@ async def get_chats_of_user(current_user_id: int = Depends(get_current_user_id))
     return {"result": db_service.get_chats_of_user(current_user_id)}
 
 
-  # Post-Requests
+# Post-Requests
 @app.post("/user/signup/")
 async def create_user(user_data: SignupData):
     db_service.create_user(user_data.username,
@@ -195,6 +206,8 @@ async def login_user(login_data: LoginData):
 @app.post("/post/create_post/")
 async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)):
     post_id = db_service.create_post(current_user_id, post.title, post.content)
+    tags = tm.assign_tags_to_post(post.title, post.content)
+    db_service.update_tags_of_post(post_id, tags)
     return post_id
 
 
