@@ -76,19 +76,36 @@ async function loadMessages(chat_id) {
 
     // Create HTML elements for each message and append them
     for (let i = 0; i < messages.length; i++) {
-        // get message content  
-        const msgContent = messages[i]["message"];
+        const message = messages[i];
+
         // get username of sender
-        const sentById = messages[i]["sent_by"];
+        const sentById = message["sent_by"];
         const username = await getUsernameById(sentById);
-        // insert HTML element
-        const newElement = document.createElement('p');
-        newElement.textContent = username + ": " + msgContent;
-        messageList.append(newElement);
+
+        // Create a container for the comment
+        const messageContainer = document.createElement('div');
+
+        // Display creation time (in gray)
+        const timestampElement = document.createElement('span');
+        timestampElement.textContent = message["created_at"];
+        timestampElement.style.color = "gray";
+        messageContainer.appendChild(timestampElement);
+
+        // Display user ID
+        const usernameElement = document.createElement('span');
+        usernameElement.textContent = " - " + username + ": ";
+        messageContainer.appendChild(usernameElement);
+
+        // Display comment content
+        const msgContentElement = document.createElement('span');
+        msgContentElement.textContent = message["message"];
+        messageContainer.appendChild(msgContentElement);
+
+        // Append the comment container to the comment list
+        messageList.appendChild(messageContainer);
     }
 
 }
-
 
 async function sendMessage(event) {
     event.preventDefault();
