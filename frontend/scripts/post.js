@@ -1,14 +1,14 @@
 // Funktion wird ausgeführt wenn Seite geladen ist
-function onLoad(){
+async function onLoad(){
     // Get post ID from URL
     let postId = getPostIdFromUrl();
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     //console.log(postId);
 
-    toggleCommentFormVisibility();
-    loadPost(postId);
-    loadTags(postId);
-    loadComments(postId);
+    await toggleCommentFormVisibility();
+    await loadPost(postId);
+    await loadTags(postId);
+    await loadComments(postId);
 }
 
 async function toggleCommentFormVisibility(){
@@ -133,7 +133,7 @@ async function createComment(event, post_id){
         });
 
     // Reload comments
-    loadComments(post_id);
+    await loadComments(post_id);
 
     // Clear comment form
     document.forms["createComment"]["commentContent"].value = "";

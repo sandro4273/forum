@@ -152,7 +152,7 @@ def create_access_token(user_id: int) -> str:
 
     # Encode the token using the secret key and algorithm
     encoded_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_token.decode("utf-8")
+    return encoded_token
 
 
 # Get Requests
@@ -169,7 +169,7 @@ async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depend
     """
 
     try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithm=ALGORITHM)
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
 
         if not user_id:  # Token is not valid
@@ -278,6 +278,7 @@ async def create_user(user_data: SignupData):
 @app.post("/user/login/")
 async def login_user(login_data: LoginData):
     user_id = db_service.login_user(login_data.email, login_data.password)
+
     if user_id:
         auth_token = create_access_token(user_id)
         return {"auth_token": auth_token, "token_type": "bearer"}
@@ -286,7 +287,7 @@ async def login_user(login_data: LoginData):
 
 
 @app.post("/post/create_post/")
-async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)):
+async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)) -> int:
     post_id = db_service.create_post(current_user_id, post.title, post.content)
     tags = tm.assign_tags_to_post(post.title, post.content)
     db_service.update_tags_of_post(post_id, tags)
