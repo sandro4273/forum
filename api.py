@@ -353,13 +353,17 @@ async def update_comment(post_id: int, comment_id: int, new_content: Annotated[s
 
 
 # Delete-Requests
-@app.delete("post/id/{post_id}/")
-async def delete_post_with_comments(post_id: int):  # When deleting a post, all comments of the post are deleted as well
+@app.delete("/post/id/{post_id}/delete/")
+async def delete_post_with_comments(post_id: int, user_id: int = Depends(get_current_user_id)):  # When deleting a post, all comments of the post are deleted as well
+    print("TSTSTETSETSTSETESTSETEWT")
+    if user_id != db_service.get_author_id_of_post(post_id):
+        raise HTTPException(status_code=403, detail="You are not allowed to delete this post")
+    
     db_service.delete_post_with_comments(post_id)
     return {}
 
 
-@app.delete("post/id/{post_id}/comments/id/{comment_id}")
+@app.delete("/post/id/{post_id}/comments/id/{comment_id}/")
 async def delete_comment_by_id(post_id: int, comment_id: int):
     db_service.delete_comment(comment_id)
     return {}

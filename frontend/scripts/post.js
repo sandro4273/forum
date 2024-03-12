@@ -1,19 +1,57 @@
 // Funktion wird ausgeführt wenn Seite geladen ist
+
+// Global variables
+let currentUserId = null;
+let currentUsername = null;
+let currentUserRole = null;
+
+let authorId = null;
+let authorUsername = null;
+
+let post = null;
+
 async function onLoad(){
-    // Get post ID from URL
     let postId = getPostIdFromUrl();
+    // Load user data
+    currentUserId = await getCurrentUserId();
+    if(currentUserId){
+        currentUsername = await getUsername(currentUserId);
+        currentUserRole = await getRole(currentUsername);
+    }
+    // Load post data
+    post = await getPost(postId);
+    authorId = post["result"]["user_id"];
+    authorUsername = await getUsername(authorId);
+
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
-    //console.log(postId);
+    document.querySelector("#deletePostButton").addEventListener("click", () => deletePost(postId));
 
-    await toggleCommentFormVisibility();
+    await toggleSiteVisibility();
     await loadPost(postId);
     await loadTags(postId);
     await loadComments(postId);
 }
 
-async function toggleCommentFormVisibility(){
-    // Check if user is logged in
+async function toggleSiteVisibility(){
+    // If a user is logged in, display the comment form
+    const commentForm = document.getElementById('commentForm');
+    commentForm.style.display = currentUserId ? 'block' : 'none';
+
+    // If the user is an admin/moderator or the author, display the delete button
+    const deletePostButton = document.getElementById('deletePostButton');
+    if (currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === authorUsername)){
+        deletePostButton.style.display = 'inline-block';
+    }
+
+    // If the user is the author, display the edit button
+    const editPostButton = document.getElementById('editPostButton');
+    if (currentUserId && currentUsername === authorUsername){
+        editPostButton.style.display = 'inline-block';
+    }
+}
+
+async function getCurrentUserId(){
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
         BACKENDURL + `get_current_user_id/`, {
@@ -23,10 +61,21 @@ async function toggleCommentFormVisibility(){
             "Authorization": `Bearer ${auth_token}`
         }
     });
+    const id = await response.json();
 
-    // If user is logged in, display the comment form
-    const commentForm = document.getElementById('commentForm');
-    commentForm.style.display = response.ok ? 'block' : 'none';
+    return response.ok ? id : null;
+}
+
+async function getPost(postId){
+    const response = await fetch(BACKENDURL + `post/id/${postId}/`);
+    const post = await response.json();
+    return response.ok ? post : null;
+}
+
+async function getUsername(userId){
+    const response = await fetch(BACKENDURL + `user/id/${userId}/username/`);
+    const username = await response.json();
+    return response.ok ? username["username"] : null;
 }
 
 // Extract the post ID from the URL
@@ -38,21 +87,15 @@ function getPostIdFromUrl() {
 
 async function loadPost(post_id){
     // load title and content
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
-    const post = await response.json();
     const postTitle = post["result"]["title"];
     const postContent = post["result"]["content"];
 
     // load author and role
-    const usernameResponse = await fetch(BACKENDURL + "user/id/" + post["result"]["user_id"] + "/username/");
-    const usernameData = await usernameResponse.json();
-    const username = usernameData["username"];
-
-    const userRole = await getRole(username);
-    const roleColor = getRoleColor(userRole);
+    const authorRole = await getRole(authorUsername);
+    const roleColor = getRoleColor(authorRole);
     
     // insert post into HTML
-    document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
+    document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${authorUsername} <span style="color: ${roleColor}">(${authorRole})</span>`;
     document.querySelector("#postContent").textContent = postContent;
 }
 
@@ -204,7 +247,24 @@ async function submitEditPostFunction(post_id){
     
 
     // Reload the site
-    //location.reload();
+    location.reload();
+}
+
+async function deletePost(post_id){
+    // Send the delete request
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "post/id/" + post_id + "/delete/", {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${auth_token}`
+            },
+        });
+
+    // Redirect to the index page, but only if the request was successful
+    if(response.ok){
+        window.location.href = "/frontend/index.html";
+    }
 }
 
 // execute onLoad when page is loaded
