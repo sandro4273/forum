@@ -169,6 +169,11 @@ async def get_username_by_id(user_id: int):
     return {"username": username}
 
 
+@app.get("/user/name/{username}/role/")
+async def get_role_of_user_by_name(username: str):
+    return {"role": db_service.get_role_of_user_by_name(username)}
+
+
 @app.get("/chat/id/{chat_id}/")
 async def get_chat_by_id(chat_id: int):
     return {"result": db_service.get_chat_by_id(chat_id)}

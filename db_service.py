@@ -101,6 +101,12 @@ def get_username_by_id(user_id):
     return cur.fetchone()[0]
 
 
+def get_role_of_user_by_name(username):
+    sql = "SELECT role FROM users WHERE username = ?"
+    cur.execute(sql, (username,))
+    return cur.fetchone()[0]
+
+
 def get_post_by_id(post_id):
     sql = "SELECT * FROM posts WHERE post_id = ?"
     cur.execute(sql, (post_id,))
@@ -166,6 +172,15 @@ def update_username(user_id, new_name):
     with conn:
         sql = "UPDATE users SET username = ? WHERE user_id = ?"
         cur.execute(sql, (new_name, user_id))
+
+
+def update_role(user_id, new_role):
+    if new_role not in ["user", "moderator", "admin"]:
+        return "Invalid role"
+    
+    with conn:
+        sql = "UPDATE users SET role = ? WHERE user_id = ?"
+        cur.execute(sql, (new_role, user_id))
 
 
 def update_post_title(post_id, new_title):
