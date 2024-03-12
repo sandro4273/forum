@@ -3,6 +3,7 @@ async function onLoad(){
     // Get post ID from URL
     let postId = getPostIdFromUrl();
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
+    document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
     //console.log(postId);
 
     await toggleCommentFormVisibility();
@@ -158,6 +159,51 @@ async function createComment(event, post_id){
     return await create_comment_response.json();
 }
 
+
+async function editPost(post_id){
+    // Get the post content
+    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
+    const post = await response.json();
+    const postContent = post["result"]["content"];
+
+    // Hide the post content and button
+    const postContentElement = document.querySelector("#postContent");
+    postContentElement.setAttribute("style", "display: none;");
+    const editPostButton = document.querySelector("#editPostButton");
+    editPostButton.setAttribute("style", "display: none;");
+
+    // Show input field with the post content
+    const editPostDiv = document.querySelector("#editPost");
+    console.log(editPostDiv)
+    editPostDiv.style.display = "block";
+    const editPostInput = document.querySelector("#editPostInput");
+    editPostInput.value = postContent;
+    editPostInput.setAttribute("style", "show: block;");
+    
+    // Add event listener to the submit button
+    const submitEditPost= document.querySelector("#submitEditPost");
+    submitEditPost.addEventListener("click", () => submitEditPostFunction(post_id));
+}
+
+async function submitEditPostFunction(post_id){
+    // Get the new post content
+    const newPostContent = document.querySelector("#editPostInput").value;
+
+    // Send the new post content to the backend
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "post/id/" + post_id + "/edit/", {
+            method: "PUT",
+            headers: {
+                "Content-Type" : "application/json",
+                "Authorization": `Bearer ${auth_token}`
+            },
+            body: JSON.stringify({"content": newPostContent}),
+        });
+
+    // Reload the site
+    //location.reload();
+}
 
 // execute onLoad when page is loaded
 window.addEventListener("DOMContentLoaded", onLoad());
