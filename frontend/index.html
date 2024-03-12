@@ -37,7 +37,16 @@
             <input class="search-bar" type="text" placeholder="Search">
         </div>
         <div class="right-section">
-            right
+            <div id="authButtons">
+                <a href="/frontend/pages/login.html">Anmelden</a>
+                <a href="/frontend/pages/signup.html">Registrieren</a>
+            </div>
+            <div id="loggedInUser" style="display:none;">
+                Eingeloggt als <span id="username"></span> (<span id="email"></span>)
+                <button id="logoutButton" type="button">Abmelden</button>
+                <a href="/frontend/pages/chatOverview.html">Chats</a><br>
+                <a href="/frontend/pages/createPost.html">Erstelle einen Post!</a>
+            </div>
         </div>
 
     </div>
@@ -51,16 +60,8 @@
 
 
     <h1>Forum</h1>
-    <div id="authButtons">
-        <a href="/frontend/pages/login.html">Anmelden</a>
-        <a href="/frontend/pages/signup.html">Registrieren</a>
-    </div>
-    <div id="loggedInUser" style="display:none;">
-        Eingeloggt als <span id="username"></span> (<span id="email"></span>)
-        <button id="logoutButton" type="button">Abmelden</button>
-        <a href="/frontend/pages/chatOverview.html">Chats</a><br>
-        <a href="/frontend/pages/createPost.html">Erstelle einen Post!</a>
-    </div>
+    
+    
     <hr>
     <p>Aktuelle Posts</p>
     <hr>
