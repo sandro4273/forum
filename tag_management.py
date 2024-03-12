@@ -3,10 +3,11 @@ import yake
 import spacy
 
 # Load spaCy model
+# Download first: python -m spacy download en_core_web_sm
 nlp = spacy.load("en_core_web_sm")
 
 # YAKE keyword extractor
-yake_extractor = yake.KeywordExtractor(lan='en', n=1)
+yake_extractor = yake.KeywordExtractor(lan='en', n=2, top=10)
 
 
 def extract_entities(text):
@@ -69,6 +70,29 @@ def extract_keywords(text):
 
     return list(set(final_keywords))
 
+
+def filter_keywords(keywords):
+    """
+    Filters out irrelevant keywords from a list of keywords.
+    Args:
+        keywords: A list of keywords (strings).
+
+    Returns:
+        A list of filtered keywords (strings).
+    """
+
+    # Filter out keywords which contain a number
+    keywords = [keyword for keyword in keywords if not any(char.isdigit() for char in keyword)]
+
+    # Filter out keywords with less than two letters
+    filtered_keywords = [keyword for keyword in keywords if len([c for c in keyword if c.isalpha()]) >= 2]
+
+    # Filter out stopwords
+    filtered_keywords = [keyword for keyword in filtered_keywords if not nlp.vocab[keyword].is_stop]
+
+    return filtered_keywords
+
+
 def assign_tags_to_post(post_title, post_content):
     """
     Assigns tags to a post based on its title and content.
@@ -82,7 +106,7 @@ def assign_tags_to_post(post_title, post_content):
 
     # Extract keywords from post
     TEXT = post_title + ": " + post_content
-    text_keywords = extract_keywords(TEXT)
+    text_keywords = filter_keywords(extract_keywords(TEXT))
 
     # Create tags from keywords. Manipulates the database.
     tags = []
