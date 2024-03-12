@@ -36,14 +36,22 @@ function getPostIdFromUrl() {
 
 
 async function loadPost(post_id){
-    // load post
+    // load title and content
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
     const post = await response.json();
     const postTitle = post["result"]["title"];
     const postContent = post["result"]["content"];
+
+    // load author and role
+    const usernameResponse = await fetch(BACKENDURL + "user/id/" + post["result"]["user_id"] + "/username/");
+    const usernameData = await usernameResponse.json();
+    const username = usernameData["username"];
+
+    const userRole = await getRole(username);
+    const roleColor = getRoleColor(userRole);
     
     // insert post into HTML
-    document.querySelector("#postTitle").textContent = postTitle;
+    document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
     document.querySelector("#postContent").textContent = postContent;
 }
 
@@ -84,6 +92,10 @@ async function loadComments(post_id){
         const usernameData = await usernameResponse.json();
         const username = usernameData["username"];
 
+        // Get role of the user who created the comment
+        const userRole = await getRole(username);
+        const roleColor = getRoleColor(userRole);
+
         // Create a container for the comment
         const commentContainer = document.createElement('div');
 
@@ -93,10 +105,15 @@ async function loadComments(post_id){
         creationTimeElement.style.color = "gray";
         commentContainer.appendChild(creationTimeElement);
 
-        // Display user ID
+        // Display user ID and role
         const userIDElement = document.createElement('span');
-        userIDElement.textContent = " - " + username + ": ";
+        userIDElement.textContent = " - " + username;
         commentContainer.appendChild(userIDElement);
+        const roleElement = document.createElement('span');
+
+        roleElement.textContent = ` (${userRole}): `;
+        roleElement.style.color = roleColor;
+        commentContainer.appendChild(roleElement);
 
         // Display comment content
         const commentContentElement = document.createElement('span');
