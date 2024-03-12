@@ -28,7 +28,13 @@ async function submitForm(){
             body: JSON.stringify(body),
         });
 
+    if (!create_post_response.ok){
+        document.getElementById("errorMessage").style.display = "block";
+        return;
+    }
+
     let post_id = await create_post_response.json();
+    console.log(post_id);
 
     // Redirect to the post page
     window.location.href = "/frontend/pages/post.html?id=" + post_id;

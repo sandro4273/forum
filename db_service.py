@@ -58,7 +58,7 @@ def create_tag(tag_name):
     cur.execute(sql, (tag_name,))
     result = cur.fetchone()
     if result:  # tag already exists
-        return result[0] # return tag_id
+        return result[0]  # return tag_id
     
     # otherwise create new tag
     sql = "INSERT INTO tags (tag_name) VALUES (?)"
@@ -195,16 +195,19 @@ def update_post_content(post_id, new_content):
         cur.execute(sql, (new_content, post_id))
 
 
-def update_tags_of_post(post_id, new_tags :list):
+def update_tags_of_post(post_id, new_tags: list):
+    unique_tags = set(new_tags)  # Convert list to set to remove duplicates
+
     with conn:
         # Delete old tags
-        sql = "DELETE FROM post_tags WHERE post_id = ?"
-        cur.execute(sql, (post_id,))
-        # Add new tags
-        for tag in new_tags:
+        sql_delete = "DELETE FROM post_tags WHERE post_id = ?"
+        cur.execute(sql_delete, (post_id,))
+
+        # Add new unique tags
+        sql_insert = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)"
+        for tag in unique_tags:
             tag_id = create_tag(tag)
-            sql = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)"
-            cur.execute(sql, (post_id, tag_id))
+            cur.execute(sql_insert, (post_id, tag_id))
 
 
 def add_tag_to_post(post_id, tag_name):

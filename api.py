@@ -5,14 +5,15 @@
 from typing import Annotated
 from fastapi import Body, FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, EmailStr, field_validator
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials  # For user authentication
+from pydantic import BaseModel, EmailStr, field_validator  # For data validation
 import jwt  # JSON Web Token for user authentication
-from jwt import PyJWTError
-from datetime import datetime, timedelta
-import db_service
-import tag_management as tm
+from jwt import PyJWTError  # Gets thrown in case the JWT is not valid
+from datetime import datetime, timedelta  # For token expiration
+import db_service  # Allows the manipulation and reading of the database
+import tag_management as tm  # Allows the assignment of tags to posts
 
+# Initialize FastAPI
 app = FastAPI()
 
 # In case of CORS error, add your local host to the list of origins
@@ -30,23 +31,50 @@ app.add_middleware(CORSMiddleware,
                    allow_methods=["*"],
                    allow_headers=["*"])
 
+# Security for user authentication: Authorization header with Bearer token
+security = HTTPBearer()
+
+# Authorization configuration
+SECRET_KEY = "your-secret-key"  # TODO: Move outside of the public codebase
+ALGORITHM = "HS256"  # Algorithm used for encoding the token
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # TODO: Change to a lower value for production
+
 
 class Post(BaseModel):
+    """
+    Contains the title and content of a post.
+    """
     title: str
     content: str
 
 
 class Comment(BaseModel):
+    """
+    Contains the text content of a comment.
+    """
     content: str
 
 
 class SignupData(BaseModel):
+    """
+    Contains all necessary data to create a new user.
+    """
     username: str
     email: EmailStr
     password: str
 
     @field_validator("username")
     def username_validator(cls, v):
+        """
+        Validates the username. It must be alphanumeric and not already exist in the database.
+
+        Args:
+            v: The username (string).
+
+        Returns:
+            The username if it is valid. Otherwise, raises a ValueError.
+        """
+
         if not v.isalnum():
             raise ValueError("Username must be alphanumeric")
         if db_service.username_exists(v):
@@ -55,12 +83,34 @@ class SignupData(BaseModel):
 
     @field_validator("email")
     def email_validator(cls, v):
+        """
+        Validates the email. It must not already exist in the database.
+        EmailStr already checks if the email format is valid.
+
+        Args:
+            v: The email (string).
+
+        Returns:
+            The email if it is valid. Otherwise, raises a ValueError.
+        """
+
         if db_service.email_exists(v):
             raise ValueError("Email already exists")
         return v
 
     @field_validator("password")
     def password_validator(cls, v):
+        """
+        Validates the password. It must be at least 8 characters long and contain at least one uppercase letter, one
+        lowercase letter, one digit and a special character.
+
+        Args:
+            v: The password (string).
+
+        Returns:
+            The password if it is valid. Otherwise, raises a ValueError.
+        """
+
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters long")
 
@@ -75,51 +125,84 @@ class SignupData(BaseModel):
 
 
 class LoginData(BaseModel):
+    """
+    Contains all necessary data to log in a user.
+    """
     email: str
     password: str
 
 
-security = HTTPBearer()
+def create_access_token(user_id: int) -> str:
+    """
+    Creates a new access token for a user.
 
-SECRET_KEY = "your-secret-key"  # obviously needs to be moved outside public codebase later
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    Args:
+        user_id: The user ID (integer).
 
+    Returns:
+        The encoded JWT token (string).
+    """
 
-def create_access_token(user_id: int):
-    to_encode = {"user_id": user_id}
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    # Raise an error if the user ID is not valid
+    if not user_id:
+        raise ValueError("User ID is not valid")
+
+    # Create payload with user ID and expiration time
+    expiration_time = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {"user_id": user_id, "exp": expiration_time}
+
+    # Encode the token using the secret key and algorithm
+    encoded_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_token
 
 
 # Get Requests
 @app.get("/get_current_user_id/")
-async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)):
+async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
+    """
+    Returns the user ID of the current user using the Bearer token from the Authorization header.
+    
+    Args:
+        credentials: The HTTPAuthorizationCredentials object. Requires the Authorization header with a Bearer token.
+        
+    Returns:
+        The user ID (integer).
+    """
+
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
 
-        if user_id is None:
+        if not user_id:  # Token is not valid
             raise HTTPException(status_code=401, detail="Invalid token")
 
         return user_id
-    except PyJWTError:
+
+    except PyJWTError:  # Token is not valid
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
 @app.get("/get_current_user/")
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Returns all user data of the current user using the Bearer token from the Authorization header.
+
+    Args:
+        credentials: The HTTPAuthorizationCredentials object. Requires the Authorization header with a Bearer token.
+
+    Returns:
+        The user object (dictionary).
+    """
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
 
-        if user_id is None:
+        if not user_id:  # Token is not valid
             raise HTTPException(status_code=401, detail="Invalid token")
 
         return db_service.get_user_by_id(user_id)
-    except PyJWTError:
+
+    except PyJWTError:  # Token is not valid
         raise HTTPException(status_code=401, detail="Invalid token")
 
         
@@ -128,7 +211,7 @@ async def get_post_by_id(post_id: int):
     return {"result": db_service.get_post_by_id(post_id)}
 
 
-@app.get("/post/all/")     # TODO: Implement query parameters for filtering
+@app.get("/post/all/")  # TODO: Implement query parameters for filtering
 async def get_all_posts():
     return {"result": db_service.get_all_posts()}
 
@@ -201,6 +284,7 @@ async def create_user(user_data: SignupData):
 @app.post("/user/login/")
 async def login_user(login_data: LoginData):
     user_id = db_service.login_user(login_data.email, login_data.password)
+
     if user_id:
         auth_token = create_access_token(user_id)
         return {"auth_token": auth_token, "token_type": "bearer"}
@@ -209,7 +293,7 @@ async def login_user(login_data: LoginData):
 
 
 @app.post("/post/create_post/")
-async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)):
+async def create_post(post: Post, current_user_id: int = Depends(get_current_user_id)) -> int:
     post_id = db_service.create_post(current_user_id, post.title, post.content)
     tags = tm.assign_tags_to_post(post.title, post.content)
     db_service.update_tags_of_post(post_id, tags)
