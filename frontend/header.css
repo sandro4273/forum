@@ -12,11 +12,6 @@
   background-color: white;
   
 
-}
-.right-section{
-  outline: 1px solid black;
-}
-
 .left-section{
   align-items: center;
   display: flex;
@@ -63,5 +58,6 @@
 }
 
 .right-section{
-
+  display: flex;
+  align-items: center;
 }
