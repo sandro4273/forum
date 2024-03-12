@@ -253,6 +253,15 @@ async def update_post(post_id: int, new_title: Annotated[str, Body()], new_conte
     return new_content
 
 
+@app.put("/post/id/{post_id}/edit/")
+async def update_post_content(post_id: int, new_content: Annotated[str, Body()], user_id: int = Depends(get_current_user_id)):
+    if user_id != db_service.get_user_id_of_post(post_id):
+        raise HTTPException(status_code=403, detail="You are not allowed to edit this post")
+
+    db_service.update_post_content(post_id, new_content)
+    return new_content
+
+
 @app.put("/post/id/{post_id}/comments/id/{comment_id}/")
 async def update_comment(post_id: int, comment_id: int, new_content: Annotated[str, Body()]): # Note: Send a string in your request body, not a JSON
     db_service.update_comment_content(comment_id, new_content)
