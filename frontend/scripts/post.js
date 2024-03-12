@@ -191,15 +191,17 @@ async function submitEditPostFunction(post_id){
 
     // Send the new post content to the backend
     const auth_token = localStorage.getItem("AuthToken");
+    console.log(newPostContent);
     const response = await fetch(
         BACKENDURL + "post/id/" + post_id + "/edit/", {
             method: "PUT",
             headers: {
-                "Content-Type" : "application/json",
+                //"Content-Type" : "application/json",
                 "Authorization": `Bearer ${auth_token}`
             },
-            body: JSON.stringify({"content": newPostContent}),
+            body: newPostContent,
         });
+    
 
     // Reload the site
     //location.reload();

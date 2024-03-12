@@ -339,7 +339,7 @@ async def update_post(post_id: int, new_title: Annotated[str, Body()], new_conte
 
 @app.put("/post/id/{post_id}/edit/")
 async def update_post_content(post_id: int, new_content: Annotated[str, Body()], user_id: int = Depends(get_current_user_id)):
-    if user_id != db_service.get_user_id_of_post(post_id):
+    if user_id != db_service.get_author_id_of_post(post_id):
         raise HTTPException(status_code=403, detail="You are not allowed to edit this post")
 
     db_service.update_post_content(post_id, new_content)
