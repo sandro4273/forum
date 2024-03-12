@@ -113,6 +113,12 @@ def get_post_by_id(post_id):
     return cur.fetchone()
 
 
+def get_author_id_of_post(post_id):
+    sql = "SELECT user_id FROM posts WHERE post_id = ?"
+    cur.execute(sql, (post_id,))
+    return cur.fetchone()[0]
+
+
 def get_all_posts():
     sql = "SELECT * FROM posts"
     cur.execute(sql)
