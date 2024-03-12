@@ -52,8 +52,12 @@ async function loadPosts(){     // TODO: Query for filtering posts
         const usernameData = await usernameResponse.json();
         const username = usernameData["username"];
 
+        const userRole = await getRole(username);
+        const roleColor = getRoleColor(userRole);
+
         const postElement = document.createElement('p');
-        postElement.innerHTML = `<a href="${FRONTENDURL}frontend/pages/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username}`;
+        postElement.innerHTML = `<a href="${FRONTENDURL}frontend/pages/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
+        postElement.append(roleElement);
         postList.append(postElement);
 
     }
