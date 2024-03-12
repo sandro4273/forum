@@ -37,7 +37,8 @@ security = HTTPBearer()
 # Authorization configuration
 SECRET_KEY = "your-secret-key"  # TODO: Move outside of the public codebase
 ALGORITHM = "HS256"  # Algorithm used for encoding the token
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Token expires after 30 minutes
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # TODO: Change to a lower value for production
+
 
 class Post(BaseModel):
     """
