@@ -28,7 +28,10 @@
                 <p>Home</p>
                 <img src="icons\home.svg">
             </div>
-            <div>Direct Messages</div>
+            <div class="direct-messages-button">
+                <p>Direct Messages</p>
+                <img src="icons\direct messages.png">
+            </div>
         </div>
         <div class="middle-section">
             <input class="search-bar" type="text" placeholder="Search">
@@ -52,7 +55,7 @@
         <a href="/frontend/pages/login.html">Anmelden</a>
         <a href="/frontend/pages/signup.html">Registrieren</a>
     </div>
-    <div id="loggedInUser" style="display: none;">
+    <div id="loggedInUser" style="display:none;">
         Eingeloggt als <span id="username"></span> (<span id="email"></span>)
         <button id="logoutButton" type="button">Abmelden</button>
         <a href="/frontend/pages/chatOverview.html">Chats</a><br>
