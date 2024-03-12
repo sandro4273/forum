@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post</title>
     <script type="text/javascript" src="/frontend/constants.js"></script>
+    <script type="text/javascript" src="/frontend/scripts/roles.js"></script>
 </head>
 
 
@@ -14,15 +15,25 @@
         <h2 id="postTitle"></h2>
         <p id="postContent"></p>
     </div>
+    <button id="editPostButton">Post bearbeiten</button> 
+    <div id="editPost" style="display:none;">
+        <input type="text" id="editPostInput"> <br>
+        <button id="submitEditPost">Absenden</button>
+    </div>
+    
+    <div id="tags" style="display:none;">
+        <hr>
+        <span><b>Tags:   |</b></span>
+        <!-- Liste von Tags -->
+    </div>
     <hr>
-        <form name="createComment">
+        <form name="createComment" id="commentForm" style="display:none;">
             <label>Kommentar verfassen</label><br>
             <input type="text" name="commentContent" style="height: 50px;"><br> <br>
             <button id="submitComment">Absenden</button>
-
+            <hr>
         </form>
-    <hr>
-    <p align="center">Kommentare</p>
+    <p>Kommentare</p>
     <div id="commentList">
         <!-- Liste von Kommentaren -->
     </div>
