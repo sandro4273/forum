@@ -1,0 +1,13 @@
+.sidebar{
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 50px;
+  left: 0;
+  bottom: 0;
+  width: 50;
+  justify-content: space-between;
+  z-index: 101;
+  border-bottom: 1px solid rgb(187, 187, 187);
+  background-color: beige;
+}
