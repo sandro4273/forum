@@ -299,9 +299,6 @@ async def get_comments_of_post(post_id: int):
 
     comments = db_service.get_comments_of_post(post_id)
 
-    if not comments:  # Post not found
-        raise HTTPException(status_code=404, detail="Post not found")
-
     return {"comments": comments}
 
 
