@@ -56,7 +56,7 @@ async function getCurrentUserId() {
     // If no user is logged in, return null
     if (!response.ok) return null;
 
-    user = await response.json();
+    const user = await response.json();
     return user["user_id"]; // Return user ID of logged in user
 }
 
