@@ -113,6 +113,12 @@ def get_role_by_id(user_id):
     cur.execute(sql, (user_id,))
     return cur.fetchone()[0]
 
+def get_role_of_user(user_id):
+    sql = "SELECT role FROM users WHERE user_id = ?"
+    cur.execute(sql, (user_id,))
+    return cur.fetchone()[0]
+
+
 def get_post_by_id(post_id):
     sql = "SELECT * FROM posts WHERE post_id = ?"
     cur.execute(sql, (post_id,))
@@ -153,6 +159,12 @@ def get_comments_of_post(post_id):
     sql = "SELECT * FROM comments WHERE post_id = ?"
     cur.execute(sql, (post_id,))
     return cur.fetchall()
+
+
+def get_author_id_of_comment(comment_id):
+    sql = "SELECT user_id FROM comments WHERE comment_id = ?"
+    cur.execute(sql, (comment_id,))
+    return cur.fetchone()[0]
 
 
 def get_chat_by_id(chat_id):
