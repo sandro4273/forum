@@ -1,7 +1,35 @@
 .post-grid{
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
   border: 1px solid black;
+}
+.post{
+  border:1px solid black;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   
-  
+
+}
+
+.post-button{
+
+  text-decoration: none;
+  color: white;
+  background-color: red;
+  padding:6px 7px;
+  border-radius: 6px;
+  transition: background-color 0.15s;
+  position: absolute;
+  right: 0;
+  top: 65px;
+}
+
+.post-button:hover{
+  background-color: rgb(168, 15, 15)
+}
+.post-button:active{
+  background-color: black;
 }
