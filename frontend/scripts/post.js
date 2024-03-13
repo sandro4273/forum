@@ -165,13 +165,8 @@ async function createComment(event, post_id){
             body: JSON.stringify(body),
         });
 
-    // Reload comments
-    await loadComments(post_id);
-
-    // Clear comment form
-    document.forms["createComment"]["commentContent"].value = "";
-
-    return await create_comment_response.json();
+    // reload the site
+    location.reload();
 }
 
 
