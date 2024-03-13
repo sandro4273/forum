@@ -15,7 +15,6 @@ import tag_management as tm  # Allows the assignment of tags to posts
 
 # In case of CORS error, add your local host to the list of origins
 origins = [
-    "http://localhost",
     "http://localhost:8000",
     "http://localhost:5500",
     "http://127.0.0.1:5500",
