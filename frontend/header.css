@@ -24,10 +24,9 @@
   margin-left: 30px;
   font-size: 13px;
   border-radius: 50%;
-  padding-left: 7px;
-  padding-right: 7px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding:2px 7px;
+  transition: background-color 0.15s;
+
 }
 
 .home-button:hover,.direct-messages-button:hover{
@@ -38,8 +37,12 @@
   background-color: rgb(178, 178, 178);
 }
 
-.home-button img,.direct-messages-button img{
+.home-button img{
   width: 23px;
+}
+
+.direct-messages-button img{
+  width: 21px;
 }
 
 .middle-section{
@@ -64,4 +67,21 @@
 .right-section{
   display: flex;
   align-items: center;
+}
+
+.login-button,.register-button{
+  text-decoration: none;
+  color: black;
+  margin-right: 30px;
+  padding:6px 7px;
+  border-radius: 6px;
+  transition: background-color 0.15s;
+
+}
+
+.login-button:hover,.register-button:hover{
+  background-color: rgb(200, 200, 200)
+}
+.login-button:active,.register-button:active{
+  background-color: rgb(178, 178, 178);
 }
