@@ -9,12 +9,7 @@
   justify-content: space-between;
   z-index: 100;
   border-bottom: 1px solid rgb(187, 187, 187);
-  background-color: beige;
-  
-
-}
-.left-section,.right-section{
-  outline: 1px solid black;
+  background-color: white;
 }
 
 .left-section{
@@ -25,10 +20,14 @@
 .home-button,.direct-messages-button{
   display: flex;
   align-items: center;
-  height: 50px;
+  height: 35px;
   margin-left: 30px;
-  white-space: nowrap;
   font-size: 13px;
+  border-radius: 50%;
+  padding-left: 7px;
+  padding-right: 7px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 
 .home-button:hover,.direct-messages-button:hover{
@@ -60,4 +59,9 @@
   border-radius: 2px;
   box-shadow: inset 1px 2px 5px rgba(0, 0, 0, 0.05);
   width: 0;
+}
+
+.right-section{
+  display: flex;
+  align-items: center;
 }
