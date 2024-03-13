@@ -191,6 +191,7 @@ async function loadComments(post_id){
 
         // Display comment content
         const commentContentElement = document.createElement('span');
+        commentContentElement.id = "commentContent" + comment["comment_id"];
         commentContentElement.textContent = comment["content"];
         commentContainer.appendChild(commentContentElement);
 
@@ -278,6 +279,29 @@ async function submitEditPostFunction(post_id){
 
     // Reload the site
     location.reload();
+}
+
+async function editComment(comment_id){
+    // Get the comment content
+    const content = document.querySelector("#commentContent" + comment_id).textContent;
+
+    // Hide the comment content and buttons
+    const commentContentElement = document.querySelector("#commentContent" + comment_id);
+    commentContentElement.setAttribute("style", "display: none;");
+    
+    // Show input field with the comment content
+    const editCommentDiv = document.createElement('div');
+    commentContentElement.parentNode.appendChild(editCommentDiv);
+    const editCommentInput = document.createElement('input');
+    editCommentInput.value = content;
+    editCommentInput.setAttribute("style", "show: block;");
+    editCommentDiv.appendChild(editCommentInput);
+    
+    // Add event listener to the submit button
+    const submitEditComment = document.createElement('button');
+    submitEditComment.textContent = "Senden";
+    submitEditComment.addEventListener("click", () => submitEditCommentFunction(comment_id));
+    editCommentDiv.appendChild(submitEditComment);
 }
 
 async function deletePost(post_id){
