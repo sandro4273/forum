@@ -62,6 +62,7 @@ async function getCurrentUserId(){
         }
     });
     const id = await response.json();
+    console.log(id)
 
     return response.ok ? id : null;
 }
@@ -142,6 +143,35 @@ async function loadComments(post_id){
 
         // Create a container for the comment
         const commentContainer = document.createElement('div');
+
+        // Create "See more" button that displays edit and delete buttons
+        const editButton = document.createElement('button');
+        editButton.textContent = "Edit";
+        editButton.style.display = "none";
+        commentContainer.appendChild(editButton);
+        editButton.addEventListener("click", () => editComment(comment["comment_id"], post_id));
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = "Delete";
+        deleteButton.style.display = "none";
+        commentContainer.appendChild(deleteButton);
+        deleteButton.addEventListener("click", () => deleteComment(comment["comment_id"], post_id));
+
+        const seeMoreButton = document.createElement('button');
+        let seeMoreButtonVisible = false;
+        seeMoreButton.textContent = "...";
+        // Display the "See more" button if the user is an admin, moderator or the author of the comment
+        if (currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === username)){
+            seeMoreButton.style.display = "inline-block";
+            console.log(currentUsername, username, currentUserId, comment["user_id"])
+        }
+        // Toggle the visibility of the edit and delete buttons if the "See more" button is clicked
+        seeMoreButton.addEventListener("click", () => {
+            seeMoreButtonVisible = !seeMoreButtonVisible; 
+            editButton.style.display = seeMoreButtonVisible ? "inline-block" : "none"; 
+            deleteButton.style.display = seeMoreButtonVisible ? "inline-block" : "none";});
+        commentContainer.appendChild(seeMoreButton);
+
 
         // Display creation time (in gray)
         const creationTimeElement = document.createElement('span');
