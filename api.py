@@ -156,6 +156,22 @@ def create_access_token(user_id: int) -> str:
     return encoded_token
 
 
+def is_privileged(current_user_id: dict) -> bool:
+    """
+    Checks if the current user is an admin or moderator.
+
+    Args:
+        current_user_id: The ID of the current user (integer).
+
+    Returns:
+        True if the user is an admin or moderator. Otherwise, False.
+    """
+
+    current_user_role = db_service.get_role_by_id(current_user_id)
+
+    return current_user_role in ["admin", "moderator"]
+
+
 # ------------------------- Get Requests -------------------------
 @app.get("/get_current_user_id/")
 async def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -580,7 +596,7 @@ async def create_chat_message(chat_id: int, user_id: Annotated[int, Body()], mes
     return {"chat_id": chat_id, "user_id": user_id, "message": message}
 
 
-# Put-Requests
+# ------------------------- Put-Requests -------------------------
 @app.put("/post/id/{post_id}/edit/")
 async def update_post_content(post_id: int, new_content: Annotated[str, Body()],
                               current_user: dict = Depends(get_current_user_id)):
@@ -597,10 +613,9 @@ async def update_post_content(post_id: int, new_content: Annotated[str, Body()],
     """
 
     current_user_id = current_user["user_id"]
-    current_user_role = db_service.get_role_by_id(current_user_id)
     author_id = db_service.get_author_id_of_post(post_id)
 
-    if current_user_id != author_id and current_user_role != "admin":
+    if current_user_id != author_id and not is_privileged(current_user_id):
         raise HTTPException(status_code=403, detail="You are not allowed to edit this post")
 
     db_service.update_post_content(post_id, new_content)
@@ -608,32 +623,48 @@ async def update_post_content(post_id: int, new_content: Annotated[str, Body()],
 
 
 @app.put("/comment/id/{comment_id}/edit/")
-async def update_comment(comment_id: int, new_content: Annotated[str, Body()], user_id = Depends(get_current_user_id)): # Note: Send a string in your request body, not a JSON
-    if user_id != db_service.get_author_id_of_comment(comment_id):
+async def update_comment(comment_id: int, new_content: Annotated[str, Body()],
+                         current_user: dict = Depends(get_current_user_id)):
+    """
+    Updates the content of a comment. Can only be done by the author of the comment.
+
+    Args:
+        comment_id: The ID of the comment (integer).
+        new_content: The new content of the comment (string).
+        current_user: The current user (dictionary).
+
+    Returns:
+        The new content of the comment (string).
+    """
+
+    current_user_id = current_user["user_id"]
+    author_id = db_service.get_author_id_of_comment(comment_id)
+
+    if current_user_id != author_id and not is_privileged(current_user_id):
         raise HTTPException(status_code=403, detail="You are not allowed to edit this comment")
+
     db_service.update_comment_content(comment_id, new_content)
     return {"content": new_content}
 
 
-# Delete-Requests
+# ------------------------- Delete-Requests -------------------------
 @app.delete("/post/id/{post_id}/delete/")
 async def delete_post_with_comments(post_id: int, current_user: dict = Depends(get_current_user_id)):  # When deleting a post, all comments of the post are deleted as well
     """
-        Deletes a post and all its comments. Can only be done by the author of the post.
+    Deletes a post and all its comments. Can only be done by the author of the post.
 
-        Args:
-            post_id: The ID of the post (integer).
-            current_user: The current user (dictionary).
+    Args:
+        post_id: The ID of the post (integer).
+        current_user: The current user (dictionary).
 
-        Returns:
-            An empty dictionary.
-        """
+    Returns:
+        An empty dictionary.
+    """
 
     current_user_id = current_user["user_id"]
-    current_user_role = db_service.get_role_by_id(current_user_id)
     author_id = db_service.get_author_id_of_post(post_id)
 
-    if current_user_id != author_id and current_user_role not in ["admin", "moderator"]:
+    if current_user_id != author_id and not is_privileged(current_user_id):
         raise HTTPException(status_code=403, detail="You are not allowed to delete this post")
     
     db_service.delete_post_with_comments(post_id)
@@ -654,10 +685,9 @@ async def delete_comment_by_id(comment_id: int, current_user: dict = Depends(get
     """
 
     current_user_id = current_user["user_id"]
-    current_user_role = db_service.get_role_by_id(current_user_id)
     author_id = db_service.get_author_id_of_comment(comment_id)
 
-    if current_user_id != author_id or (current_user_role not in ["admin", "moderator"]):
+    if current_user_id != author_id and not is_privileged(current_user_id):
         raise HTTPException(status_code=403, detail="You are not allowed to delete this comment")
 
     db_service.delete_comment(comment_id)
