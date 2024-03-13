@@ -9,3 +9,6 @@ Anleitung:
 
 Sollte Forum leer sein:
 - F12 in Browser -> Console -> Wird CORS Error angezeigt, localhost-Adresse bei api.py in 'origins' hereinkopieren
+
+Alternative zu 'liveserver' für andere Umgebungen:
+- In neuem Terminal 'python -m http.server 5500' ausführen. Dies öffnet den Frontend-Server auf http://localhost:5500/
