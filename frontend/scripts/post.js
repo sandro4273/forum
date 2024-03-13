@@ -1,5 +1,4 @@
-// Funktion wird ausgeführt wenn Seite geladen ist
-
+// TODO: Maybe make a class for the post too
 // Global variables
 let currentUserId = null;
 let currentUsername = null;
@@ -10,6 +9,7 @@ let authorUsername = null;
 
 let post = null;
 
+// Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
     // Load user data
@@ -62,7 +62,6 @@ async function getCurrentUserId(){
         }
     });
     const id = await response.json();
-    console.log(id)
 
     return response.ok ? id : null;
 }
@@ -125,81 +124,16 @@ async function loadComments(post_id){
     const commentsData = await response.json();
     const comments = commentsData["result"];
 
-    // Create HTML elements for each comment
-    const commentList = document.querySelector("#commentList");
-    commentList.innerHTML = ""; // Clear the comment list
-
+    // Create Comment objects for each comment
+    let commentObjects = [];
     for(let i = 0; i < comments.length; i++){
         const comment = comments[i];
-
-        // Get username of the user who created the comment
-        const usernameResponse = await fetch(BACKENDURL + "user/id/" + comment["user_id"] + "/username/");
-        const usernameData = await usernameResponse.json();
-        const username = usernameData["username"];
-
-        // Get role of the user who created the comment
-        const userRole = await getRole(username);
-        const roleColor = getRoleColor(userRole);
-
-        // Create a container for the comment
-        const commentContainer = document.createElement('div');
-
-        // Create "See more" button that displays edit and delete buttons
-        const editButton = document.createElement('button');
-        editButton.textContent = "Edit";
-        editButton.style.display = "none";
-        commentContainer.appendChild(editButton);
-        editButton.addEventListener("click", () => editComment(comment["comment_id"], post_id));
-
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = "Delete";
-        deleteButton.style.display = "none";
-        commentContainer.appendChild(deleteButton);
-        deleteButton.addEventListener("click", () => deleteComment(comment["comment_id"], post_id));
-
-        const seeMoreButton = document.createElement('button');
-        let seeMoreButtonVisible = false;
-        seeMoreButton.textContent = "...";
-        // Display the "See more" button if the user is an admin, moderator or the author of the comment
-        if (currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === username)){
-            seeMoreButton.style.display = "inline-block";
-            console.log(currentUsername, username, currentUserId, comment["user_id"])
-        }
-        // Toggle the visibility of the edit and delete buttons if the "See more" button is clicked
-        seeMoreButton.addEventListener("click", () => {
-            seeMoreButtonVisible = !seeMoreButtonVisible; 
-            editButton.style.display = seeMoreButtonVisible ? "inline-block" : "none"; 
-            deleteButton.style.display = seeMoreButtonVisible ? "inline-block" : "none";});
-        commentContainer.appendChild(seeMoreButton);
-
-
-        // Display creation time (in gray)
-        const creationTimeElement = document.createElement('span');
-        creationTimeElement.textContent = comment["created_at"];
-        creationTimeElement.style.color = "gray";
-        commentContainer.appendChild(creationTimeElement);
-
-        // Display user ID and role
-        const userIDElement = document.createElement('span');
-        userIDElement.textContent = " - " + username;
-        commentContainer.appendChild(userIDElement);
-        const roleElement = document.createElement('span');
-
-        roleElement.textContent = ` (${userRole}): `;
-        roleElement.style.color = roleColor;
-        commentContainer.appendChild(roleElement);
-
-        // Display comment content
-        const commentContentElement = document.createElement('span');
-        commentContentElement.id = "commentContent" + comment["comment_id"];
-        commentContentElement.textContent = comment["content"];
-        commentContainer.appendChild(commentContentElement);
-
-        // Append the comment container to the comment list
-        commentList.appendChild(commentContainer);
+        const commentObject = new Comment();
+        await commentObject.init(comment["comment_id"], comment["content"], comment["user_id"], comment["post_id"], comment["created_at"]);
+        commentObjects.push(commentObject);
+        document.querySelector("#commentList").appendChild(commentObject.commentContainer);
     }
 }
-
 
 async function createComment(event, post_id){
     event.preventDefault();
@@ -270,7 +204,6 @@ async function submitEditPostFunction(post_id){
         BACKENDURL + "post/id/" + post_id + "/edit/", {
             method: "PUT",
             headers: {
-                //"Content-Type" : "application/json",
                 "Authorization": `Bearer ${auth_token}`
             },
             body: newPostContent,
@@ -321,5 +254,129 @@ async function deletePost(post_id){
     }
 }
 
+class Comment {
+    async init(commentId, content, authorId, postId, createdAt){
+        this.commentId = commentId;
+        this.content = content;
+        this.authorId = authorId;
+        this.postId = postId;
+        this.createdAt = createdAt;
+
+        this.seeMoreVisible = false;
+        this.editCommentVisible = false;
+
+        this.commentContainer = document.createElement('div');
+        await this.loadComment();
+        this.loadButtons();
+        this.loadEditElements();
+    }
+
+    async loadComment(){
+        // Display creation time (in gray)
+        const creationTimeElement = document.createElement('span');
+        creationTimeElement.textContent = this.createdAt;
+        creationTimeElement.style.color = "gray";
+        this.commentContainer.appendChild(creationTimeElement);
+
+        // Display author ID and role
+        const userIDElement = document.createElement('span');
+        userIDElement.textContent = " - " + await getUsername(this.authorId);
+        this.commentContainer.appendChild(userIDElement);
+        const roleElement = document.createElement('span');
+
+        const authorRole = await getRole(await getUsername(this.authorId));
+        roleElement.textContent = ` (${authorRole}): `;
+        roleElement.style.color = getRoleColor(authorRole);
+        this.commentContainer.appendChild(roleElement);
+
+        // Display comment content
+        const commentContentElement = document.createElement('span');
+        commentContentElement.textContent = this.content;
+        commentContentElement.id = "commentContent";
+        this.commentContainer.appendChild(commentContentElement);
+    }
+
+    loadButtons(){
+        // Create elements
+        this.seeMoreButton = document.createElement('button');
+        this.seeMoreButton.textContent = "...";
+
+        this.editButton = document.createElement('button');
+        this.editButton.textContent = "Edit";
+        this.editButton.style.display = "none";
+
+        this.deleteButton = document.createElement('button');
+        this.deleteButton.textContent = "Delete";
+        this.deleteButton.style.display = "none";
+
+        // Insert elements
+        this.commentContainer.prepend(this.deleteButton);
+        this.commentContainer.prepend(this.editButton);
+        this.commentContainer.prepend(this.seeMoreButton);
+
+        // Add event listeners
+        this.seeMoreButton.addEventListener("click", () => this.toggleButtons());
+        this.editButton.addEventListener("click", () => this.toggleEditComment());
+        this.deleteButton.addEventListener("click", () => this.deleteComment());
+    }
+
+    loadEditElements(){
+        // Create elements
+        this.editInput = document.createElement('input');
+        this.editInput.style.display = "none";
+
+        this.submitEdit = document.createElement('button');
+        this.submitEdit.textContent = "Senden";
+        this.submitEdit.style.display = "none";
+
+        // Insert elements
+        this.commentContainer.appendChild(this.editInput);
+        this.commentContainer.appendChild(this.submitEdit);
+
+        // Add event listeners
+        this.submitEdit.addEventListener("click", () => this.submitEditComment());
+    }
+
+    toggleButtons(){
+        this.seeMoreVisible = !this.seeMoreVisible;
+        this.editButton.style.display = this.seeMoreVisible ? "inline-block" : "none"; 
+        this.deleteButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
+    }
+
+    toggleEditComment(){
+        this.editCommentVisible = !this.editCommentVisible;
+        // Toggle the comment content and buttons of the current comment
+        this.commentContainer.querySelector("#commentContent").style.display = this.editCommentVisible ? "none" : "inline-block";
+        this.editButton.textContent = this.editCommentVisible ? "Zurück" : "Edit";
+
+        // Toggle input field with the comment content
+        this.editInput.style.display = this.editCommentVisible ? "inline-block" : "none";
+        this.editInput.value = this.content;
+
+        // Toggle submit button
+        this.submitEdit.style.display = this.editCommentVisible ? "inline-block" : "none";
+
+    }
+
+    async submitEditComment(){
+        // Get the new comment content
+        const newCommentContent = this.editInput.value;
+
+        // Send the new comment content to the backend
+        const auth_token = localStorage.getItem("AuthToken");
+        const response = fetch(
+            BACKENDURL + "comment/id/" + this.commentId + "/edit/", {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${auth_token}`
+                },
+                body: newCommentContent,
+            });
+        
+        // Reload the site
+        location.reload();
+    }
+
+}
 // execute onLoad when page is loaded
 window.addEventListener("DOMContentLoaded", onLoad());
