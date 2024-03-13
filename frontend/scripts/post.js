@@ -127,10 +127,17 @@ async function loadComments(post_id){
     // Create Comment objects for each comment
     let commentObjects = [];
     for(let i = 0; i < comments.length; i++){
+        // Create comment object
         const comment = comments[i];
         const commentObject = new Comment();
         await commentObject.init(comment["comment_id"], comment["content"], comment["user_id"], comment["post_id"], comment["created_at"]);
         commentObjects.push(commentObject);
+
+        // Toggle visibility of see more button
+        if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === authorUsername)){
+            commentObject.seeMoreButton.style.display = "inline-block";
+        }
+        // Append
         document.querySelector("#commentList").appendChild(commentObject.commentContainer);
     }
 }
@@ -300,6 +307,7 @@ class Comment {
         // Create elements
         this.seeMoreButton = document.createElement('button');
         this.seeMoreButton.textContent = "...";
+        this.seeMoreButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
 
         this.editButton = document.createElement('button');
         this.editButton.textContent = "Edit";
@@ -339,8 +347,12 @@ class Comment {
 
     toggleButtons(){
         this.seeMoreVisible = !this.seeMoreVisible;
-        this.editButton.style.display = this.seeMoreVisible ? "inline-block" : "none"; 
+        // Toggle delete button
         this.deleteButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
+        // Only show the edit button if the user is the author of the comment
+        if (this.authorId === currentUserId){
+            this.editButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
+        }
     }
 
     toggleEditComment(){
@@ -373,6 +385,21 @@ class Comment {
                 body: newCommentContent,
             });
         
+        // Reload the site
+        location.reload();
+    }
+
+    deleteComment(){
+        // Send the delete request
+        const auth_token = localStorage.getItem("AuthToken");
+        const response = fetch(
+            BACKENDURL + "comment/id/" + this.commentId + "/delete/", {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${auth_token}`
+                },
+            });
+
         // Reload the site
         location.reload();
     }
