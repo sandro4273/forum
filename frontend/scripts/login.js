@@ -15,13 +15,14 @@ async function submitLoginForm(){
             body: JSON.stringify(body),
         });
 
-    if (response.ok) {
-        const res = await response.json();
-        localStorage.setItem("AuthToken", res.auth_token);
-        window.location.href = "/frontend/index.html";
-    } else {
+    if (!response.ok) {
         document.getElementById("errorMessage").style.display = "block";
+        return;
     }
+
+    const res = await response.json();
+    localStorage.setItem("AuthToken", res["auth_token"]);
+    window.location.href = "/frontend/index.html";
 }
 
 window.addEventListener("DOMContentLoaded", onLoad);
