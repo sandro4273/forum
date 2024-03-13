@@ -1,7 +1,15 @@
 .post-grid{
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
   border: 1px solid black;
+}
+.post{
+  border:1px solid black;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   
-  
+
 }

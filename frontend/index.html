@@ -24,49 +24,58 @@
 <body>
     <div class="header">
         <div class="left-section">
-            <div class="home-button">
-                <p>Home</p>
+            <a class="home-button" href="/frontend/index.html">
                 <img src="icons\home.svg">
-            </div>
-            <div class="direct-messages-button">
-                <p>Direct Messages</p>
-                <img src="icons\direct messages.png">
-            </div>
+            <a class="direct-messages-button" href="/frontend/pages/chatOverview.html">
+                <img src="icons\direct messages.png"></a>
+            </a>
         </div>
         <div class="middle-section">
             <input class="search-bar" type="text" placeholder="Search">
         </div>
         <div class="right-section">
-            right
+            <div id="authButtons">
+                <a href="/frontend/pages/login.html">Anmelden</a>
+                <a href="/frontend/pages/signup.html">Registrieren</a>
+            </div>
+            <div id="loggedInUser" style="display:none;">
+                Eingeloggt als <span id="username"></span> (<span id="email"></span>)
+                <button id="logoutButton" type="button">Abmelden</button>
+                
+                
+            </div>
         </div>
 
     </div>
     <div class="sidebar">SIDEBAR</div>
-    <div class="post-grid">
-        <div>post1</div>
-        <div>post2</div>
-        <div>post3</div>
-
-    </div>
 
 
     <h1>Forum</h1>
-    <div id="authButtons">
-        <a href="/frontend/pages/login.html">Anmelden</a>
-        <a href="/frontend/pages/signup.html">Registrieren</a>
-    </div>
-    <div id="loggedInUser" style="display:none;">
-        Eingeloggt als <span id="username"></span> (<span id="email"></span>)
-        <button id="logoutButton" type="button">Abmelden</button>
-        <a href="/frontend/pages/chatOverview.html">Chats</a><br>
-        <a href="/frontend/pages/createPost.html">Erstelle einen Post!</a>
-    </div>
+    <a href="/frontend/pages/chatOverview.html">Chats</a><br>
+    <a href="/frontend/pages/createPost.html">Erstelle einen Post!</a>
     <hr>
     <p>Aktuelle Posts</p>
     <hr>
     <div id="postList">
         <!-- Liste von Posts -->
     </div>
+
+
+    <div class="post-grid">
+        <div class="post">
+            <div class="title">Titel</div>
+            <div class="description">Beschreibung</div>
+            <div class="username">Name</div>
+        </div>
+        <div class="post">post2</div>
+        <div class="post">post3</div>
+        <div class="post">post4</div>
+
+
+    </div>
+
+
+
 </body>
 
 <script type="text/javascript" src="/frontend/main.js"></script>
