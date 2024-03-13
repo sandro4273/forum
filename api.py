@@ -330,13 +330,6 @@ async def create_chat_message(chat_id: int, user_id: Annotated[int, Body()], mes
 
 
 # Put-Requests
-@app.put("/post/id/{post_id}/")
-async def update_post(post_id: int, new_title: Annotated[str, Body()], new_content: Annotated[str, Body()]):
-    db_service.update_post_title(post_id, new_title)
-    db_service.update_post_content(post_id, new_content)
-    return new_content
-
-
 @app.put("/post/id/{post_id}/edit/")
 async def update_post_content(post_id: int, new_content: Annotated[str, Body()], user_id: int = Depends(get_current_user_id)):
     if user_id != db_service.get_author_id_of_post(post_id):
@@ -346,8 +339,10 @@ async def update_post_content(post_id: int, new_content: Annotated[str, Body()],
     return new_content
 
 
-@app.put("/post/id/{post_id}/comments/id/{comment_id}/")
-async def update_comment(post_id: int, comment_id: int, new_content: Annotated[str, Body()]): # Note: Send a string in your request body, not a JSON
+@app.put("/comment/id/{comment_id}/edit/")
+async def update_comment(comment_id: int, new_content: Annotated[str, Body()], user_id = Depends(get_current_user_id)): # Note: Send a string in your request body, not a JSON
+    if user_id != db_service.get_author_id_of_comment(comment_id):
+        raise HTTPException(status_code=403, detail="You are not allowed to edit this comment")
     db_service.update_comment_content(comment_id, new_content)
     return new_content
 
@@ -356,14 +351,17 @@ async def update_comment(post_id: int, comment_id: int, new_content: Annotated[s
 @app.delete("/post/id/{post_id}/delete/")
 async def delete_post_with_comments(post_id: int, user_id: int = Depends(get_current_user_id)):  # When deleting a post, all comments of the post are deleted as well
     print("TSTSTETSETSTSETESTSETEWT")
-    if user_id != db_service.get_author_id_of_post(post_id):
+    if user_id != db_service.get_author_id_of_post(post_id) or db_service.get_role_of_user(user_id) not in ["admin", "moderator"]:
         raise HTTPException(status_code=403, detail="You are not allowed to delete this post")
     
     db_service.delete_post_with_comments(post_id)
     return {}
 
 
-@app.delete("/post/id/{post_id}/comments/id/{comment_id}/")
-async def delete_comment_by_id(post_id: int, comment_id: int):
+@app.delete("/comment/id/{comment_id}/delete/")
+async def delete_comment_by_id(comment_id: int, user_id: int = Depends(get_current_user_id)):
+    if user_id != db_service.get_author_id_of_comment(comment_id) or (db_service.get_role_of_user(user_id) not in ["admin", "moderator"]):
+        raise HTTPException(status_code=403, detail="You are not allowed to delete this comment")
+    
     db_service.delete_comment(comment_id)
     return {}
