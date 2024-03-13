@@ -20,7 +20,7 @@ async function onLoad(){
     }
     // Load post data
     post = await getPost(postId);
-    authorId = post["result"]["user_id"];
+    authorId = post["user_id"];
     authorUsername = await getUsername(authorId);
 
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
@@ -28,7 +28,7 @@ async function onLoad(){
     document.querySelector("#deletePostButton").addEventListener("click", () => deletePost(postId));
 
     await toggleSiteVisibility();
-    await loadPost(postId);
+    await loadPost();
     await loadTags(postId);
     await loadComments(postId);
 }
@@ -63,13 +63,13 @@ async function getCurrentUserId(){
     });
     const id = await response.json();
 
-    return response.ok ? id : null;
+    return response.ok ? id["user_id"] : null;
 }
 
 async function getPost(postId){
     const response = await fetch(BACKENDURL + `post/id/${postId}/`);
     const post = await response.json();
-    return response.ok ? post : null;
+    return response.ok ? post["post"] : null;
 }
 
 async function getUsername(userId){
@@ -85,10 +85,10 @@ function getPostIdFromUrl() {
 }
 
 
-async function loadPost(post_id){
+async function loadPost(){
     // load title and content
-    const postTitle = post["result"]["title"];
-    const postContent = post["result"]["content"];
+    const postTitle = post["title"];
+    const postContent = post["content"];
 
     // load author and role
     const authorRole = await getRole(authorUsername);
@@ -103,7 +103,7 @@ async function loadTags(post_id){
     // load tags
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/tags/all/");
     const tagsData = await response.json();
-    const tags = tagsData["result"];
+    const tags = tagsData["tags"];
 
     // Check if there are any tags
     document.querySelector("#tags").style.display = tags.length > 0 ? "block" : "none";
@@ -122,7 +122,7 @@ async function loadComments(post_id){
     // load comments
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/");
     const commentsData = await response.json();
-    const comments = commentsData["result"];
+    const comments = commentsData["comments"];
 
     // Create Comment objects for each comment
     let commentObjects = [];
@@ -178,8 +178,8 @@ async function createComment(event, post_id){
 async function editPost(post_id){
     // Get the post content
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
-    const post = await response.json();
-    const postContent = post["result"]["content"];
+    const postData = await response.json();
+    const postContent = postData["post"]["content"];
 
     // Hide the post content and button
     const postContentElement = document.querySelector("#postContent");
@@ -207,6 +207,7 @@ async function submitEditPostFunction(post_id){
     // Send the new post content to the backend
     const auth_token = localStorage.getItem("AuthToken");
     console.log(newPostContent);
+
     const response = await fetch(
         BACKENDURL + "post/id/" + post_id + "/edit/", {
             method: "PUT",
@@ -215,33 +216,12 @@ async function submitEditPostFunction(post_id){
             },
             body: newPostContent,
         });
+
+    await response.json();
     
 
     // Reload the site
     location.reload();
-}
-
-async function editComment(comment_id){
-    // Get the comment content
-    const content = document.querySelector("#commentContent" + comment_id).textContent;
-
-    // Hide the comment content and buttons
-    const commentContentElement = document.querySelector("#commentContent" + comment_id);
-    commentContentElement.setAttribute("style", "display: none;");
-    
-    // Show input field with the comment content
-    const editCommentDiv = document.createElement('div');
-    commentContentElement.parentNode.appendChild(editCommentDiv);
-    const editCommentInput = document.createElement('input');
-    editCommentInput.value = content;
-    editCommentInput.setAttribute("style", "show: block;");
-    editCommentDiv.appendChild(editCommentInput);
-    
-    // Add event listener to the submit button
-    const submitEditComment = document.createElement('button');
-    submitEditComment.textContent = "Senden";
-    submitEditComment.addEventListener("click", () => submitEditCommentFunction(comment_id));
-    editCommentDiv.appendChild(submitEditComment);
 }
 
 async function deletePost(post_id){
