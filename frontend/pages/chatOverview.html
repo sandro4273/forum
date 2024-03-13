@@ -4,8 +4,39 @@
     <meta charset="UTF-8">
     <title>Chats</title>
     <script type="text/javascript" src="/frontend/constants.js"></script>
+    <link rel="stylesheet" href="../general.css">
+    <link rel="stylesheet" href="../header.css">
+    <link rel="stylesheet" href="../sidebar.css">
 </head>
 <body>
+
+    <div class="header">
+        <div class="left-section">
+            <a class="home-button" href="/frontend/index.html">
+                <img src="../icons\home.svg">
+            <a class="direct-messages-button" href="/frontend/pages/chatOverview.html">
+                <img src="../icons\direct messages.png"></a>
+            </a>
+        </div>
+        <div class="middle-section">
+            <input class="search-bar" type="text" placeholder="Search">
+        </div>
+        <div class="right-section">
+            <div id="authButtons">
+                <a href="/frontend/pages/login.html">Anmelden</a>
+                <a href="/frontend/pages/signup.html">Registrieren</a>
+            </div>
+            <div id="loggedInUser" style="display:none;">
+                Eingeloggt als <span id="username"></span> (<span id="email"></span>)
+                <button id="logoutButton" type="button">Abmelden</button>
+                
+                
+            </div>
+        </div>
+
+    </div>
+    <div class="sidebar">SIDEBAR</div>
+
     <h1>Chat Übersicht</h1>
     <div id="chatList">
         <!--Chat List-->
