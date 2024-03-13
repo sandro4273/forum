@@ -2,19 +2,20 @@
 async function onLoad() {
     // Get partner username
     const chatId = getChatIdFromUrl();
-    const chatData = await fetch(BACKENDURL + "chat/id/" + chatId + "/");
-    const chat = await chatData.json();
-    const user1Id = chat["result"]["user1"];
-    const user2Id = chat["result"]["user2"];
-
-    const currentUserId = await getCurrentUserId();
+    const chatResponse = await fetch(BACKENDURL + "chat/id/" + chatId + "/");
+    const chatData = await chatResponse.json();
+        console.log(chatData);
+    const chat = chatData["chat"];
+    const user1Id = chat["user1"];
+    const user2Id = chat["user2"];
 
     // Must be logged in to access the chat
+    const currentUserId = await getCurrentUserId();
+
     if (!currentUserId) return;
 
     // Check if current user is permitted to access the chat
-    const isChatPartner = await isUserChatPartner(currentUserId);
-    if (!await isUserChatPartner(currentUserId)) return;
+    if (!(currentUserId === user1Id || currentUserId === user2Id)) return;
 
     // Get partner id
     const partnerId = currentUserId === user1Id ? user2Id : user1Id;
@@ -35,44 +36,38 @@ function getChatIdFromUrl() {
 }
 
 async function getUsernameById(user_id) {
-    const response = await fetch(BACKENDURL + "user/id/" + user_id + "/username/");
-    const user = await response.json();
-    return user["username"];
-}
-
-async function isUserChatPartner(userId) {
-    const chatId = getChatIdFromUrl();
-    const chatData = await fetch(BACKENDURL + "chat/id/" + chatId + "/");
-    const chat = await chatData.json();
-    const user1Id = chat["result"]["user1"];
-    const user2Id = chat["result"]["user2"];
-
-    return userId === user1Id || userId === user2Id;
+    const usernameResponse = await fetch(BACKENDURL + "user/id/" + user_id + "/username/");
+    const usernameData = await usernameResponse.json();
+    return usernameData["username"];
 }
 
 async function getCurrentUserId() {
+    const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
         BACKENDURL + "get_current_user_id/", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("AuthToken")}`
+                "Authorization": `Bearer ${auth_token}`
             }
         }
     );
 
     // If no user is logged in, return null
     if (!response.ok) return null;
-    return await response.json();
+
+    user = await response.json();
+    return user["user_id"]; // Return user ID of logged in user
 }
 
 async function loadMessages(chat_id) {
     const messageList = document.querySelector("#messageList");
+    messageList.innerHTML = ""; // Clear message list
 
     // Load all messages of chat
-    const response = await fetch(BACKENDURL + "chat/id/" + chat_id + "/messages/all/");
-    const messagesData = await response.json();
-    const messages = messagesData["result"];
+    const messagesResponse = await fetch(BACKENDURL + "chat/id/" + chat_id + "/messages/all/");
+    const messagesData = await messagesResponse.json();
+    const messages = messagesData["messages"];
 
     // Create HTML elements for each message and append them
     for (let i = 0; i < messages.length; i++) {
@@ -115,19 +110,27 @@ async function sendMessage(event) {
     const messageContent = document.querySelector("#messageContent");
     const message = messageContent.value.trim();
 
-    // API request
+    // API request to create message
+    const currentUserId = await getCurrentUserId();
     const body = {
-        "user_id": 1, // Account-System noch nicht implementiert
+        "user_id": currentUserId,
         "message": message
     }
-    const response = await fetch(
+
+    const messageResponse = await fetch(
         BACKENDURL + "chat/id/" + chatId + "/create_message/", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(body)
         });
-    res = await response.json();
-    return response;
+
+    const messageData = await messageResponse.json();
+
+    //Reload all messages and clear input field
+    await loadMessages(chatId);
+    messageContent.value = "";
+
+    return messageData;
 }
 
 

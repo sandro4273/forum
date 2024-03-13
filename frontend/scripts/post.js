@@ -1,52 +1,46 @@
-// Funktion wird ausgeführt wenn Seite geladen ist
-
-// Global variables
-let currentUserId = null;
-let currentUsername = null;
-let currentUserRole = null;
-
-let authorId = null;
-let authorUsername = null;
-
-let post = null;
-
 async function onLoad(){
-    let postId = getPostIdFromUrl();
-    // Load user data
-    currentUserId = await getCurrentUserId();
-    if(currentUserId){
-        currentUsername = await getUsername(currentUserId);
-        currentUserRole = await getRole(currentUsername);
-    }
-    // Load post data
-    post = await getPost(postId);
-    authorId = post["result"]["user_id"];
-    authorUsername = await getUsername(authorId);
+    // Load the post
+    const postId = getPostIdFromUrl();
+    const post = await getPost(postId);
 
+    // Add event listeners
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
     document.querySelector("#deletePostButton").addEventListener("click", () => deletePost(postId));
 
     await toggleSiteVisibility();
-    await loadPost(postId);
+    await loadPost(post);
     await loadTags(postId);
     await loadComments(postId);
 }
 
 async function toggleSiteVisibility(){
+    // Check if a user is logged in
+    const currentUserId = await getCurrentUserId();
+    if(!currentUserId) return;
+
+    // Get the role and username of the current user
+    const currentUsername = await getUsername(currentUserId);
+    const currentUserRole = await getRole(currentUsername);
+
+    // Get the author of the post
+    const post = await getPost(getPostIdFromUrl());
+    const authorId = post["user_id"];
+    const authorUsername = await getUsername(authorId);
+
     // If a user is logged in, display the comment form
     const commentForm = document.getElementById('commentForm');
-    commentForm.style.display = currentUserId ? 'block' : 'none';
+    commentForm.style.display = 'block';
 
     // If the user is an admin/moderator or the author, display the delete button
     const deletePostButton = document.getElementById('deletePostButton');
-    if (currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === authorUsername)){
+    if (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === authorUsername){
         deletePostButton.style.display = 'inline-block';
     }
 
     // If the user is the author, display the edit button
     const editPostButton = document.getElementById('editPostButton');
-    if (currentUserId && currentUsername === authorUsername){
+    if (currentUsername === authorUsername){
         editPostButton.style.display = 'inline-block';
     }
 }
@@ -61,15 +55,16 @@ async function getCurrentUserId(){
             "Authorization": `Bearer ${auth_token}`
         }
     });
+
     const id = await response.json();
 
-    return response.ok ? id : null;
+    return response.ok ? id["user_id"] : null;
 }
 
 async function getPost(postId){
     const response = await fetch(BACKENDURL + `post/id/${postId}/`);
     const post = await response.json();
-    return response.ok ? post : null;
+    return response.ok ? post["post"] : null;
 }
 
 async function getUsername(userId){
@@ -85,12 +80,14 @@ function getPostIdFromUrl() {
 }
 
 
-async function loadPost(post_id){
+async function loadPost(post){
     // load title and content
-    const postTitle = post["result"]["title"];
-    const postContent = post["result"]["content"];
+    const postTitle = post["title"];
+    const postContent = post["content"];
 
     // load author and role
+    const authorId = post["user_id"];
+    const authorUsername = await getUsername(authorId);
     const authorRole = await getRole(authorUsername);
     const roleColor = getRoleColor(authorRole);
     
@@ -99,14 +96,16 @@ async function loadPost(post_id){
     document.querySelector("#postContent").textContent = postContent;
 }
 
-async function loadTags(post_id){
+async function loadTags(postId){
     // load tags
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/tags/all/");
+    const response = await fetch(BACKENDURL + "post/id/" + postId + "/tags/all/");
     const tagsData = await response.json();
-    const tags = tagsData["result"];
+    const tags = tagsData["tags"];
+
 
     // Check if there are any tags
     document.querySelector("#tags").style.display = tags.length > 0 ? "block" : "none";
+
     // Create HTML elements for each tag
     const tagList = document.querySelector("#tags");
 
@@ -118,11 +117,11 @@ async function loadTags(post_id){
     }
 }
 
-async function loadComments(post_id){
+async function loadComments(postId){
     // load comments
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/");
+    const response = await fetch(BACKENDURL + "post/id/" + postId + "/comments/all/");
     const commentsData = await response.json();
-    const comments = commentsData["result"];
+    const comments = commentsData["comments"];
 
     // Create HTML elements for each comment
     const commentList = document.querySelector("#commentList");
@@ -170,7 +169,7 @@ async function loadComments(post_id){
 }
 
 
-async function createComment(event, post_id){
+async function createComment(event, postId){
     event.preventDefault();
 
     // Extract content from form
@@ -184,7 +183,7 @@ async function createComment(event, post_id){
     const auth_token = localStorage.getItem("AuthToken");
 
     const create_comment_response = await fetch(
-        BACKENDURL + "post/id/" + post_id + "/create_comment/", {
+        BACKENDURL + "post/id/" + postId + "/create_comment/", {
             method: "POST", 
             headers: {
                 "Content-Type" : "application/json",
@@ -194,7 +193,7 @@ async function createComment(event, post_id){
         });
 
     // Reload comments
-    await loadComments(post_id);
+    await loadComments(postId);
 
     // Clear comment form
     document.forms["createComment"]["commentContent"].value = "";
@@ -207,7 +206,7 @@ async function editPost(post_id){
     // Get the post content
     const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
     const post = await response.json();
-    const postContent = post["result"]["content"];
+    const postContent = post["post"]["content"];
 
     // Hide the post content and button
     const postContentElement = document.querySelector("#postContent");
@@ -245,6 +244,7 @@ async function submitEditPostFunction(post_id){
             body: newPostContent,
         });
     
+    await response.json();
 
     // Reload the site
     location.reload();

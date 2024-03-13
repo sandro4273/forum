@@ -8,12 +8,14 @@ conn = sqlite3.connect("forum.db")
 conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 
+VALID_ROLES = ["user", "moderator", "admin"]
+
 
 def close_db():
     conn.close()
 
 
-def login_user(email, password):
+def login_user(email, password) -> int or None:
     sql = "SELECT user_id FROM users WHERE email = ? AND password = ?"
     cur.execute(sql, (email, password))
 
@@ -106,6 +108,10 @@ def get_role_of_user_by_name(username):
     cur.execute(sql, (username,))
     return cur.fetchone()[0]
 
+def get_role_by_id(user_id):
+    sql = "SELECT role FROM users WHERE user_id = ?"
+    cur.execute(sql, (user_id,))
+    return cur.fetchone()[0]
 
 def get_post_by_id(post_id):
     sql = "SELECT * FROM posts WHERE post_id = ?"
@@ -154,6 +160,7 @@ def get_chat_by_id(chat_id):
     cur.execute(sql, (chat_id,))
     return cur.fetchone()
 
+
 def get_chat_message(msg_id):
     sql = "SELECT * FROM chat_messages WHERE msg_id = ?"
     cur.execute(sql, (msg_id,))
@@ -181,7 +188,7 @@ def update_username(user_id, new_name):
 
 
 def update_role(user_id, new_role):
-    if new_role not in ["user", "moderator", "admin"]:
+    if new_role not in VALID_ROLES:
         return "Invalid role"
     
     with conn:

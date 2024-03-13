@@ -1,9 +1,7 @@
 // function is called when the page is fully loaded
 function onLoad(){
     document.querySelector("#submitButton").addEventListener("click", submitForm);
-
 }
-
 
 async function submitForm(){
     // Extract text and title from form
@@ -17,7 +15,6 @@ async function submitForm(){
 
     // Create post and retrieve the post_id
     const auth_token = localStorage.getItem("AuthToken");
-
     const create_post_response = await fetch(
         BACKENDURL + "post/create_post/", {
             method: "POST", 
@@ -33,13 +30,14 @@ async function submitForm(){
         return;
     }
 
-    let post_id = await create_post_response.json();
-    console.log(post_id);
+    const post_data = await create_post_response.json();
+    const post_id = post_data["post_id"];
+
 
     // Redirect to the post page
     window.location.href = "/frontend/pages/post.html?id=" + post_id;
 
-    return post_id;
+    return post_data;
 }
 
 // execute onLoad when page is fully loaded
