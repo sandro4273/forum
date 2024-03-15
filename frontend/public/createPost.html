@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post erstellen</title>
-    <script type="text/javascript" src="/frontend/constants.js"></script>
-    <link rel="stylesheet" href="../general.css">
-    <link rel="stylesheet" href="../header.css">
-    <link rel="stylesheet" href="../sidebar.css">
+    <script type="text/javascript" src="../src/constants.js"></script>
+    <link rel="stylesheet" href="../src/styles/general.css">
+    <link rel="stylesheet" href="../src/styles/header.css">
+    <link rel="stylesheet" href="../src/styles/sidebar.css">
 </head>
 
 
@@ -16,10 +16,10 @@
 
     <div class="header">
         <div class="left-section">
-            <a class="home-button" href="/frontend/index.html">
-                <img src="../icons\home.svg">
-            <a class="direct-messages-button" href="/frontend/pages/chatOverview.html">
-                <img src="../icons\direct messages.png"></a>
+            <a class="home-button" href="index.html">
+                <img src="../src/assets/icons/home.svg">
+            <a class="direct-messages-button" href="chatOverview.html">
+                <img src="../src/assets/icons/direct messages.png"></a>
             </a>
         </div>
         <div class="middle-section">
@@ -27,8 +27,8 @@
         </div>
         <div class="right-section">
             <div id="authButtons">
-                <a href="/frontend/pages/login.html">Anmelden</a>
-                <a href="/frontend/pages/signup.html">Registrieren</a>
+                <a href="login.html">Anmelden</a>
+                <a href="signup.html">Registrieren</a>
             </div>
             <div id="loggedInUser" style="display:none;">
                 Eingeloggt als <span id="username"></span> (<span id="email"></span>)
@@ -44,10 +44,10 @@
     <h1>Post erstellen</h1>
     <form name="createPost">
         <label for="postTitle">Titel</label><br>
-        <input type="text" name="postTitle" required><br> <br>
+        <input id="postTitle" type="text" name="postTitle" required><br> <br>
 
         <label for="postContent">Text</label><br>
-        <input type="text" name="postContent" style="height: 100px;"><br> <br>
+        <input id="postContent" type="text" name="postContent" style="height: 100px;"><br> <br>
 
         <p id="errorMessage" style="color: red; display: none;">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
 
@@ -56,5 +56,5 @@
 </body>
 
 
-<script type="text/javascript" src="/frontend/scripts/createPost.js"></script>
+<script type="text/javascript" src="../src/scripts/createPost.js"></script>
 </html>

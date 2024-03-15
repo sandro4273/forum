@@ -4,7 +4,7 @@
 
 import sqlite3
 
-conn = sqlite3.connect("forum.db")
+conn = sqlite3.connect("db_service/data/forum.db")
 conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 
@@ -61,7 +61,7 @@ def create_tag(tag_name):
     result = cur.fetchone()
     if result:  # tag already exists
         return result[0]  # return tag_id
-    
+
     # otherwise create new tag
     sql = "INSERT INTO tags (tag_name) VALUES (?)"
     cur.execute(sql, (tag_name,))
@@ -191,7 +191,7 @@ def get_chats_of_user(user_id):
     # Select chat_id, both user_ids and the username of the other user
     sql = "SELECT chats.*, users.username as other_username FROM chats JOIN users ON (chats.user1 = users.user_id OR chats.user2 = users.user_id) WHERE (chats.user1 = ? OR chats.user2 = ?) AND users.user_id != ?"
     cur.execute(sql, (user_id, user_id, user_id))
-    return cur.fetchall()   # response looks like: [{"chat_id": 1, "user1": 1, "user2": 2, "other_username": "user2"}]
+    return cur.fetchall()  # response looks like: [{"chat_id": 1, "user1": 1, "user2": 2, "other_username": "user2"}]
 
 
 # Update functions
@@ -204,7 +204,7 @@ def update_username(user_id, new_name):
 def update_role(user_id, new_role):
     if new_role not in VALID_ROLES:
         return "Invalid role"
-    
+
     with conn:
         sql = "UPDATE users SET role = ? WHERE user_id = ?"
         cur.execute(sql, (new_role, user_id))
@@ -263,7 +263,7 @@ def delete_post_with_comments(post_id):
 def delete_comment(comment_id):
     with conn:
         sql = "DELETE FROM comments WHERE comment_id = ?"
-        cur.execute(sql, (comment_id, ))
+        cur.execute(sql, (comment_id,))
 
 
 # other functions

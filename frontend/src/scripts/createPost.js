@@ -16,7 +16,7 @@ async function submitForm(){
     // Create post and retrieve the post_id
     const auth_token = localStorage.getItem("AuthToken");
     const create_post_response = await fetch(
-        BACKENDURL + "post/create_post/", {
+        `${BACKENDURL}posts/create_post/`, {
             method: "POST", 
             headers: {
                 "Content-Type" : "application/json",
@@ -35,7 +35,7 @@ async function submitForm(){
 
 
     // Redirect to the post page
-    window.location.href = "/frontend/pages/post.html?id=" + post_id;
+    window.location.href = "/frontend/public/post.html?id=" + post_id;
 
     return post_data;
 }

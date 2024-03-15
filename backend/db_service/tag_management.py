@@ -1,4 +1,4 @@
-from db_service import create_tag
+from backend.db_service.database import create_tag
 import yake
 import spacy
 

@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Chats</title>
-    <script type="text/javascript" src="/frontend/constants.js"></script>
-    <link rel="stylesheet" href="../general.css">
-    <link rel="stylesheet" href="../header.css">
-    <link rel="stylesheet" href="../sidebar.css">
+    <script type="text/javascript" src="../src/constants.js"></script>
+    <link rel="stylesheet" href="../src/styles/general.css">
+    <link rel="stylesheet" href="../src/styles/header.css">
+    <link rel="stylesheet" href="../src/styles/sidebar.css">
 </head>
 <body>
 
     <div class="header">
         <div class="left-section">
-            <a class="home-button" href="/frontend/index.html">
-                <img src="../icons\home.svg">
-            <a class="direct-messages-button" href="/frontend/pages/chatOverview.html">
-                <img src="../icons\direct messages.png"></a>
+            <a class="home-button" href="index.html">
+                <img src="../src/assets/icons/home.svg">
+            <a class="direct-messages-button" href="chatOverview.html">
+                <img src="../src/assets/icons/direct messages.png"></a>
             </a>
         </div>
         <div class="middle-section">
@@ -23,8 +23,8 @@
         </div>
         <div class="right-section">
             <div id="authButtons">
-                <a href="/frontend/pages/login.html">Anmelden</a>
-                <a href="/frontend/pages/signup.html">Registrieren</a>
+                <a href="/frontend/public/login.html">Anmelden</a>
+                <a href="/frontend/public/signup.html">Registrieren</a>
             </div>
             <div id="loggedInUser" style="display:none;">
                 Eingeloggt als <span id="username"></span> (<span id="email"></span>)
@@ -44,5 +44,5 @@
 
     
 </body>
-<script type="text/javascript" src="/frontend/scripts/chatOverview.js"></script>
+<script type="text/javascript" src="../src/scripts/chatOverview.js"></script>
 </html>

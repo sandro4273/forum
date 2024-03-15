@@ -2,7 +2,7 @@
 async function onLoad() {
     // Get partner username
     const chatId = getChatIdFromUrl();
-    const chatResponse = await fetch(BACKENDURL + "chat/id/" + chatId + "/");
+    const chatResponse = await fetch(`${BACKENDURL}chats/id/${chatId}/`);
     const chatData = await chatResponse.json();
         console.log(chatData);
     const chat = chatData["chat"];
@@ -36,7 +36,7 @@ function getChatIdFromUrl() {
 }
 
 async function getUsernameById(user_id) {
-    const usernameResponse = await fetch(BACKENDURL + "user/id/" + user_id + "/username/");
+    const usernameResponse = await fetch(`${BACKENDURL}users/id/${user_id}/username/`);
     const usernameData = await usernameResponse.json();
     return usernameData["username"];
 }
@@ -44,7 +44,7 @@ async function getUsernameById(user_id) {
 async function getCurrentUserId() {
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + "get_current_user_id/", {
+        `${BACKENDURL}get_current_user_id/`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -65,7 +65,7 @@ async function loadMessages(chat_id) {
     messageList.innerHTML = ""; // Clear message list
 
     // Load all messages of chat
-    const messagesResponse = await fetch(BACKENDURL + "chat/id/" + chat_id + "/messages/all/");
+    const messagesResponse = await fetch(`${BACKENDURL}chats/id/${chat_id}/messages/all/`);
     const messagesData = await messagesResponse.json();
     const messages = messagesData["messages"];
 
@@ -118,7 +118,7 @@ async function sendMessage(event) {
     }
 
     const messageResponse = await fetch(
-        BACKENDURL + "chat/id/" + chatId + "/create_message/", {
+        `${BACKENDURL}chats/id/${chatId}/create_message/`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(body)

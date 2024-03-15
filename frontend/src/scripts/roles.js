@@ -5,7 +5,7 @@ const colors = {
 }
 
 async function getRole(username){
-    const response = await fetch(`${BACKENDURL}user/name/${username}/role/`);
+    const response = await fetch(`${BACKENDURL}users/name/${username}/role/`);
     const role = await response.json();
     return role["role"];
 }
