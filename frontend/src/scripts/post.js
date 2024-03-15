@@ -12,6 +12,7 @@ let post = null;
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
+
     // Load user data
     currentUserId = await getCurrentUserId();
     if(currentUserId){
@@ -67,13 +68,13 @@ async function getCurrentUserId(){
 }
 
 async function getPost(postId){
-    const response = await fetch(BACKENDURL + `post/id/${postId}/`);
+    const response = await fetch(BACKENDURL + `posts/id/${postId}/`);
     const post = await response.json();
     return response.ok ? post["post"] : null;
 }
 
 async function getUsername(userId){
-    const response = await fetch(BACKENDURL + `user/id/${userId}/username/`);
+    const response = await fetch(BACKENDURL + `users/id/${userId}/username/`);
     const username = await response.json();
     return response.ok ? username["username"] : null;
 }
@@ -101,7 +102,7 @@ async function loadPost(){
 
 async function loadTags(post_id){
     // load tags
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/tags/all/");
+    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/tags/all/");
     const tagsData = await response.json();
     const tags = tagsData["tags"];
 
@@ -120,7 +121,7 @@ async function loadTags(post_id){
 
 async function loadComments(post_id){
     // load comments
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/comments/all/");
+    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/comments/all/");
     const commentsData = await response.json();
     const comments = commentsData["comments"];
 
@@ -156,7 +157,7 @@ async function createComment(event, post_id){
     const auth_token = localStorage.getItem("AuthToken");
 
     const create_comment_response = await fetch(
-        BACKENDURL + "post/id/" + post_id + "/create_comment/", {
+        BACKENDURL + "posts/id/" + post_id + "/create_comment/", {
             method: "POST", 
             headers: {
                 "Content-Type" : "application/json",
@@ -172,7 +173,7 @@ async function createComment(event, post_id){
 
 async function editPost(post_id){
     // Get the post content
-    const response = await fetch(BACKENDURL + "post/id/" + post_id + "/");
+    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/");
     const postData = await response.json();
     const postContent = postData["post"]["content"];
 
@@ -204,7 +205,7 @@ async function submitEditPostFunction(post_id){
     console.log(newPostContent);
 
     const response = await fetch(
-        BACKENDURL + "post/id/" + post_id + "/edit/", {
+        BACKENDURL + "posts/id/" + post_id + "/edit/", {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${auth_token}`
@@ -223,7 +224,7 @@ async function deletePost(post_id){
     // Send the delete request
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + "post/id/" + post_id + "/delete/", {
+        BACKENDURL + "posts/id/" + post_id + "/delete/", {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${auth_token}`
@@ -232,7 +233,7 @@ async function deletePost(post_id){
 
     // Redirect to the index page, but only if the request was successful
     if(response.ok){
-        window.location.href = "/frontend/index.html";
+        window.location.href = "/frontend/public/index.html";
     }
 }
 
@@ -352,7 +353,7 @@ class Comment {
         // Send the new comment content to the backend
         const auth_token = localStorage.getItem("AuthToken");
         const response = fetch(
-            BACKENDURL + "comment/id/" + this.commentId + "/edit/", {
+            BACKENDURL + "comments/id/" + this.commentId + "/edit/", {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${auth_token}`
@@ -368,7 +369,7 @@ class Comment {
         // Send the delete request
         const auth_token = localStorage.getItem("AuthToken");
         const response = fetch(
-            BACKENDURL + "comment/id/" + this.commentId + "/delete/", {
+            BACKENDURL + "comments/id/" + this.commentId + "/delete/", {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${auth_token}`

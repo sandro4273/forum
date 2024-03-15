@@ -10,14 +10,14 @@ async function submitSignupForm(){
     }
 
     const response = await fetch(
-        BACKENDURL + "user/signup/", {
+        BACKENDURL + "users/signup/", {
             method: "POST",
             headers: {"Content-Type" : "application/json"},
             body: JSON.stringify(body),
         });
 
     if (response.ok) {
-        window.location.href = "/frontend/pages/login.html";
+        window.location.href = "/frontend/public/login.html";
     } else {
         const errorData = await response.json();
 
