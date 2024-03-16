@@ -88,6 +88,22 @@ async def get_votes_of_post(post_id: int):
 
     return db.get_votes_of_post(post_id)
 
+
+@router.get("/id/{post_id}/votes/user/")
+async def get_vote_of_user(post_id: int, current_user: dict = Depends(get_current_user_id)):
+    """
+    Returns the vote of a user for a post.
+
+    Args:
+        post_id: The ID of the post (integer).
+        user_id: The ID of the user (integer).
+
+    Returns:
+        The vote of the user for the post (integer).
+    """
+    
+    return db.get_vote_of_user(post_id, current_user["user_id"])
+
 @router.get("/id/{post_id}/comments/all/")
 async def get_comments_of_post(post_id: int):
     """
