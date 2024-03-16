@@ -12,14 +12,13 @@ let post = null;
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
-
     // Load user data
     currentUserId = await getCurrentUserId();
     if(currentUserId){
         currentUsername = await getUsername(currentUserId);
         currentUserRole = await getRole(currentUsername);
     }
-    console.log(currentUsername)
+    console.log("Logged in as: " + currentUsername)
     // Load post data
     post = await getPost(postId);
     authorId = post["user_id"];
@@ -131,14 +130,26 @@ async function loadTags(post_id){
     }
 }
 
-async function loadVotes(post_id){
+async function loadVotes(postId){
     // load votes
-    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/votes/");
+    const response = await fetch(BACKENDURL + "posts/id/" + postId + "/votes/");
     const votes = await response.json() || 0;
 
     // Display votes
     const voteCount = document.querySelector("#voteCount");
     voteCount.textContent = votes;
+
+    // Vote of current user
+    if(currentUserId){
+        const vote = await getVoteOfCurrent(postId);
+        if(vote){
+            if(vote === 1){
+                document.querySelector("#upvoteButton").style.backgroundColor = "green";
+            } else if(vote === -1){
+                document.querySelector("#downvoteButton").style.backgroundColor = "red";
+            }
+        }
+    }
 }
 
 async function loadComments(post_id){
@@ -159,7 +170,6 @@ async function loadComments(post_id){
         // Toggle visibility of see more button
         if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUserId === comment["user_id"])){
             commentObject.seeMoreButton.style.display = "inline-block";
-            console.log("visible")
         }
         // Append
         document.querySelector("#commentList").appendChild(commentObject.commentContainer);
@@ -274,6 +284,20 @@ async function vote(postId, vote){
 
     // Reload the site
     location.reload();
+}
+
+async function getVoteOfCurrent(postId){
+    // Send the GET request, send auth token
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "posts/id/" + postId + "/votes/user/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${auth_token}`
+            }
+        });
+    const vote = await response.json();
+    return response.ok ? vote : null;
 }
 
 class Comment {

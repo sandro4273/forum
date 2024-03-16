@@ -182,6 +182,16 @@ def get_votes_of_post(post_id):
     return cur.fetchone()[0]
 
 
+def get_vote_of_user(post_id, user_id):
+    sql = "SELECT vote FROM posts_votes WHERE post_id = ? AND user_id = ?"
+    cur.execute(sql, (post_id, user_id))
+    result = cur.fetchone()
+    if result:
+        return result[0]
+    else:
+        return 0  # user has not voted
+
+
 def get_comment_by_id(comment_id):
     sql = "SELECT * FROM comments WHERE comment_id = ?"
     cur.execute(sql, (comment_id,))
