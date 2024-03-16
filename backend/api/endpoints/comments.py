@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Depends  # For the API
 from typing import Annotated  # For receiving data from the request body
-from .utility import get_current_user_id, is_privileged  # For user authentication
+from backend.api.endpoints.utility import get_current_user_id, is_privileged  # For user authentication
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 router = APIRouter(

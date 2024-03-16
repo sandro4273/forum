@@ -2,9 +2,13 @@
 # Luca Flühler, Lucien Ruffet, Sandro Kuster
 # Beschreibung: Datenbank-Service für das Forum
 
+import os
 import sqlite3
 
-conn = sqlite3.connect("backend/db_service/data/forum.db")
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(CURRENT_DIR, "data/forum.db")
+
+conn = sqlite3.connect(DB_PATH)
 conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 

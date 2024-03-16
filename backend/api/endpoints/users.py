@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends  # For the API
-from .utility import get_current_user_id, create_access_token  # For user authentication
-from .schemas import SignupData, LoginData  # Data models for the API
+from backend.api.endpoints.utility import get_current_user_id, create_access_token  # For user authentication
+from backend.api.endpoints.schemas import SignupData, LoginData  # Data models for the API
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 router = APIRouter(

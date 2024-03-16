@@ -9,6 +9,7 @@
 
 ### Backend-Server starten
 - `/backend/main.py` ausführen.
+- Alternative: `uvicorn backend.main:app --reload` ausführen.
 
     → Dies öffnet den Backend-Server auf http://127.0.0.1:8000/  
 
