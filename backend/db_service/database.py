@@ -58,6 +58,31 @@ def create_post(user_id, title, content):
     return cur.lastrowid
 
 
+def create_vote_post(user_id, post_id, vote):
+    # Check if user already voted
+    sql = "SELECT vote FROM posts_votes WHERE user_id = ? AND post_id = ?"
+    cur.execute(sql, (user_id, post_id))
+    result = cur.fetchone()
+
+    if result:  # user already voted
+        if result[0] == vote:  # if user wants to vote the same as before, delete vote
+            sql = "DELETE FROM posts_votes WHERE user_id = ? AND post_id = ?"
+            cur.execute(sql, (user_id, post_id))
+            conn.commit()
+            return None
+        else:  # if user wants to change vote, update vote
+            sql = "UPDATE posts_votes SET vote = ? WHERE user_id = ? AND post_id = ?"
+            cur.execute(sql, (vote, user_id, post_id))
+            conn.commit()
+            return None
+        
+    # otherwise create new vote
+    sql = "INSERT INTO posts_votes (user_id, post_id, vote) VALUES (?, ?, ?)"
+    cur.execute(sql, (user_id, post_id, vote))
+    conn.commit()
+    return cur.lastrowid
+
+
 def create_tag(tag_name):
     # Check if tag already exists
     sql = "SELECT tag_id FROM tags WHERE tag_name = ?"
@@ -155,6 +180,22 @@ def get_posts_with_tag(tag_name):
     return cur.fetchall()
 
 
+def get_votes_of_post(post_id):
+    sql = "SELECT SUM(vote) FROM posts_votes WHERE post_id = ?"
+    cur.execute(sql, (post_id,))
+    return cur.fetchone()[0]
+
+
+def get_vote_of_user(post_id, user_id):
+    sql = "SELECT vote FROM posts_votes WHERE post_id = ? AND user_id = ?"
+    cur.execute(sql, (post_id, user_id))
+    result = cur.fetchone()
+    if result:
+        return result[0]
+    else:
+        return 0  # user has not voted
+
+
 def get_comment_by_id(comment_id):
     sql = "SELECT * FROM comments WHERE comment_id = ?"
     cur.execute(sql, (comment_id,))
@@ -245,6 +286,12 @@ def add_tag_to_post(post_id, tag_name):
     tag_id = create_tag(tag_name)
     sql = "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)"
     cur.execute(sql, (post_id, tag_id))
+
+
+def update_vote_post(user_id, post_id, vote):
+    with conn:
+        sql = "UPDATE posts_votes SET vote = ? WHERE user_id = ? AND post_id = ?"
+        cur.execute(sql, (vote, user_id, post_id))
 
 
 def update_comment_content(comment_id, new_content):
