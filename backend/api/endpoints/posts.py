@@ -74,6 +74,20 @@ async def get_tags_of_post(post_id: int):
     return {"tags": db.get_tags_of_post(post_id)}
 
 
+@router.get("/id/{post_id}/votes/")
+async def get_votes_of_post(post_id: int):
+    """
+    Returns the votes of a post.
+
+    Args:
+        post_id: The ID of the post (integer).
+
+    Returns:
+        The voting of the post (voting = upvotes - downvotes) (integer).
+    """
+
+    return db.get_votes_of_post(post_id)
+
 @router.get("/id/{post_id}/comments/all/")
 async def get_comments_of_post(post_id: int):
     """

@@ -25,20 +25,31 @@ async function onLoad(){
     authorId = post["user_id"];
     authorUsername = await getUsername(authorId);
 
+    // Add event listeners
+    document.querySelector("#upvoteButton").addEventListener("click", () => vote(postId, 1));
+    document.querySelector("#downvoteButton").addEventListener("click", () => vote(postId, -1));
+
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
     document.querySelector("#deletePostButton").addEventListener("click", () => deletePost(postId));
 
+    // Load post, tags and comments
     await toggleSiteVisibility();
     await loadPost();
     await loadTags(postId);
+    await loadVotes(postId);
     await loadComments(postId);
 }
 
 async function toggleSiteVisibility(){
-    // If a user is logged in, display the comment form
+    // If a user is logged in, display the comment form and vote buttons
     const commentForm = document.getElementById('commentForm');
     commentForm.style.display = currentUserId ? 'block' : 'none';
+
+    const upvoteButton = document.getElementById('upvoteButton');
+    const downvoteButton = document.getElementById('downvoteButton');
+    upvoteButton.style.display = currentUserId ? 'inline-block' : 'none';  
+    downvoteButton.style.display = currentUserId ? 'inline-block' : 'none';
 
     // If the user is an admin/moderator or the author, display the delete button
     const deletePostButton = document.getElementById('deletePostButton');
@@ -118,6 +129,16 @@ async function loadTags(post_id){
         tagElement.textContent = tag["tag_name"] + "  |  ";
         tagList.appendChild(tagElement);
     }
+}
+
+async function loadVotes(post_id){
+    // load votes
+    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/votes/");
+    const votes = await response.json() || 0;
+
+    // Display votes
+    const voteCount = document.querySelector("#voteCount");
+    voteCount.textContent = votes;
 }
 
 async function loadComments(post_id){
@@ -237,6 +258,22 @@ async function deletePost(post_id){
     if(response.ok){
         window.location.href = "/frontend/public/index.html";
     }
+}
+
+async function vote(postId, vote){
+    // Send the vote request
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "posts/id/" + postId + "/vote/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${auth_token}`
+            },
+            body: vote,
+        });
+
+    // Reload the site
+    location.reload();
 }
 
 class Comment {
