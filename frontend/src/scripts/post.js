@@ -25,8 +25,8 @@ async function onLoad(){
     authorUsername = await getUsername(authorId);
 
     // Add event listeners
-    document.querySelector("#upvoteButton").addEventListener("click", () => vote(postId, 1));
-    document.querySelector("#downvoteButton").addEventListener("click", () => vote(postId, -1));
+    document.querySelector("#upvoteButton").addEventListener("click", (event) => vote(event, postId, 1));
+    document.querySelector("#downvoteButton").addEventListener("click", (event) => vote(event, postId, -1));
 
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
@@ -203,7 +203,6 @@ async function createComment(event, post_id){
     location.reload();
 }
 
-
 async function editPost(post_id){
     // Get the post content
     const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/");
@@ -270,7 +269,10 @@ async function deletePost(post_id){
     }
 }
 
-async function vote(postId, vote){
+async function vote(event, postId, vote){
+    // Prevent the site from reloading
+    event.preventDefault(); // WHY DOES THIS NOT WORK?
+
     // Send the vote request
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
@@ -281,9 +283,6 @@ async function vote(postId, vote){
             },
             body: vote,
         });
-
-    // Reload the site
-    location.reload();
 }
 
 async function getVoteOfCurrent(postId){
