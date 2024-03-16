@@ -161,6 +161,29 @@ async def create_comment(post_id: int, comment: Comment, current_user: dict = De
     return {"comment": comment}
 
 
+@router.post("/id/{post_id}/vote/")
+async def vote_post(post_id: int, vote: Annotated[int, Body(...)], current_user: dict = Depends(get_current_user_id)):
+    """
+    Votes for a post. (Like/Dislike)
+
+    Args:
+        post_id: The ID of the post (integer).
+        vote: The vote (int). 1 for upvote, -1 for downvote.
+        current_user: The current user (dictionary).
+
+    Returns:
+        The vote (integer).
+    """
+
+    current_user_id = current_user["user_id"]
+
+    if not current_user_id:
+        raise HTTPException(status_code=401, detail="You need to be logged in to vote")
+
+    db.create_vote_post(current_user_id, post_id, vote)
+    return {"vote": vote}
+
+
 # ------------------------- Put Requests -------------------------
 @router.put("/id/{post_id}/edit/")
 async def update_post_content(post_id: int, new_content: Annotated[str, Body()],
