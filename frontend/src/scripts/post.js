@@ -19,6 +19,7 @@ async function onLoad(){
         currentUsername = await getUsername(currentUserId);
         currentUserRole = await getRole(currentUsername);
     }
+    console.log(currentUsername)
     // Load post data
     post = await getPost(postId);
     authorId = post["user_id"];
@@ -134,9 +135,11 @@ async function loadComments(post_id){
         await commentObject.init(comment["comment_id"], comment["content"], comment["user_id"], comment["post_id"], comment["created_at"]);
         commentObjects.push(commentObject);
 
+        console.log(currentUserId, comment["user_id"])
         // Toggle visibility of see more button
-        if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === authorUsername)){
+        if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUserId === comment["user_id"])){
             commentObject.seeMoreButton.style.display = "inline-block";
+            console.log("visible")
         }
         // Append
         document.querySelector("#commentList").appendChild(commentObject.commentContainer);
