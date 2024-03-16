@@ -355,7 +355,7 @@ class Comment {
 
         // Send the new comment content to the backend
         const auth_token = localStorage.getItem("AuthToken");
-        const response = fetch(
+        const response = await fetch(
             BACKENDURL + "comments/id/" + this.commentId + "/edit/", {
                 method: "PUT",
                 headers: {
@@ -368,10 +368,10 @@ class Comment {
         location.reload();
     }
 
-    deleteComment(){
+    async deleteComment(){
         // Send the delete request
         const auth_token = localStorage.getItem("AuthToken");
-        const response = fetch(
+        const response = await fetch(
             BACKENDURL + "comments/id/" + this.commentId + "/delete/", {
                 method: "DELETE",
                 headers: {
