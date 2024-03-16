@@ -4,7 +4,7 @@
 
 import sqlite3
 
-conn = sqlite3.connect("db_service/data/forum.db")
+conn = sqlite3.connect("backend/db_service/data/forum.db")
 conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 
@@ -15,7 +15,7 @@ def close_db():
     conn.close()
 
 
-def login_user(email, password) -> int or None:
+def login_user(email, password) -> int or None: # type: ignore
     sql = "SELECT user_id FROM users WHERE email = ? AND password = ?"
     cur.execute(sql, (email, password))
 
