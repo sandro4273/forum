@@ -10,7 +10,7 @@ async function submitSignupForm(){
     }
 
     const response = await fetch(
-        BACKENDURL + "users/signup/", {
+        BACKENDURL + "auth/signup/", {
             method: "POST",
             headers: {"Content-Type" : "application/json"},
             body: JSON.stringify(body),
@@ -23,6 +23,7 @@ async function submitSignupForm(){
 
         if (response.status === 422) {
             displayErrorMessage(errorData.detail[0].msg);
+            console.log(errorData);
         } else {
             displayErrorMessage("Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.");
         }
