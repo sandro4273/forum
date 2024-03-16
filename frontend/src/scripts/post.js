@@ -135,7 +135,6 @@ async function loadComments(post_id){
         await commentObject.init(comment["comment_id"], comment["content"], comment["user_id"], comment["post_id"], comment["created_at"]);
         commentObjects.push(commentObject);
 
-        console.log(currentUserId, comment["user_id"])
         // Toggle visibility of see more button
         if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUserId === comment["user_id"])){
             commentObject.seeMoreButton.style.display = "inline-block";
