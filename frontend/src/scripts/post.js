@@ -12,33 +12,43 @@ let post = null;
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
-
     // Load user data
     currentUserId = await getCurrentUserId();
     if(currentUserId){
         currentUsername = await getUsername(currentUserId);
         currentUserRole = await getRole(currentUsername);
     }
-    console.log(currentUsername)
+    console.log("Logged in as: " + currentUsername)
     // Load post data
     post = await getPost(postId);
     authorId = post["user_id"];
     authorUsername = await getUsername(authorId);
 
+    // Add event listeners
+    document.querySelector("#upvoteButton").addEventListener("click", (event) => vote(event, postId, 1));
+    document.querySelector("#downvoteButton").addEventListener("click", (event) => vote(event, postId, -1));
+
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
     document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
     document.querySelector("#deletePostButton").addEventListener("click", () => deletePost(postId));
 
+    // Load post, tags and comments
     await toggleSiteVisibility();
     await loadPost();
     await loadTags(postId);
+    await loadVotes(postId);
     await loadComments(postId);
 }
 
 async function toggleSiteVisibility(){
-    // If a user is logged in, display the comment form
+    // If a user is logged in, display the comment form and vote buttons
     const commentForm = document.getElementById('commentForm');
     commentForm.style.display = currentUserId ? 'block' : 'none';
+
+    const upvoteButton = document.getElementById('upvoteButton');
+    const downvoteButton = document.getElementById('downvoteButton');
+    upvoteButton.style.display = currentUserId ? 'inline-block' : 'none';  
+    downvoteButton.style.display = currentUserId ? 'inline-block' : 'none';
 
     // If the user is an admin/moderator or the author, display the delete button
     const deletePostButton = document.getElementById('deletePostButton');
@@ -120,6 +130,28 @@ async function loadTags(post_id){
     }
 }
 
+async function loadVotes(postId){
+    // load votes
+    const response = await fetch(BACKENDURL + "posts/id/" + postId + "/votes/");
+    const votes = await response.json() || 0;
+
+    // Display votes
+    const voteCount = document.querySelector("#voteCount");
+    voteCount.textContent = votes;
+
+    // Vote of current user
+    if(currentUserId){
+        const vote = await getVoteOfCurrent(postId);
+        if(vote){
+            if(vote === 1){
+                document.querySelector("#upvoteButton").style.backgroundColor = "green";
+            } else if(vote === -1){
+                document.querySelector("#downvoteButton").style.backgroundColor = "red";
+            }
+        }
+    }
+}
+
 async function loadComments(post_id){
     // load comments
     const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/comments/all/");
@@ -135,11 +167,9 @@ async function loadComments(post_id){
         await commentObject.init(comment["comment_id"], comment["content"], comment["user_id"], comment["post_id"], comment["created_at"]);
         commentObjects.push(commentObject);
 
-        console.log(currentUserId, comment["user_id"])
         // Toggle visibility of see more button
         if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUserId === comment["user_id"])){
             commentObject.seeMoreButton.style.display = "inline-block";
-            console.log("visible")
         }
         // Append
         document.querySelector("#commentList").appendChild(commentObject.commentContainer);
@@ -172,7 +202,6 @@ async function createComment(event, post_id){
     // reload the site
     location.reload();
 }
-
 
 async function editPost(post_id){
     // Get the post content
@@ -238,6 +267,36 @@ async function deletePost(post_id){
     if(response.ok){
         window.location.href = "/frontend/public/index.html";
     }
+}
+
+async function vote(event, postId, vote){
+    // Prevent the site from reloading
+    event.preventDefault(); // WHY DOES THIS NOT WORK?
+
+    // Send the vote request
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "posts/id/" + postId + "/vote/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${auth_token}`
+            },
+            body: vote,
+        });
+}
+
+async function getVoteOfCurrent(postId){
+    // Send the GET request, send auth token
+    const auth_token = localStorage.getItem("AuthToken");
+    const response = await fetch(
+        BACKENDURL + "posts/id/" + postId + "/votes/user/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${auth_token}`
+            }
+        });
+    const vote = await response.json();
+    return response.ok ? vote : null;
 }
 
 class Comment {

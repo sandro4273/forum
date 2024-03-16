@@ -74,6 +74,36 @@ async def get_tags_of_post(post_id: int):
     return {"tags": db.get_tags_of_post(post_id)}
 
 
+@router.get("/id/{post_id}/votes/")
+async def get_votes_of_post(post_id: int):
+    """
+    Returns the votes of a post.
+
+    Args:
+        post_id: The ID of the post (integer).
+
+    Returns:
+        The voting of the post (voting = upvotes - downvotes) (integer).
+    """
+
+    return db.get_votes_of_post(post_id)
+
+
+@router.get("/id/{post_id}/votes/user/")
+async def get_vote_of_user(post_id: int, current_user: dict = Depends(get_current_user_id)):
+    """
+    Returns the vote of a user for a post.
+
+    Args:
+        post_id: The ID of the post (integer).
+        user_id: The ID of the user (integer).
+
+    Returns:
+        The vote of the user for the post (integer).
+    """
+    
+    return db.get_vote_of_user(post_id, current_user["user_id"])
+
 @router.get("/id/{post_id}/comments/all/")
 async def get_comments_of_post(post_id: int):
     """
@@ -159,6 +189,29 @@ async def create_comment(post_id: int, comment: Comment, current_user: dict = De
     db.create_comment(post_id, current_user_id, comment.content)
 
     return {"comment": comment}
+
+
+@router.post("/id/{post_id}/vote/")
+async def vote_post(post_id: int, vote: Annotated[int, Body(...)], current_user: dict = Depends(get_current_user_id)):
+    """
+    Votes for a post. (Like/Dislike)
+
+    Args:
+        post_id: The ID of the post (integer).
+        vote: The vote (int). 1 for upvote, -1 for downvote.
+        current_user: The current user (dictionary).
+
+    Returns:
+        The vote (integer).
+    """
+
+    current_user_id = current_user["user_id"]
+
+    if not current_user_id:
+        raise HTTPException(status_code=401, detail="You need to be logged in to vote")
+
+    db.create_vote_post(current_user_id, post_id, vote)
+    return {"vote": vote}
 
 
 # ------------------------- Put Requests -------------------------
