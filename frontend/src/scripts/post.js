@@ -66,7 +66,7 @@ async function toggleSiteVisibility(){
 async function getCurrentUserId(){
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + `get_current_user_id/`, {
+        BACKENDURL + `users/me/id`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -103,7 +103,7 @@ async function loadPost(){
     const postContent = post["content"];
 
     // load author and role
-    const authorRole = await getRole(authorUsername);
+    const authorRole = await getRole(authorId);
     const roleColor = getRoleColor(authorRole);
     
     // insert post into HTML

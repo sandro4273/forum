@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, HTTPException, Depends  # For the API
 from typing import Annotated  # For receiving data from the request body
-from backend.api.endpoints.utility import get_current_user_id, is_privileged  # For user authentication
+from backend.api.endpoints.auth import get_current_user_id, is_privileged  # For user authentication
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 router = APIRouter(
@@ -18,20 +18,19 @@ router = APIRouter(
 # ------------------------- Put-Requests -------------------------
 @router.put("/id/{comment_id}/edit/")
 async def update_comment(comment_id: int, new_content: Annotated[str, Body()],
-                         current_user: dict = Depends(get_current_user_id)):
+                         current_user_id: Annotated[str, Depends(get_current_user_id)]):
     """
     Updates the content of a comment. Can only be done by the author of the comment.
 
     Args:
         comment_id: The ID of the comment (integer).
         new_content: The new content of the comment (string).
-        current_user: The current user (dictionary).
+        current_user_id: The current user id (integer).
 
     Returns:
         The new content of the comment (string).
     """
 
-    current_user_id = current_user["user_id"]
     author_id = db.get_author_id_of_comment(comment_id)
 
     if current_user_id != author_id and not is_privileged(current_user_id):
@@ -43,19 +42,18 @@ async def update_comment(comment_id: int, new_content: Annotated[str, Body()],
 
 # ------------------------- Delete-Requests -------------------------
 @router.delete("/id/{comment_id}/delete/")
-async def delete_comment_by_id(comment_id: int, current_user: dict = Depends(get_current_user_id)):
+async def delete_comment_by_id(comment_id: int, current_user_id: Annotated[str, Depends(get_current_user_id)]):
     """
     Deletes a comment by its ID.
 
     Args:
         comment_id: The ID of the comment (integer).
-        current_user:  The current user (dictionary).
+        current_user_id:  The current user id (integer).
 
     Returns:
         An empty dictionary.
     """
 
-    current_user_id = current_user["user_id"]
     author_id = db.get_author_id_of_comment(comment_id)
 
     if current_user_id != author_id and not is_privileged(current_user_id):

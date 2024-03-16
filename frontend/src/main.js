@@ -16,7 +16,7 @@ async function showCurrentUser(){
 
     // If a token is found, check if it is valid and retrieve the user info
     const response = await fetch(
-        BACKENDURL + `get_current_user/`, {
+        BACKENDURL + `users/me/`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -37,8 +37,9 @@ async function showCurrentUser(){
     // Display the user info
     const userData = await response.json();
     const user = userData["user"];
-    document.getElementById("username").textContent = user.username;
-    document.getElementById("email").textContent = user.email;
+    console.log(userData)
+    document.getElementById("username").textContent = user["username"];
+    document.getElementById("email").textContent = user["email"];
 
     // Display the logout button and hide the authentication buttons
     document.getElementById("authButtons").style.display = "none";
@@ -51,11 +52,13 @@ async function loadPosts(){     // TODO: Query for filtering posts
     const posts = postsData["posts"];
 
     for (let i = 0; i < posts.length; i++) {
-        const usernameResponse = await fetch(BACKENDURL + "users/id/" + posts[i]["user_id"] + "/username/");
+        const author_id = posts[i]["user_id"]
+
+        const usernameResponse = await fetch(BACKENDURL + "users/id/" + author_id + "/username/");
         const usernameData = await usernameResponse.json();
         const username = usernameData["username"];
 
-        const userRole = await getRole(username);
+        const userRole = await getRole(author_id);
         const roleColor = getRoleColor(userRole);
 
         const postElement = document.createElement('p');

@@ -19,18 +19,6 @@ def close_db():
     conn.close()
 
 
-def login_user(email, password) -> int or None: # type: ignore
-    sql = "SELECT user_id FROM users WHERE email = ? AND password = ?"
-    cur.execute(sql, (email, password))
-
-    result = cur.fetchone()
-
-    if result:
-        return result[0]  # user_id
-    else:
-        return None
-
-
 def username_exists(username: str) -> bool:
     sql = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)"
     cur.execute(sql, (username,))
@@ -123,6 +111,12 @@ def create_chat(user1, user2):
 def get_user_by_id(user_id):
     sql = "SELECT * FROM users WHERE user_id = ?"
     cur.execute(sql, (user_id,))
+    return cur.fetchone()
+
+
+def get_user_by_email(email):
+    sql = "SELECT * FROM users WHERE email = ?"
+    cur.execute(sql, (email,))
     return cur.fetchone()
 
 
