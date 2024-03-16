@@ -59,7 +59,7 @@ def create_vote_post(user_id, post_id, vote):
     sql = "SELECT vote FROM posts_votes WHERE user_id = ? AND post_id = ?"
     cur.execute(sql, (user_id, post_id))
     result = cur.fetchone()
-    
+
     if result:  # user already voted
         if result[0] == vote:  # if user wants to vote the same as before, delete vote
             sql = "DELETE FROM posts_votes WHERE user_id = ? AND post_id = ?"
@@ -174,6 +174,12 @@ def get_posts_with_tag(tag_name):
     sql = "SELECT posts.* FROM posts JOIN post_tags ON posts.post_id = post_tags.post_id JOIN tags ON post_tags.tag_id = tags.tag_id WHERE tags.tag_name = ?"
     cur.execute(sql, (tag_name,))
     return cur.fetchall()
+
+
+def get_votes_of_post(post_id):
+    sql = "SELECT SUM(vote) FROM posts_votes WHERE post_id = ?"
+    cur.execute(sql, (post_id,))
+    return cur.fetchone()[0]
 
 
 def get_comment_by_id(comment_id):
