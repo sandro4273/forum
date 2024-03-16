@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.api import api_router
+from backend.api.api import api_router
 
 # In case of CORS error, add your local host to the list of origins
 origins = [

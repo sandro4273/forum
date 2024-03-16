@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, HTTPException, Depends  # For the API
 from typing import Annotated  # For receiving data from the request body
-from .utility import get_current_user_id, is_privileged  # For user authentication
-from .schemas import Post, Comment  # For request and response bodies
+from backend.api.endpoints.utility import get_current_user_id, is_privileged  # For user authentication
+from backend.api.endpoints.schemas import Post, Comment  # For request and response bodies
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 from backend.db_service import tag_management as tm  # Tag management
 

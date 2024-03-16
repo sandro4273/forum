@@ -1,6 +1,5 @@
 from pydantic import BaseModel, EmailStr, field_validator  # For data validation
-import db_service  # For database operations
-
+from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 class Post(BaseModel):
     """
@@ -39,7 +38,7 @@ class SignupData(BaseModel):
 
         if not v.isalnum():
             raise ValueError("Username must be alphanumeric")
-        if db_service.username_exists(v):
+        if db.username_exists(v):
             raise ValueError("Username already exists")
         return v
 
@@ -56,7 +55,7 @@ class SignupData(BaseModel):
             The email if it is valid. Otherwise, raises a ValueError.
         """
 
-        if db_service.email_exists(v):
+        if db.email_exists(v):
             raise ValueError("Email already exists")
         return v
 
