@@ -329,7 +329,7 @@ class Comment {
         this.commentContainer.appendChild(userIDElement);
         const roleElement = document.createElement('span');
 
-        const authorRole = await getRole(await getUsername(this.authorId));
+        const authorRole = await getRole(this.authorId);
         roleElement.textContent = ` (${authorRole}): `;
         roleElement.style.color = getRoleColor(authorRole);
         this.commentContainer.appendChild(roleElement);
