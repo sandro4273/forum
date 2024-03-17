@@ -1,8 +1,8 @@
 from typing import Annotated
-from passlib.context import CryptContext
 import jwt  # JSON Web Token for user authentication
 from jwt import PyJWTError  # Gets thrown in case the JWT is not valid
 from datetime import datetime, timedelta  # For token expiration
+from passlib.context import CryptContext  # For password hashing
 
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
