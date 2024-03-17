@@ -19,18 +19,6 @@ def close_db():
     conn.close()
 
 
-def login_user(email, password) -> int or None: # type: ignore
-    sql = "SELECT user_id FROM users WHERE email = ? AND password = ?"
-    cur.execute(sql, (email, password))
-
-    result = cur.fetchone()
-
-    if result:
-        return result[0]  # user_id
-    else:
-        return None
-
-
 def username_exists(username: str) -> bool:
     sql = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)"
     cur.execute(sql, (username,))
@@ -126,16 +114,16 @@ def get_user_by_id(user_id):
     return cur.fetchone()
 
 
+def get_user_by_email(email):
+    sql = "SELECT * FROM users WHERE email = ?"
+    cur.execute(sql, (email,))
+    return cur.fetchone()
+
+
 def get_username_by_id(user_id):
     sql = "SELECT username FROM users WHERE user_id = ?"
     cur.execute(sql, (user_id,))
     return cur.fetchone()[0]
-
-
-def get_user_id_by_name(username):
-    sql = "SELECT user_id FROM users WHERE username = ?"
-    cur.execute(sql, (username,))
-    return cur.fetchone()
 
 
 def get_role_of_user_by_name(username):
@@ -168,16 +156,9 @@ def get_author_id_of_post(post_id):
     return cur.fetchone()[0]
 
 
-def get_posts(amount, offset):
-    sql = "SELECT * FROM posts LIMIT ? OFFSET ?"
-    cur.execute(sql, (amount, offset))
-    return cur.fetchall()
-
-
-def get_posts_by_search(search, amount, offset):
-    search = search.lower().strip()
-    sql = "SELECT * FROM posts WHERE LOWER(TRIM(title)) LIKE ? OR LOWER(TRIM(content)) LIKE ? LIMIT ? OFFSET ?"
-    cur.execute(sql, (f"%{search}%", f"%{search}%", amount, offset))
+def get_all_posts():
+    sql = "SELECT * FROM posts"
+    cur.execute(sql)
     return cur.fetchall()
 
 
