@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Body  # For the API
+from fastapi import APIRouter, Body, Depends, HTTPException  # For the API
 from typing import Annotated  # For receiving data from the request body
+from backend.api.endpoints.utility import get_current_user_id  # For user authentication
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 router = APIRouter(
@@ -38,29 +39,30 @@ async def get_messages_of_chat(chat_id: int):
     return {"messages": db.get_messages_of_chat(chat_id)}
 
 # ------------------------- Post-Requests -------------------------
-@router.post("/create_chat/")
-async def create_chat(user1: Annotated[int, Body()], user2: Annotated[int, Body()]):
+@router.post("/create/")
+async def create_chat(partner_id: Annotated[int, Body()], current_user = Depends(get_current_user_id)):
     """
     Creates a new chat between two users.
 
     Args:
-        user1: The ID of the first user (integer).
-        user2: The ID of the second user (integer).
+        partner_id: The ID of the partner user (integer).
 
     Returns:
         A dictionary containing the user IDs of the two users.
     """
 
+    current_user_id = current_user["user_id"]
+
     # Check if chat already exists
-    if db.check_chat_exists(user1, user2):
-        return {"message": "Chat already exists"}
+    if db.check_chat_exists(current_user_id, partner_id):
+        raise HTTPException(status_code=400, detail="Chat already exists")
 
     # Check if both users exist
-    if not db.check_user_exists(user1) or not db.check_user_exists(user2):
-        return {"message": "User does not exist"}
+    if not db.check_user_exists(current_user_id) or not db.check_user_exists(partner_id):
+        raise HTTPException(status_code=404, detail="User does not exist")
 
-    db.create_chat(user1, user2)
-    return {"user1": user1, "user2": user2}
+    db.create_chat(current_user_id, partner_id)
+    return {"current_user_id": current_user_id, "partner_id": partner_id}
 
 
 @router.post("/id/{chat_id}/create_message/")
