@@ -126,12 +126,6 @@ def get_username_by_id(user_id):
     return cur.fetchone()[0]
 
 
-def get_user_id_by_name(username):
-    sql = "SELECT user_id FROM users WHERE username = ?"
-    cur.execute(sql, (username,))
-    return cur.fetchone()
-
-
 def get_role_of_user_by_name(username):
     sql = "SELECT role FROM users WHERE username = ?"
     cur.execute(sql, (username,))
@@ -162,16 +156,9 @@ def get_author_id_of_post(post_id):
     return cur.fetchone()[0]
 
 
-def get_posts(amount, offset):
-    sql = "SELECT * FROM posts LIMIT ? OFFSET ?"
-    cur.execute(sql, (amount, offset))
-    return cur.fetchall()
-
-
-def get_posts_by_search(search, amount, offset):
-    search = search.lower().strip()
-    sql = "SELECT * FROM posts WHERE LOWER(TRIM(title)) LIKE ? OR LOWER(TRIM(content)) LIKE ? LIMIT ? OFFSET ?"
-    cur.execute(sql, (f"%{search}%", f"%{search}%", amount, offset))
+def get_all_posts():
+    sql = "SELECT * FROM posts"
+    cur.execute(sql)
     return cur.fetchall()
 
 
