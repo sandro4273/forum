@@ -46,7 +46,7 @@ async function showCurrentUser(){
 }
 
 async function loadPosts(){     // TODO: Query for filtering posts
-    const postsResponse= await fetch(BACKENDURL + "posts/all/")
+    const postsResponse= await fetch(BACKENDURL + "posts/get/?offset=" + postList.children.length) // postList.children.length is 0 at the beginning
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
 
@@ -62,6 +62,18 @@ async function loadPosts(){     // TODO: Query for filtering posts
         postElement.innerHTML = `<a href="${FRONTENDURL}frontend/public/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
         postList.append(postElement);
 
+    }
+
+    // If there was a load more button, remove it
+    if (document.querySelector("#postList button")) {
+        document.querySelector("#postList button").remove();
+    }
+    // If 10 posts are displayed, display a button to load more
+    if (posts.length === 10) {
+        const loadMoreButton = document.createElement('button');
+        loadMoreButton.textContent = "Load more";
+        loadMoreButton.addEventListener("click", loadPosts);
+        postList.append(loadMoreButton);
     }
 }
 
