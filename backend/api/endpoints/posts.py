@@ -57,7 +57,8 @@ async def get_posts_by_search(search: str, amount: int = 10, offset: int = 0):
     Returns:
         A list of post objects (dictionaries).
     """
-
+    # As all tags of a post are extracted keywords, we do not need to search for tags too
+    # If the tag assignment gets improved to also include tags from context that are not direct keywords, this should be changed
     return {"posts": db.get_posts_by_search(search, amount, offset)}
 
 

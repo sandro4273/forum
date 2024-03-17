@@ -132,6 +132,12 @@ def get_username_by_id(user_id):
     return cur.fetchone()[0]
 
 
+def get_user_id_by_name(username):
+    sql = "SELECT user_id FROM users WHERE username = ?"
+    cur.execute(sql, (username,))
+    return cur.fetchone()
+
+
 def get_role_of_user_by_name(username):
     sql = "SELECT role FROM users WHERE username = ?"
     cur.execute(sql, (username,))
