@@ -162,9 +162,9 @@ def get_author_id_of_post(post_id):
     return cur.fetchone()[0]
 
 
-def get_all_posts():
-    sql = "SELECT * FROM posts"
-    cur.execute(sql)
+def get_posts(amount, offset):
+    sql = "SELECT * FROM posts LIMIT ? OFFSET ?"
+    cur.execute(sql, (amount, offset))
     return cur.fetchall()
 
 
