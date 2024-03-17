@@ -3,7 +3,6 @@
 // Beschreibung: Hauptseite des Forums
 
 const postList = document.querySelector("#postList");
-document.querySelector("#searchBar").addEventListener("keypress", (event) => searchPosts(event));
 
 async function showCurrentUser(){
     const auth_token = localStorage.getItem("AuthToken");
@@ -47,11 +46,11 @@ async function showCurrentUser(){
     document.getElementById("loggedInUser").style.display = "block";
 }
 
-async function loadPosts(){
-    const postsResponse= await fetch(BACKENDURL + "posts/get/?offset=" + postList.children.length) // postList.children.length is 0 at the beginning
+async function loadPosts(){     // TODO: Query for filtering posts
+    const postsResponse= await fetch(BACKENDURL + "posts/all/")
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
-    console.log(posts)
+
     for (let i = 0; i < posts.length; i++) {
         const author_id = posts[i]["user_id"]
 
@@ -66,57 +65,6 @@ async function loadPosts(){
         postElement.innerHTML = `<a href="${FRONTENDURL}frontend/public/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
         postList.append(postElement);
 
-    }
-
-    // If there was a load more button, remove it
-    if (document.querySelector("#postList button")) {
-        document.querySelector("#postList button").remove();
-    }
-    // If 10 posts are displayed, display a button to load more
-    if (posts.length === 10) {
-        const loadMoreButton = document.createElement('button');
-        loadMoreButton.textContent = "Load more";
-        loadMoreButton.addEventListener("click", loadPosts);
-        postList.append(loadMoreButton);
-    }
-}
-
-async function searchPosts(event, offset=0){
-    // If the event is not the enter key or coming from the load more button, return
-    if (!(event == "next" || event.key == "Enter")) {
-        return;
-    }
-    const searchInput = document.getElementById("searchBar").value;
-    const postsResponse = await fetch(`${BACKENDURL}posts/search/?search=${searchInput}&offset=${offset}`);
-    const postsData = await postsResponse.json();
-    const posts = postsData["posts"];
-
-    // Clear the post list if the offset is 0 (meaning a new search was made)
-    postList.innerHTML = offset === 0 ? "" : postList.innerHTML;
-
-    for (let i = 0; i < posts.length; i++) {
-        const usernameResponse = await fetch(BACKENDURL + "users/id/" + posts[i]["user_id"] + "/username/");
-        const usernameData = await usernameResponse.json();
-        const username = usernameData["username"];
-
-        const userRole = await getRole(username);
-        const roleColor = getRoleColor(userRole);
-
-        const postElement = document.createElement('p');
-        postElement.innerHTML = `<a href="${FRONTENDURL}frontend/public/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
-        postList.append(postElement);
-    }
-
-    // If there was a load more button, remove it
-    if (document.querySelector("#postList button")) {
-        document.querySelector("#postList button").remove();
-    }
-    // If 10 posts are displayed, display a button to load more
-    if (posts.length === 10) {
-        const loadMoreButton = document.createElement('button');
-        loadMoreButton.textContent = "Load more";
-        loadMoreButton.addEventListener("click", () => searchPosts("next", offset=offset + 10));
-        postList.append(loadMoreButton);
     }
 }
 

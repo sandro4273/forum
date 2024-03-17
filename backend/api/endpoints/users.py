@@ -87,46 +87,6 @@ async def get_username_by_id(user_id: int):
     return {"username": username}
 
 
-@router.get("/name/{username}/")
-async def get_user_id_by_name(username: str):
-    """
-    Returns the ID of a user by its name.
-
-    Args:
-        username: The username of the user (string).
-
-    Returns:
-        A dictionary containing the ID of the user.
-    """
-
-    user_id = db.get_user_id_by_name(username)
-
-    if user_id is None:  # User not found
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"user_id": user_id[0]}
-
-
-@router.get("/name/{username}/role/")  # TODO: Use id instead of name
-async def get_role_of_user_by_name(username: str):
-    """
-    Returns the role of a user by its name.
-
-    Args:
-        username: The username of the user (string).
-
-    Returns:
-        A dictionary containing the role of the user.
-    """
-
-    role = db.get_role_of_user_by_name(username)
-
-    if role is None:  # User not found
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"role": role}
-
-
 @router.get("/id/{user_id}/role/")
 async def get_role_by_id(user_id: int):
     """
