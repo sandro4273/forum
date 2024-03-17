@@ -168,6 +168,13 @@ def get_posts(amount, offset):
     return cur.fetchall()
 
 
+def get_posts_by_search(search, amount, offset):
+    search = search.lower().strip()
+    sql = "SELECT * FROM posts WHERE LOWER(TRIM(title)) LIKE ? OR LOWER(TRIM(content)) LIKE ? LIMIT ? OFFSET ?"
+    cur.execute(sql, (f"%{search}%", f"%{search}%", amount, offset))
+    return cur.fetchall()
+
+
 def get_tags_of_post(post_id):
     sql = "SELECT tags.tag_name FROM tags JOIN post_tags ON tags.tag_id = post_tags.tag_id WHERE post_tags.post_id = ?"
     cur.execute(sql, (post_id,))
