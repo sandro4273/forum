@@ -1,6 +1,10 @@
-from typing import Annotated
+import os
+import json  # parsing the SECRET_KEY from the config.json file
+
 import jwt  # JSON Web Token for user authentication
 from jwt import PyJWTError  # Gets thrown in case the JWT is not valid
+
+from typing import Annotated
 from datetime import datetime, timedelta  # For token expiration
 from passlib.context import CryptContext  # For password hashing
 
@@ -21,12 +25,19 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Security for user authentication: Authorization header with Bearer token using OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/")
 
-# ------------------------- Utility Functions -------------------------
 # Authorization configuration
-SECRET_KEY = "your-secret-key"  # TODO: Move outside of the public codebase
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(CURRENT_DIR, "../../config.json")  # The secret key is stored in the config.json file
+
+with open(CONFIG_PATH, 'r') as f:
+    config = json.load(f)
+    SECRET_KEY = config['SECRET_KEY']
+
 ALGORITHM = "HS256"  # Algorithm used for encoding the token
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # TODO: Change to a lower value for production
 
+
+# ------------------------- Utility Functions -------------------------
 
 def is_privileged(current_user_id: int) -> bool:
     """
