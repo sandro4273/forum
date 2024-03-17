@@ -3,16 +3,14 @@ function onLoad(){
 }
 
 async function submitLoginForm(){
-    const body = {
-        "email": document.forms["login"]["email"].value,
-        "password": document.forms["login"]["password"].value
-    }
+
+    const loginForm = document.forms["login"];
+    const body = new FormData(loginForm);
 
     const response = await fetch(
-        BACKENDURL + "users/login/", {
+        BACKENDURL + "auth/login/", {
             method: "POST",
-            headers: {"Content-Type" : "application/json"},
-            body: JSON.stringify(body),
+            body: body,
         });
 
     if (!response.ok) {
@@ -21,7 +19,8 @@ async function submitLoginForm(){
     }
 
     const res = await response.json();
-    localStorage.setItem("AuthToken", res["auth_token"]);
+
+    localStorage.setItem("AuthToken", res["access_token"]);
     window.location.href = "/frontend/public/index.html";
 }
 

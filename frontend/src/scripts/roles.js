@@ -4,8 +4,8 @@ const colors = {
     "moderator": "green"
 }
 
-async function getRole(username){
-    const response = await fetch(`${BACKENDURL}users/name/${username}/role/`);
+async function getRole(user_id){
+    const response = await fetch(`${BACKENDURL}users/id/${user_id}/role/`);
     const role = await response.json();
     return role["role"];
 }
