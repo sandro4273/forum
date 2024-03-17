@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends, HTTPException  # For the API
 from typing import Annotated  # For receiving data from the request body
-from backend.api.endpoints.utility import get_current_user_id  # For user authentication
+from backend.api.endpoints.auth import get_current_user_id  # For user authentication
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 router = APIRouter(
@@ -38,20 +38,23 @@ async def get_messages_of_chat(chat_id: int):
 
     return {"messages": db.get_messages_of_chat(chat_id)}
 
+
 # ------------------------- Post-Requests -------------------------
 @router.post("/create/")
-async def create_chat(partner_id: Annotated[int, Body()], current_user = Depends(get_current_user_id)):
+async def create_chat(
+    partner_id: Annotated[int, Body()],
+    current_user_id: Annotated[int, Depends(get_current_user_id)]
+):
     """
     Creates a new chat between two users.
 
     Args:
         partner_id: The ID of the partner user (integer).
+        current_user_id: The ID of the current user (integer).
 
     Returns:
         A dictionary containing the user IDs of the two users.
     """
-
-    current_user_id = current_user["user_id"]
 
     # Check if chat already exists
     if db.check_chat_exists(current_user_id, partner_id):
