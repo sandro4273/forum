@@ -50,7 +50,7 @@ async function loadPosts(){
     const postsResponse= await fetch(BACKENDURL + "posts/get/?offset=" + postList.children.length) // postList.children.length is 0 at the beginning
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
-
+    console.log(posts)
     for (let i = 0; i < posts.length; i++) {
         const usernameResponse = await fetch(BACKENDURL + "users/id/" + posts[i]["user_id"] + "/username/");
         const usernameData = await usernameResponse.json();
