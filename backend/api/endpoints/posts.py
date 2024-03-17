@@ -35,13 +35,30 @@ async def get_post_by_id(post_id: int):
 @router.get("/get/")  # TODO: Implement query parameters for filtering
 async def get_posts(amount: int = 10, offset: int = 0):
     """
-    Returns all posts.
+    Returns posts without filtering.
 
     Returns:
         A list of post objects (dictionaries).
     """
 
     return {"posts": db.get_posts(amount=amount, offset=offset)}
+
+
+@router.get("/search/")
+async def get_posts_by_search(search: str, amount: int = 10, offset: int = 0):
+    """
+    Returns all posts that contain the search query in their title or content.
+
+    Args:
+        query: The search query (string).
+        amount: The amount of posts to return (integer).
+        offset: The offset for the posts to return (integer).
+
+    Returns:
+        A list of post objects (dictionaries).
+    """
+
+    return {"posts": db.get_posts_by_search(search, amount, offset)}
 
 
 @router.get("/tag/{tag}/")  # Maybe use query parameters instead of path parameters
