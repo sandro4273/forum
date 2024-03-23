@@ -7,7 +7,7 @@ async function loadChats() {
     // Load all chats of user
     const auth_token = localStorage.getItem("AuthToken");
     const chatsResponse = await fetch(
-        `${BACKENDURL}users/chats/all/`, {
+        `${BACKENDURL}users/me/chats/`, {
             method: "GET",
             headers: {
                 "Content-Type" : "application/json",
