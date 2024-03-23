@@ -13,7 +13,8 @@ let authorUsername = null;
 let post = null;
 
 // Rich Text Editor
-const quill = new Quill('#createCommentEditor', quillSettingsComment);
+const commentQuill = new Quill('#createCommentEditor', quillSettingsComment);
+let postQuill = null;
 
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
@@ -64,10 +65,11 @@ async function toggleSiteVisibility(){
         deletePostButton.style.display = 'inline-block';
     }
 
-    // If the user is the author, display the edit button
+    // If the user is the author, display the edit button and create edit post editor
     const editPostButton = document.getElementById('editPostButton');
     if (currentUserId && currentUsername === authorUsername){
         editPostButton.style.display = 'inline-block';
+        postQuill = new Quill('#editPostEditor', quillSettingsPost);
     }
 }
 
@@ -187,7 +189,7 @@ async function createComment(event, post_id){
     event.preventDefault();
 
     // Extract content from form
-    const content = quill.root.innerHTML;
+    const content = commentQuill.root.innerHTML;
 
     const body = {
         "content": content
@@ -222,12 +224,10 @@ async function editPost(post_id){
     const editPostButton = document.querySelector("#editPostButton");
     editPostButton.setAttribute("style", "display: none;");
 
-    // Show input field with the post content
+    // Show text editor with the post content
     const editPostDiv = document.querySelector("#editPost");
     editPostDiv.style.display = "block";
-    const editPostInput = document.querySelector("#editPostInput");
-    editPostInput.value = postContent;
-    editPostInput.setAttribute("style", "show: block;");
+    postQuill.root.innerHTML = postContent;
     
     // Add event listener to the submit button
     const submitEditPost= document.querySelector("#submitEditPost");
@@ -236,7 +236,7 @@ async function editPost(post_id){
 
 async function submitEditPostFunction(post_id){
     // Get the new post content
-    const newPostContent = document.querySelector("#editPostInput").value;
+    const newPostContent = postQuill.root.innerHTML;
 
     // Send the new post content to the backend
     const auth_token = localStorage.getItem("AuthToken");
