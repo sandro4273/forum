@@ -2,9 +2,9 @@
 // Luca Flühler, Lucien Ruffet, Sandro Kuster
 // Beschreibung: Hauptseite des Forums
 
-const postList = document.querySelector("#postList");
-document.querySelector("#searchBar").addEventListener("keypress", (event) => searchPosts(event));
-
+/**
+ * Displays the username and email of the logged-in user. Otherwise, displays the authentication buttons.
+ */
 async function showCurrentUser(){
     const auth_token = localStorage.getItem("AuthToken");
 
@@ -17,7 +17,7 @@ async function showCurrentUser(){
 
     // If a token is found, check if it is valid and retrieve the user info
     const response = await fetch(
-        BACKENDURL + `users/me/`, {
+        BACKENDURL + `users/me/?fields=username,email`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -38,7 +38,6 @@ async function showCurrentUser(){
     // Display the user info
     const userData = await response.json();
     const user = userData["user"];
-    console.log(userData)
     document.getElementById("username").textContent = user["username"];
     document.getElementById("email").textContent = user["email"];
 
@@ -47,31 +46,54 @@ async function showCurrentUser(){
     document.getElementById("loggedInUser").style.display = "block";
 }
 
+/**
+ * Returns the username and role of a user.
+ */
+async function getUserDetails(user_id) {
+    const response = await fetch(`${BACKENDURL}users/id/${user_id}/?fields=username,role`);
+    const data = await response.json();
+
+    const username = data["user"]["username"];
+    const userRole = data["user"]["role"];
+    const roleColor = getRoleColor(userRole);
+    return { username, userRole, roleColor };
+}
+
+/**
+ * Updates the post list
+ */
+async function updatePostList(posts){
+    const postList = document.getElementById("postList");
+
+    for (const post of posts) {
+        const author_id = post["author_id"];
+
+        const { username, userRole, roleColor } = await getUserDetails(author_id);
+
+        const postElement = document.createElement('p');
+        postElement.innerHTML = `<a href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}">${post["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
+        postList.append(postElement);
+    }
+}
+
+/**
+ * Loads all posts and displays them. If there are more than 10 posts, a button to load more is displayed.
+ */
 async function loadPosts(){
-    const postsResponse= await fetch(BACKENDURL + "posts/?offset=" + postList.children.length) // postList.children.length is 0 at the beginning
+    let postList = document.getElementById("postList");
+
+    // postList.children.length is 0 at the beginning
+    const postsResponse= await fetch(BACKENDURL + "posts/?offset=" + postList.children.length)
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
 
-    for (let i = 0; i < posts.length; i++) {
-        const author_id = posts[i]["author_id"]
-
-        const usernameResponse = await fetch(BACKENDURL + "users/id/" + author_id + "/?fields=username");
-        const usernameData = await usernameResponse.json();
-        const username = usernameData["user"]["username"];
-
-        const userRole = await getRole(author_id);
-        const roleColor = getRoleColor(userRole);
-
-        const postElement = document.createElement('p');
-        postElement.innerHTML = `<a href="${FRONTENDURL}frontend/public/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
-        postList.append(postElement);
-
-    }
+    await updatePostList(posts);
 
     // If there was a load more button, remove it
     if (document.querySelector("#loadMoreButton")) {
         document.querySelector("#loadMoreButton").remove();
     }
+
     // If 10 posts are displayed, display a button to load more
     if (posts.length === 10) {
         const loadMoreButton = document.createElement('button');
@@ -82,9 +104,14 @@ async function loadPosts(){
     }
 }
 
+/**
+ * Searches for posts based on the search input and displays them.
+ */
 async function searchPosts(event, offset=0){
+    let postList = document.getElementById("postList");
+
     // If the event is not the enter key or coming from the load more button, return
-    if (!(event == "next" || event.key == "Enter")) {
+    if (!(event === "next" || event.key === "Enter")) {
         return;
     }
     const searchInput = document.getElementById("searchBar").value;
@@ -93,27 +120,15 @@ async function searchPosts(event, offset=0){
     const posts = postsData["posts"];
 
     // Clear the post list if the offset is 0 (meaning a new search was made)
-    postList.innerHTML = offset === 0 ? "" : postList.innerHTML;
+    if (offset === 0) postList.innerHTML = "";
 
-    for (let i = 0; i < posts.length; i++) {
-        const author_id = posts[i]["author_id"]
-
-        const usernameResponse = await fetch(BACKENDURL + "users/id/" + author_id + "/?fields=username");
-        const usernameData = await usernameResponse.json();
-        const username = usernameData["user"]["username"];
-
-        const userRole = await getRole(author_id);
-        const roleColor = getRoleColor(userRole);
-
-        const postElement = document.createElement('p');
-        postElement.innerHTML = `<a href="${FRONTENDURL}frontend/public/post.html?id=${posts[i]["post_id"]}">${posts[i]["title"]}</a> - ${username} <span style="color: ${roleColor}">(${userRole})</span>`;
-        postList.append(postElement);
-    }
+    await updatePostList(posts);
 
     // If there was a load more button, remove it
     if (document.querySelector("#postList button")) {
         document.querySelector("#postList button").remove();
     }
+
     // If 10 posts are displayed, display a button to load more
     if (posts.length === 10) {
         const loadMoreButton = document.createElement('button');
@@ -123,12 +138,27 @@ async function searchPosts(event, offset=0){
     }
 }
 
+/**
+ * Logs out the user by removing the token from the local storage
+ */
 async function logout(){
     localStorage.removeItem("AuthToken");
     window.location.reload();
 }
 
-document.getElementById("logoutButton").addEventListener("click", logout);
+/**
+ * Entry point of the script
+ */
+function onLoad() {
+    // Add event listeners
+    document.querySelector("#searchBar")
+            .addEventListener("keypress", (event) => searchPosts(event));
+    document.getElementById("logoutButton").addEventListener("click", logout);
 
-loadPosts();
-showCurrentUser();
+    // Display current user and load posts
+    showCurrentUser();
+    loadPosts();
+}
+
+// Entry point - Execute onLoad when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", onLoad());
