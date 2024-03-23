@@ -15,7 +15,7 @@ class User(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
-    registration_date: Optional[int] = None
+    registration_date: Optional[str] = None
     role: Optional[str] = None
 
 

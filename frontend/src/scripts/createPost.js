@@ -5,12 +5,7 @@
 // Rich Text Editor
 const quill = new Quill('#postContentEditor', quillSettingsPost);
 
-// function is called when the page is fully loaded
-function onLoad(){
-    document.querySelector("#submitButton").addEventListener("click", submitForm);
-}
-
-async function submitForm(){
+async function submitPostForm(){
     // Extract text and title from form
     const post_title = document.forms["createPost"]["postTitle"].value;
     const post_content = quill.root.innerHTML;
