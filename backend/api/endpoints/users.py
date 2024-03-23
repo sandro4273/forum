@@ -11,7 +11,7 @@ from fastapi import (
     Query  # For query parameters
 )
 
-from backend.api.endpoints.auth import get_current_user  # For retrieving the logged-in user
+from backend.api.endpoints.auth import get_current_user, get_current_user_id  # For retrieving the logged-in user
 from backend.db_service.models import User  # Models for data transfer
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
@@ -67,6 +67,19 @@ async def get_me(
         current_user = filter_user_fields(current_user, fields[0].split(","))
 
     return {"user": current_user}
+
+
+@router.get("/me/chats/")
+async def get_chats_of_user(current_user_id: Annotated[int, Depends(get_current_user_id)]):
+    """
+    Returns all chats of a user.
+    Args:
+        current_user_id: The ID of the current user (integer).
+    Returns:
+        A list of chat objects (dictionaries).
+    """
+
+    return {"chats": db.get_chats_of_user(current_user_id)}
 
 
 @router.get("/id/{user_id}/")

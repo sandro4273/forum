@@ -36,15 +36,15 @@ function getChatIdFromUrl() {
 }
 
 async function getUsernameById(user_id) {
-    const usernameResponse = await fetch(`${BACKENDURL}users/id/${user_id}/username/`);
-    const usernameData = await usernameResponse.json();
-    return usernameData["username"];
+    const response = await fetch(`${BACKENDURL}users/id/${user_id}/?fields=username`);
+    const data = await response.json();
+    return data["user"]["username"];
 }
 
 async function getCurrentUserId() {
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        `${BACKENDURL}get_current_user_id/`, {
+        `${BACKENDURL}users/me/?fields=user_id`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -56,8 +56,8 @@ async function getCurrentUserId() {
     // If no user is logged in, return null
     if (!response.ok) return null;
 
-    const user = await response.json();
-    return user["user_id"]; // Return user ID of logged in user
+    const data = await response.json();
+    return data["user"]["user_id"];
 }
 
 async function loadMessages(chat_id) {
@@ -65,7 +65,7 @@ async function loadMessages(chat_id) {
     messageList.innerHTML = ""; // Clear message list
 
     // Load all messages of chat
-    const messagesResponse = await fetch(`${BACKENDURL}chats/id/${chat_id}/messages/all/`);
+    const messagesResponse = await fetch(`${BACKENDURL}chats/id/${chat_id}/messages/`);
     const messagesData = await messagesResponse.json();
     const messages = messagesData["messages"];
 
