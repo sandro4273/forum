@@ -1,5 +1,5 @@
 // Rich Text Editor
-const quill = new Quill('#postContentEditor', quillSettings);
+const quill = new Quill('#postContentEditor', quillSettingsPost);
 
 // function is called when the page is fully loaded
 function onLoad(){
