@@ -102,6 +102,26 @@ async def get_user_by_id(
     return {"user": user}
 
 
+@router.get("/name/{username}/")
+async def get_user_by_username(
+    username: str,
+    fields: Optional[List[str]] = Query(None, description="Comma-separated list of fields to include in the response")
+) -> dict[str, User]:
+    """
+    If a user with the given username exists, its public information is returned.
+    """
+
+    user = db.get_public_user_by_username(username)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if fields:  # If fields parameter is provided, filter user data
+        user = filter_user_fields(user, fields)
+    
+    return {"user": user}
+
+
 # ------------------------- Post Requests -------------------------
 
 

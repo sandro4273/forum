@@ -26,21 +26,39 @@ router = APIRouter(
 
 # ------------------------- Get Requests -------------------------
 @router.get("/")
-async def get_posts(tag: str = Query(None)):
+async def get_posts(tag: str = Query(None), amount: int = Query(10), offset: int = Query(0)):
     """
-    Returns all posts with a specific tag.
+    Returns posts with the option to filter by tag.
 
     Args:
         tag: The tag (string).
+        amount: The amount of posts to return (integer).
+        offset: The offset for the posts (integer).
 
     Returns:
         A list of post objects (dictionaries).
     """
 
     if tag is None:
-        return {"posts": db.get_all_posts()}
+        return {"posts": db.get_posts(amount=amount, offset=offset)}
     else:
         return {"posts": db.get_posts_with_tag(tag)}
+
+
+@router.get("/search/")
+async def get_posts_by_search(search: str, amount: int = 10, offset: int = 0):
+    """
+    Returns all posts that contain the search query in their title or content.
+    Args:
+        query: The search query (string).
+        amount: The amount of posts to return (integer).
+        offset: The offset for the posts to return (integer).
+    Returns:
+        A list of post objects (dictionaries).
+    """
+    # As all tags of a post are extracted keywords, we do not need to search for tags too
+    # If the tag assignment gets improved to also include tags from context that are not direct keywords, this should be changed
+    return {"posts": db.get_posts_by_search(search, amount, offset)}
 
 
 @router.get("/id/{post_id}/")

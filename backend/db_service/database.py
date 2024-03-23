@@ -174,6 +174,10 @@ def get_public_user_by_id(user_id) -> Optional[User]:
     return get_public_user_by_condition("user_id", user_id)
 
 
+def get_public_user_by_username(username) -> Optional[User]:
+    return get_public_user_by_condition("username", username)
+
+
 def get_public_user_by_email(email) -> Optional[User]:
     return get_public_user_by_condition("email", email)
 
@@ -191,13 +195,24 @@ def get_post_by_id(post_id) -> Optional[Post]:
     return Post(**result)
 
 
-def get_all_posts() -> list[Post]:
-    sql = "SELECT * FROM posts"
+def get_posts(amount, offset) -> list[Post]:
+    sql = "SELECT * FROM posts LIMIT ? OFFSET ?"
 
     with Database() as cur:
-        cur.execute(sql)
+        cur.execute(sql, (amount, offset))
         results = cur.fetchall()
 
+    return [Post(**result) for result in results]
+
+
+def get_posts_by_search(search, amount, offset):
+    search = search.lower().strip()
+    sql = "SELECT * FROM posts WHERE LOWER(TRIM(title)) LIKE ? OR LOWER(TRIM(content)) LIKE ? LIMIT ? OFFSET ?"
+
+    with Database() as cur:
+        cur.execute(sql, (f"%{search}%", f"%{search}%", amount, offset))
+        results = cur.fetchall()
+        
     return [Post(**result) for result in results]
 
 
