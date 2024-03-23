@@ -134,5 +134,5 @@ async function sendMessage(event) {
 }
 
 
-// execute onLoad when page is fully loaded
+// Entry point - Execute onLoad when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
