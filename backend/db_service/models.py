@@ -129,7 +129,7 @@ class Comment(BaseModel):
     post_id: Optional[int] = None
     author_id: Optional[int] = None
     content: Optional[str] = None
-    creation_date: Optional[int] = None
+    creation_date: Optional[str] = None
 
 
 class ChatMessage(BaseModel):
@@ -139,4 +139,4 @@ class ChatMessage(BaseModel):
     chat_id: Optional[int] = None
     author_id: Optional[int] = None
     content: Optional[str] = None
-    creation_date: Optional[int] = None
+    creation_date: Optional[str] = None

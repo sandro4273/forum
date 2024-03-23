@@ -5,9 +5,9 @@ const colors = {
 }
 
 async function getRole(user_id){
-    const response = await fetch(`${BACKENDURL}users/id/${user_id}/role/`);
-    const role = await response.json();
-    return role["role"];
+    const response = await fetch(`${BACKENDURL}users/id/${user_id}/?fields=role`);
+    const data = await response.json();
+    return data["user"]["role"];
 }
 
 function getRoleColor(role){

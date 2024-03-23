@@ -44,7 +44,7 @@ async def get_posts(tag: str = Query(None)):
 
 
 @router.get("/id/{post_id}/")
-async def get_post_by_id(post_id: int) -> Post:
+async def get_post_by_id(post_id: int) -> dict[str, Post]:
     """
     Returns a post by its ID.
 
@@ -60,7 +60,7 @@ async def get_post_by_id(post_id: int) -> Post:
     if not post:  # Post not found
         raise HTTPException(status_code=404, detail="Post not found")
 
-    return post
+    return {"post": post}
 
 
 @router.get("/id/{post_id}/tags/")

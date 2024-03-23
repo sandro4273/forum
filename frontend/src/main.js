@@ -47,16 +47,16 @@ async function showCurrentUser(){
 }
 
 async function loadPosts(){     // TODO: Query for filtering posts
-    const postsResponse= await fetch(BACKENDURL + "posts/all/")
+    const postsResponse= await fetch(BACKENDURL + "posts/")
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
 
     for (let i = 0; i < posts.length; i++) {
-        const author_id = posts[i]["user_id"]
+        const author_id = posts[i]["author_id"]
 
-        const usernameResponse = await fetch(BACKENDURL + "users/id/" + author_id + "/username/");
+        const usernameResponse = await fetch(BACKENDURL + "users/id/" + author_id + "/?fields=username");
         const usernameData = await usernameResponse.json();
-        const username = usernameData["username"];
+        const username = usernameData["user"]["username"];
 
         const userRole = await getRole(author_id);
         const roleColor = getRoleColor(userRole);
