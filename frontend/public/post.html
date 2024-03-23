@@ -10,11 +10,15 @@
     <link rel="stylesheet" href="../src/styles/general.css">
     <link rel="stylesheet" href="../src/styles/header.css">
     <link rel="stylesheet" href="../src/styles/sidebar.css">
+
+    <!-- Quill library for Rich Text Editor -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script type="text/javascript" src="../src/quillSettings.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
 
 
 <body>
-
     <div class="header">
         <div class="left-section">
             <a class="home-button" href="index.html">
@@ -66,8 +70,9 @@
         <hr>
     </div>
         <form name="createComment" id="commentForm" style="display:none;">
-            <label>Kommentar verfassen</label><br>
-            <input type="text" name="commentContent" style="height: 50px;"><br> <br>
+            <p><strong>Kommentar verfassen</strong></p><br>
+            <div class="editor" id="createCommentEditor"></div> <!-- Rich Text Editor -->
+            <br>
             <button id="submitComment">Absenden</button>
             <hr>
         </form>
