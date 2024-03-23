@@ -12,6 +12,9 @@ let authorUsername = null;
 
 let post = null;
 
+// Rich Text Editor
+const quill = new Quill('#createCommentEditor', quillSettingsComment);
+
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
@@ -113,7 +116,7 @@ async function loadPost(){
     
     // insert post into HTML
     document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${authorUsername} <span style="color: ${roleColor}">(${authorRole})</span>`;
-    document.querySelector("#postContent").textContent = postContent;
+    document.querySelector("#postContent").innerHTML = postContent;
 }
 
 async function loadTags(post_id){
@@ -184,7 +187,7 @@ async function createComment(event, post_id){
     event.preventDefault();
 
     // Extract content from form
-    const content = document.forms["createComment"]["commentContent"].value;
+    const content = quill.root.innerHTML;
 
     const body = {
         "content": content
@@ -313,6 +316,7 @@ class Comment {
         this.editCommentVisible = false;
 
         this.commentContainer = document.createElement('div');
+
         await this.loadComment();
         this.loadButtons();
         this.loadEditElements();
@@ -338,8 +342,9 @@ class Comment {
 
         // Display comment content
         const commentContentElement = document.createElement('span');
-        commentContentElement.textContent = this.content;
+        commentContentElement.innerHTML = this.content;
         commentContentElement.id = "commentContent";
+        commentContentElement.style.display = "inline-block";
         this.commentContainer.appendChild(commentContentElement);
     }
 
@@ -369,16 +374,21 @@ class Comment {
     }
 
     loadEditElements(){
-        // Create elements
-        this.editInput = document.createElement('input');
-        this.editInput.style.display = "none";
+        // Create Rich Text Editor
+        this.editorContainer = document.createElement('div');
+        this.commentContainer.appendChild(this.editorContainer);
+        this.quill = new Quill(this.editorContainer, quillSettingsComment);
+        this.quillToolbar = this.quill.getModule('toolbar');
+        // Hide it initially
+        this.editorContainer.style.display = "none";
+        this.quillToolbar.container.style.display = "none";
 
+        // Create submit button
         this.submitEdit = document.createElement('button');
         this.submitEdit.textContent = "Senden";
         this.submitEdit.style.display = "none";
 
         // Insert elements
-        this.commentContainer.appendChild(this.editInput);
         this.commentContainer.appendChild(this.submitEdit);
 
         // Add event listeners
@@ -401,18 +411,17 @@ class Comment {
         this.commentContainer.querySelector("#commentContent").style.display = this.editCommentVisible ? "none" : "inline-block";
         this.editButton.textContent = this.editCommentVisible ? "Zurück" : "Edit";
 
-        // Toggle input field with the comment content
-        this.editInput.style.display = this.editCommentVisible ? "inline-block" : "none";
-        this.editInput.value = this.content;
+        this.editorContainer.style.display = this.editCommentVisible ? "block" : "none";
+        this.quillToolbar.container.style.display = this.editCommentVisible ? "block" : "none";
+        this.quill.root.innerHTML = this.content;
 
         // Toggle submit button
         this.submitEdit.style.display = this.editCommentVisible ? "inline-block" : "none";
-
     }
 
     async submitEditComment(){
         // Get the new comment content
-        const newCommentContent = this.editInput.value;
+        const newCommentContent = this.quill.root.innerHTML;
 
         // Send the new comment content to the backend
         const auth_token = localStorage.getItem("AuthToken");
