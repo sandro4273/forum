@@ -1,10 +1,19 @@
 /**
- * Handles the post form submission. Sends a POST request to the backend with the post form data.
- */
-async function submitPostForm(){
-    // Extract text and title from form.
+* Handles the post form submission. Sends a POST request to the backend with the post form data.
+*/
+
+// Rich Text Editor
+const quill = new Quill('#postContentEditor', quillSettingsPost);
+
+// function is called when the page is fully loaded
+function onLoad(){
+    document.querySelector("#submitButton").addEventListener("click", submitForm);
+}
+
+async function submitForm(){
+    // Extract text and title from form
     const post_title = document.forms["createPost"]["postTitle"].value;
-    const post_content = document.forms["createPost"]["postContent"].value;
+    const post_content = quill.root.innerHTML;
 
     const body= {
         "title": post_title,

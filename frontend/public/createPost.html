@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="../src/styles/general.css">
     <link rel="stylesheet" href="../src/styles/header.css">
     <link rel="stylesheet" href="../src/styles/sidebar.css">
+
+    <!-- Quill library for Rich Text Editor -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script type="text/javascript" src="../src/quillSettings.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
 
 
@@ -46,8 +51,7 @@
         <label for="postTitle">Titel</label><br>
         <input id="postTitle" type="text" name="postTitle" required><br> <br>
 
-        <label for="postContent">Text</label><br>
-        <input id="postContent" type="text" name="postContent" style="height: 100px;"><br> <br>
+        <div class="editor" id="postContentEditor"></div> <!-- Rich Text Editor -->
 
         <p id="errorMessage" style="color: red; display: none;">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
 
