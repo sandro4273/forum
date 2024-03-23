@@ -10,7 +10,7 @@ let authorUsername = null;
 let post = null;
 
 // Rich Text Editor
-const quill = new Quill('#createCommentEditor', quillSettings);
+const quill = new Quill('#createCommentEditor', quillSettingsComment);
 
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
@@ -111,7 +111,7 @@ async function loadPost(){
     
     // insert post into HTML
     document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${authorUsername} <span style="color: ${roleColor}">(${authorRole})</span>`;
-    document.querySelector("#postContent").textContent = postContent;
+    document.querySelector("#postContent").innerHTML = postContent;
 }
 
 async function loadTags(post_id){
@@ -340,8 +340,9 @@ class Comment {
 
         // Display comment content
         const commentContentElement = document.createElement('span');
-        commentContentElement.textContent = this.content;
+        commentContentElement.innerHTML = this.content;
         commentContentElement.id = "commentContent";
+        commentContentElement.style.display = "inline-block";
         this.commentContainer.appendChild(commentContentElement);
     }
 
@@ -374,7 +375,7 @@ class Comment {
         // Create Rich Text Editor
         this.editorContainer = document.createElement('div');
         this.commentContainer.appendChild(this.editorContainer);
-        this.quill = new Quill(this.editorContainer, quillSettings);
+        this.quill = new Quill(this.editorContainer, quillSettingsComment);
         this.quillToolbar = this.quill.getModule('toolbar');
         // Hide it initially
         this.editorContainer.style.display = "none";
