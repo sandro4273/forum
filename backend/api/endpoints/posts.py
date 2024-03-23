@@ -1,19 +1,50 @@
-from fastapi import APIRouter, Body, HTTPException, Depends  # For the API
+from fastapi import (
+    Depends,  # For requiring parameters, e.g. the current user ID
+    APIRouter,  # For distributing endpoints into separate files
+    HTTPException,  # For raising exceptions with custom details
+    Body,  # For receiving data from the request body
+    Query  # For query parameters
+)
+
 from typing import Annotated  # For receiving data from the request body
-from backend.api.endpoints.auth import get_current_user_id, is_privileged  # For user authentication
-from backend.api.endpoints.schemas import Post, Comment  # For request and response bodies
+
+from backend.api.endpoints.auth import (
+    get_current_user_id,  # For retrieving the logged-in user id
+    is_privileged  # For checking if user is admin or moderator
+)
+
+from backend.db_service.models import Post, Comment  # For the return objects
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 from backend.db_service import tag_management as tm  # Tag management
 
+# API router for the post endpoints
 router = APIRouter(
     prefix="/posts",
-    tags=["posts"]
+    tags=["posts"]  # Tags for the API documentation
 )
 
 
 # ------------------------- Get Requests -------------------------
+@router.get("/")
+async def get_posts(tag: str = Query(None)):
+    """
+    Returns all posts with a specific tag.
+
+    Args:
+        tag: The tag (string).
+
+    Returns:
+        A list of post objects (dictionaries).
+    """
+
+    if tag is None:
+        return {"posts": db.get_all_posts()}
+    else:
+        return {"posts": db.get_posts_with_tag(tag)}
+
+
 @router.get("/id/{post_id}/")
-async def get_post_by_id(post_id: int):
+async def get_post_by_id(post_id: int) -> Post:
     """
     Returns a post by its ID.
 
@@ -29,37 +60,10 @@ async def get_post_by_id(post_id: int):
     if not post:  # Post not found
         raise HTTPException(status_code=404, detail="Post not found")
 
-    return {"post": post}
+    return post
 
 
-@router.get("/all/")  # TODO: Implement query parameters for filtering
-async def get_all_posts():
-    """
-    Returns all posts.
-
-    Returns:
-        A list of post objects (dictionaries).
-    """
-
-    return {"posts": db.get_all_posts()}
-
-
-@router.get("/tag/{tag}/")  # Maybe use query parameters instead of path parameters
-async def get_posts_with_tag(tag: str):
-    """
-    Returns all posts with a specific tag.
-
-    Args:
-        tag: The tag (string).
-
-    Returns:
-        A list of post objects (dictionaries).
-    """
-
-    return {"posts": db.get_posts_with_tag(tag)}
-
-
-@router.get("/id/{post_id}/tags/all/")
+@router.get("/id/{post_id}/tags/")
 async def get_tags_of_post(post_id: int):
     """
     Returns all tags of a post.
@@ -105,7 +109,7 @@ async def get_vote_of_user(post_id: int, current_user_id: Annotated[int, Depends
     return db.get_vote_of_user(post_id, current_user_id)
 
 
-@router.get("/id/{post_id}/comments/all/")
+@router.get("/id/{post_id}/comments/")
 async def get_comments_of_post(post_id: int):
     """
     Returns all comments of a post.
@@ -123,7 +127,7 @@ async def get_comments_of_post(post_id: int):
 
 
 @router.get("/id/{post_id}/comments/id/{comment_id}/")
-async def get_comment_by_id(post_id: int, comment_id: int):
+async def get_comment_by_id(post_id: int, comment_id: int) -> Comment:
     """
     Returns a comment by its ID.
 
@@ -136,10 +140,10 @@ async def get_comment_by_id(post_id: int, comment_id: int):
     """
     comment = db.get_comment_by_id(comment_id)
 
-    if not comment or comment["post_id"] != post_id:  # Comment not found or not associated with the post
+    if not comment or comment.post_id != post_id:  # Comment not found or not associated with the post
         raise HTTPException(status_code=404, detail="Comment not found")
 
-    return {"comment": comment}
+    return comment
 
 
 # ------------------------- Post Requests -------------------------
@@ -175,7 +179,7 @@ async def create_comment(post_id: int, comment: Comment, current_user_id: Annota
     Args:
         post_id: The ID of the post (integer).
         comment: The comment object containing the content of the comment.
-        current_user: The current user (dictionary).
+        current_user_id: The current user id (integer).
 
     Returns:
         The comment object containing the content of the comment.
@@ -234,7 +238,7 @@ async def update_post_content(
         The new content of the post (string).
     """
 
-    author_id = db.get_author_id_of_post(post_id)
+    author_id = db.get_post_by_id(post_id).author_id
 
     if current_user_id != author_id and not is_privileged(current_user_id):
         raise HTTPException(status_code=403, detail="You are not allowed to edit this post")
@@ -260,7 +264,7 @@ async def delete_post_with_comments(
         An empty dictionary.
     """
 
-    author_id = db.get_author_id_of_post(post_id)
+    author_id = db.get_post_by_id(post_id).author_id
 
     if current_user_id != author_id and not is_privileged(current_user_id):
         raise HTTPException(status_code=403, detail="You are not allowed to delete this post")
