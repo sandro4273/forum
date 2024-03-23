@@ -1,10 +1,8 @@
-// function is called when the page is fully loaded
-function onLoad(){
-    document.querySelector("#submitButton").addEventListener("click", submitForm);
-}
-
-async function submitForm(){
-    // Extract text and title from form
+/**
+ * Handles the post form submission. Sends a POST request to the backend with the post form data.
+ */
+async function submitPostForm(){
+    // Extract text and title from form.
     const post_title = document.forms["createPost"]["postTitle"].value;
     const post_content = document.forms["createPost"]["postContent"].value;
 
@@ -13,7 +11,7 @@ async function submitForm(){
         "content": post_content
     };
 
-    // Create post and retrieve the post_id
+    // Create post and retrieve the post_id from the backend
     const auth_token = localStorage.getItem("AuthToken");
     const create_post_response = await fetch(
         `${BACKENDURL}posts/create_post/`, {
@@ -25,20 +23,24 @@ async function submitForm(){
             body: JSON.stringify(body),
         });
 
+    // If the post creation was not successful, display an error message
     if (!create_post_response.ok){
         document.getElementById("errorMessage").style.display = "block";
         return;
     }
 
+    // If the post creation was successful, redirect to the post page
     const post_data = await create_post_response.json();
     const post_id = post_data["post_id"];
-
-
-    // Redirect to the post page
     window.location.href = "/frontend/public/post.html?id=" + post_id;
-
-    return post_data;
 }
 
-// execute onLoad when page is fully loaded
+/**
+ * Executed when the DOM is fully loaded. Adds an event listener to the submit button of the post form.
+ */
+function onLoad(){
+    document.querySelector("#submitButton").addEventListener("click", submitPostForm);
+}
+
+// Entry point - Execute onLoad when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
