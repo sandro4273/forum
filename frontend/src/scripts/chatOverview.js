@@ -46,9 +46,56 @@ function renderChats(chats) {
 }
 
 /**
+ * Creates a new chat with the user entered in the input field.
+ */
+async function createChat() {
+    // Get the username to search for
+    const username = document.querySelector("#searchUser").value;
+
+    // Try to find the user
+    const userResponse = await fetch(`${BACKENDURL}users/name/${username}/`)
+
+    // If the user was not found, display an error message
+    if (!userResponse.ok) {
+        const errorElement = document.querySelector("#error");
+        errorElement.textContent = "User not found";
+        errorElement.setAttribute("style", "display: block");
+        errorElement.setAttribute("style", "color: red");
+        return;
+    }
+
+    // If the user was found, try to create a chat
+    const userData = await userResponse.json();
+    const partnerId = userData["user"]["user_id"];
+
+    const auth_token = localStorage.getItem("AuthToken");
+    const chatResponse = await fetch(
+        `${BACKENDURL}chats/create/`, {
+            method: "POST",
+            headers: {
+                "Content-Type" : "application/json", 
+                "Authorization": `Bearer ${auth_token}`
+            },
+            body: partnerId
+        })
+
+    // If there was an error, display an error message
+    if (!chatResponse.ok) {
+        const errorElement = document.querySelector("#error");
+        errorData = await chatResponse.json();
+        errorElement.textContent = errorData.detail;
+
+        errorElement.setAttribute("style", "display: block");
+        errorElement.setAttribute("style", "color: red");
+        return;
+    }
+}
+
+/**
  * Executed when the DOM is fully loaded. Loads all chats of the user.
  */
 function onLoad() {
+    document.querySelector("#createChatButton").addEventListener("click", createChat);
     loadChats();
 }
 
