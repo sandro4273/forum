@@ -1,123 +1,92 @@
-from typing import Annotated  # For type hinting
+from typing import (
+    Annotated,  # For type hinting
+    Optional,  # For optional data types
+    List  # For lists
+)
 
-from fastapi import APIRouter, HTTPException, Depends  # For the API
-from backend.api.endpoints.auth import get_current_user, get_current_user_id  # For user authentication
+from fastapi import (
+    Depends,  # For requiring parameters, e.g. the current user ID
+    APIRouter,  # For distributing endpoints into separate files
+    HTTPException,  # For raising exceptions with custom details
+    Query  # For query parameters
+)
+
+from backend.api.endpoints.auth import get_current_user  # For retrieving the logged-in user
+from backend.db_service.models import User  # Models for data transfer
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
+# API router for the user endpoints
 router = APIRouter(
     prefix="/users",
-    tags=["users"]
+    tags=["users"]  # Tags for the API documentation
 )
+
+
+def filter_user_fields(user: User, fields: Optional[List[str]]) -> User:
+    """
+    Filters the user data based on the specified fields.
+
+    Args:
+        user: The user object to be filtered.
+        fields: Optional parameter specifying which fields to include.
+
+    Returns:
+        A new User object containing only the specified fields.
+    """
+    if not fields:
+        return user
+
+    print(fields)
+    user_dict = user.dict()
+    filtered_user_dict = {field: user_dict[field] for field in fields if field in user_dict}
+    print(filtered_user_dict)
+    return User(**filtered_user_dict)
 
 
 # ------------------------- Get Requests -------------------------
 @router.get("/me/")
-async def get_current_user(current_user: Annotated[dict, Depends(get_current_user)]):
+async def get_me(
+    current_user: Annotated[User, Depends(get_current_user)],
+    fields: Optional[List[str]] = Query(None, description="Comma-separated list of fields to include in the response")
+) -> dict[str, User]:
     """
-    Returns the current user.
+    Returns user information of the logged-in user.
 
     Args:
-        current_user: The current user (dictionary).
+        current_user: The logged-in user information (User).
+        fields: Optional parameter specifying which fields to include in the response.
 
     Returns:
-        A user object (dictionary).
+        A dictionary containing the user information (User).
     """
 
-    return current_user
+    if not current_user:
+        raise HTTPException(status_code=404, detail="User not found")
 
+    if fields:  # If fields parameter is provided, filter user data
+        current_user = filter_user_fields(current_user, fields[0].split(","))
 
-@router.get("/me/id/")
-async def get_current_user_id(current_user_id: Annotated[int, Depends(get_current_user_id)]):
-    """
-    Returns the ID of the current user.
-
-    Args:
-        current_user_id: The ID of the current user (integer).
-
-    Returns:
-        The user ID (integer).
-    """
-
-    return {"user_id": current_user_id}
+    return {"user": current_user}
 
 
 @router.get("/id/{user_id}/")
-async def get_user_by_id(user_id: int, current_user_id: Annotated[int, Depends(get_current_user_id)]):
+async def get_user_by_id(
+    user_id: int,
+    fields: Optional[List[str]] = Query(None, description="Comma-separated list of fields to include in the response")
+) -> dict[str, User]:
     """
-    Returns a user by its ID.
-
-    Args:
-        user_id: The ID of the user (integer).
-        current_user_id: The current user (integer).
-
-    Returns:
-        A user object (dictionary).
+    If a user with the given user_id exists, its public information is returned.
     """
 
-    user = db.get_user_by_id(user_id)
-    current_user = db.get_user_by_id(current_user_id)
+    user = db.get_public_user_by_id(user_id)
 
-    if not user or not current_user:  # User not found
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Only users themselves or admins can access user data
-    if user_id != current_user_id and current_user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="You are not allowed to access this resource")
+    if fields:  # If fields parameter is provided, filter user data
+        user = filter_user_fields(user, fields)
 
     return {"user": user}
-
-
-@router.get("/id/{user_id}/username/")
-async def get_username_by_id(user_id: int):
-    """
-    Returns the username of a user by its ID.
-
-    Args:
-        user_id: The ID of the user (integer).
-
-    Returns:
-        A dictionary containing the username of the user.
-    """
-
-    username = db.get_username_by_id(user_id)
-
-    if username is None:  # User not found
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"username": username}
-
-
-@router.get("/id/{user_id}/role/")
-async def get_role_by_id(user_id: int):
-    """
-    Returns the role of a user by its ID.
-    Args:
-        user_id: The ID of the user (integer).
-
-    Returns:
-        A dictionary containing the role of the user.
-    """
-
-    role = db.get_role_by_id(user_id)
-
-    if role is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"role": role}
-
-
-@router.get("/chats/all/")
-async def get_chats_of_user(current_user_id: Annotated[int, Depends(get_current_user_id)]):
-    """
-    Returns all chats of a user.
-    Args:
-        current_user_id: The ID of the current user (integer).
-
-    Returns:
-        A list of chat objects (dictionaries).
-    """
-
-    return {"chats": db.get_chats_of_user(current_user_id)}
 
 
 # ------------------------- Post Requests -------------------------

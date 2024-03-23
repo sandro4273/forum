@@ -1,11 +1,19 @@
-from fastapi import APIRouter, Body, Depends, HTTPException  # For the API
 from typing import Annotated  # For receiving data from the request body
+
+from fastapi import (
+    Depends,  # For requiring parameters, e.g. the current user ID
+    APIRouter,  # For distributing endpoints into separate files
+    HTTPException,  # For raising exceptions with custom details
+    Body,  # For receiving data from the request body
+)
+
 from backend.api.endpoints.auth import get_current_user_id  # For user authentication
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
+# API router for the chat endpoints
 router = APIRouter(
     prefix="/chats",
-    tags=["chats"]
+    tags=["chats"]  # Tags for the API documentation
 )
 
 
@@ -24,7 +32,7 @@ async def get_chat_by_id(chat_id: int):
     return {"chat": db.get_chat_by_id(chat_id)}
 
 
-@router.get("/id/{chat_id}/messages/all/")
+@router.get("/id/{chat_id}/messages/")
 async def get_messages_of_chat(chat_id: int):
     """
     Returns all messages of a chat.
