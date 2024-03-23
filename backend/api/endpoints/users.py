@@ -47,7 +47,7 @@ def filter_user_fields(user: User, fields: Optional[List[str]]) -> User:
 @router.get("/me/")
 async def get_me(
     current_user: Annotated[User, Depends(get_current_user)],
-    fields: Optional[List[str]] = Query(None, description="Comma-separated list of fields to include in the response")
+    fields: Optional[str] = Query(None, description="Comma-separated list of fields to include in the response")
 ) -> dict[str, User]:
     """
     Returns user information of the logged-in user.
@@ -64,7 +64,7 @@ async def get_me(
         raise HTTPException(status_code=404, detail="User not found")
 
     if fields:  # If fields parameter is provided, filter user data
-        current_user = filter_user_fields(current_user, fields[0].split(","))
+        current_user = filter_user_fields(current_user, fields.split(","))
 
     return {"user": current_user}
 
@@ -85,7 +85,7 @@ async def get_chats_of_user(current_user_id: Annotated[int, Depends(get_current_
 @router.get("/id/{user_id}/")
 async def get_user_by_id(
     user_id: int,
-    fields: Optional[List[str]] = Query(None, description="Comma-separated list of fields to include in the response")
+    fields: Optional[str] = Query(None, description="Comma-separated list of fields to include in the response")
 ) -> dict[str, User]:
     """
     If a user with the given user_id exists, its public information is returned.
@@ -97,7 +97,7 @@ async def get_user_by_id(
         raise HTTPException(status_code=404, detail="User not found")
 
     if fields:  # If fields parameter is provided, filter user data
-        user = filter_user_fields(user, fields)
+        user = filter_user_fields(user, fields.split(","))
 
     return {"user": user}
 
@@ -105,7 +105,7 @@ async def get_user_by_id(
 @router.get("/name/{username}/")
 async def get_user_by_username(
     username: str,
-    fields: Optional[List[str]] = Query(None, description="Comma-separated list of fields to include in the response")
+    fields: Optional[str] = Query(None, description="Comma-separated list of fields to include in the response")
 ) -> dict[str, User]:
     """
     If a user with the given username exists, its public information is returned.
@@ -117,7 +117,7 @@ async def get_user_by_username(
         raise HTTPException(status_code=404, detail="User not found")
 
     if fields:  # If fields parameter is provided, filter user data
-        user = filter_user_fields(user, fields)
+        user = filter_user_fields(user, fields.split(","))
     
     return {"user": user}
 
