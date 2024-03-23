@@ -1,5 +1,8 @@
 // TODO: Maybe make a class for the post too
+// TODO: File is a mess
+
 // Global variables
+
 let currentUserId = null;
 let currentUsername = null;
 let currentUserRole = null;
@@ -12,16 +15,18 @@ let post = null;
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
+
     // Load user data
     currentUserId = await getCurrentUserId();
     if(currentUserId){
         currentUsername = await getUsername(currentUserId);
-        currentUserRole = await getRole(currentUsername);
+        currentUserRole = await getRole(currentUserId);
     }
     console.log("Logged in as: " + currentUsername)
+
     // Load post data
     post = await getPost(postId);
-    authorId = post["user_id"];
+    authorId = post["author_id"];
     authorUsername = await getUsername(authorId);
 
     // Add event listeners
@@ -66,28 +71,28 @@ async function toggleSiteVisibility(){
 async function getCurrentUserId(){
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + `users/me/id`, {
+        BACKENDURL + `users/me/?fields=user_id`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${auth_token}`
         }
     });
-    const id = await response.json();
+    const data = await response.json();
 
-    return response.ok ? id["user_id"] : null;
+    return response.ok ? data["user"]["user_id"] : null;
 }
 
 async function getPost(postId){
     const response = await fetch(BACKENDURL + `posts/id/${postId}/`);
-    const post = await response.json();
-    return response.ok ? post["post"] : null;
+    const data = await response.json();
+    return response.ok ? data["post"] : null;
 }
 
 async function getUsername(userId){
-    const response = await fetch(BACKENDURL + `users/id/${userId}/username/`);
-    const username = await response.json();
-    return response.ok ? username["username"] : null;
+    const response = await fetch(BACKENDURL + `users/id/${userId}/?field=username`);
+    const data = await response.json();
+    return response.ok ? data["user"]["username"] : null;
 }
 
 // Extract the post ID from the URL
@@ -113,7 +118,7 @@ async function loadPost(){
 
 async function loadTags(post_id){
     // load tags
-    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/tags/all/");
+    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/tags/");
     const tagsData = await response.json();
     const tags = tagsData["tags"];
 
@@ -123,9 +128,8 @@ async function loadTags(post_id){
     const tagList = document.querySelector("#tags");
 
     for(let i = 0; i < tags.length; i++){
-        const tag = tags[i];
         const tagElement = document.createElement('span');
-        tagElement.textContent = tag["tag_name"] + "  |  ";
+        tagElement.textContent = tags[i] + "  |  ";
         tagList.appendChild(tagElement);
     }
 }
@@ -154,7 +158,7 @@ async function loadVotes(postId){
 
 async function loadComments(post_id){
     // load comments
-    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/comments/all/");
+    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/comments/");
     const commentsData = await response.json();
     const comments = commentsData["comments"];
 
@@ -164,7 +168,7 @@ async function loadComments(post_id){
         // Create comment object
         const comment = comments[i];
         const commentObject = new Comment();
-        await commentObject.init(comment["comment_id"], comment["content"], comment["user_id"], comment["post_id"], comment["created_at"]);
+        await commentObject.init(comment["comment_id"], comment["content"], comment["author_id"], comment["post_id"], comment["created_at"]);
         commentObjects.push(commentObject);
 
         // Toggle visibility of see more button
@@ -217,7 +221,6 @@ async function editPost(post_id){
 
     // Show input field with the post content
     const editPostDiv = document.querySelector("#editPost");
-    console.log(editPostDiv)
     editPostDiv.style.display = "block";
     const editPostInput = document.querySelector("#editPostInput");
     editPostInput.value = postContent;
@@ -234,7 +237,6 @@ async function submitEditPostFunction(post_id){
 
     // Send the new post content to the backend
     const auth_token = localStorage.getItem("AuthToken");
-    console.log(newPostContent);
 
     const response = await fetch(
         BACKENDURL + "posts/id/" + post_id + "/edit/", {
