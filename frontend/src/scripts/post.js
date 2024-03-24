@@ -71,6 +71,12 @@ async function toggleSiteVisibility(){
         editPostButton.style.display = 'inline-block';
         postQuill = new Quill('#editPostEditor', quillSettingsPost);
     }
+
+    // Post Management Buttons
+    const container = document.getElementById('postManagementButtonsContainer');
+    const authorRole = await getRole(authorId);
+    const postManagementButtons = getContentManagementButtons(currentUserRole, authorRole, currentUserId === authorId);
+    container.appendChild(postManagementButtons);
 }
 
 async function getCurrentUserId(){
@@ -309,7 +315,9 @@ class Comment {
         this.commentId = commentId;
         this.content = content;
         this.authorId = authorId;
+        this.authorRole = await getRole(authorId);
         this.postId = postId;
+        this.isAuthor = authorId === currentUserId;
         this.createdAt = createdAt;
 
         this.seeMoreVisible = false;
@@ -371,6 +379,14 @@ class Comment {
         this.seeMoreButton.addEventListener("click", () => this.toggleButtons());
         this.editButton.addEventListener("click", () => this.toggleEditComment());
         this.deleteButton.addEventListener("click", () => this.deleteComment());
+
+        // Content Management Buttons
+        const contentManagementButtons = getContentManagementButtons(currentUserRole, this.authorRole, this.isAuthor);
+        this.commentContainer.appendChild(contentManagementButtons);
+
+        // User Management Buttons
+        const userManagementButtons = getUserManagementButtons(currentUserRole, this.authorRole);
+        this.commentContainer.appendChild(userManagementButtons);
     }
 
     loadEditElements(){
