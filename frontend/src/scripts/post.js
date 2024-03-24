@@ -11,6 +11,7 @@ let authorId = null;
 let authorUsername = null;
 
 let post = null;
+let postId = null;
 
 // Rich Text Editor
 const commentQuill = new Quill('#createCommentEditor', quillSettingsComment);
@@ -18,7 +19,7 @@ let postQuill = null;
 
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
-    let postId = getPostIdFromUrl();
+    postId = getPostIdFromUrl();
 
     // Load user data
     currentUserId = await getCurrentUserId();
@@ -77,6 +78,13 @@ async function toggleSiteVisibility(){
     const authorRole = await getRole(authorId);
     const postManagementButtons = getContentManagementButtons(currentUserRole, authorRole, currentUserId === authorId);
     container.appendChild(postManagementButtons);
+
+    // Add event listeners to the post management buttons if they exist
+    const editButton = postManagementButtons.querySelector(".editContentButton");
+    const deleteButton = postManagementButtons.querySelector(".deleteContentButton");
+
+    editButton && editButton.addEventListener("click", () => editPost(postId));
+    deleteButton && deleteButton.addEventListener("click", () => deletePost(postId));
 }
 
 async function getCurrentUserId(){
@@ -383,10 +391,29 @@ class Comment {
         // Content Management Buttons
         const contentManagementButtons = getContentManagementButtons(currentUserRole, this.authorRole, this.isAuthor);
         this.commentContainer.appendChild(contentManagementButtons);
+        // Add event listeners to the content management buttons if they exist
+        const editButton = contentManagementButtons.querySelector(".editContentButton");
+        const deleteButton = contentManagementButtons.querySelector(".deleteContentButton");
+
+        editButton && editButton.addEventListener("click", () => this.toggleEditComment());
+        deleteButton && deleteButton.addEventListener("click", () => this.deleteComment());
 
         // User Management Buttons
         const userManagementButtons = getUserManagementButtons(currentUserRole, this.authorRole);
         this.commentContainer.appendChild(userManagementButtons);
+
+        // Add event listeners to the user management buttons if they exist
+        const banButton = userManagementButtons.querySelector(".banButton");
+        const promoteToModButton = userManagementButtons.querySelector(".promoteToModButton");
+        const promoteToAdminButton = userManagementButtons.querySelector(".promoteToAdminButton");
+        const demoteModButton = userManagementButtons.querySelector(".demoteModButton");
+        const demoteAdminButton = userManagementButtons.querySelector(".demoteAdminButton");
+
+        banButton && banButton.addEventListener("click", () => console.log("Ban user"));
+        promoteToModButton && promoteToModButton.addEventListener("click", () => promoteToMod(this.authorId));
+        promoteToAdminButton && promoteToAdminButton.addEventListener("click", () => promoteToAdmin(this.authorId));
+        demoteModButton && demoteModButton.addEventListener("click", () => demoteMod(this.authorId));
+        demoteAdminButton && demoteAdminButton.addEventListener("click", () => demoteAdmin(this.authorId));
     }
 
     loadEditElements(){
