@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post</title>
     <script type="text/javascript" src="../src/constants.js"></script>
-    <script type="text/javascript" src="../src/scripts/roles.js"></script>
+    <script type="text/javascript" src="../src/utilities/roleUtilities.js"></script>
     <link rel="stylesheet" href="../src/styles/general.css">
     <link rel="stylesheet" href="../src/styles/header.css">
     <link rel="stylesheet" href="../src/styles/sidebar.css">
@@ -50,6 +50,9 @@
         <h2 id="postTitle"></h2>
         <hr>
         <p id="postContent"></p><br>
+    </div>
+    <div id="postManagementButtonsContainer">
+        <!-- Here Buttosn for editing or deleting the Post are inserted depending on the users role -->
     </div>
     <button id="editPostButton" style="display:none;">Post bearbeiten</button> 
     <button id="deletePostButton" style="display:none;">Post löschen</button>
