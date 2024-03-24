@@ -121,30 +121,35 @@ function getUserManagementButtons(managerRole, authorRole) {
     if (rolePermissions.canBanUser && authorRole === 'user') {
         const banButton = document.createElement('button');
         banButton.textContent = 'Nutzer sperren';
+        banButton.classList.add('banButton');
         actionsDiv.appendChild(banButton);
     }
 
     if (rolePermissions.canPromoteToMod && authorRole === 'user') {
         const promoteToModButton = document.createElement('button');
         promoteToModButton.textContent = 'zu Moderator machen';
+        promoteToModButton.classList.add('promoteToModButton');
         actionsDiv.appendChild(promoteToModButton);
     }
 
     if (rolePermissions.canPromoteToAdmin && (authorRole === 'user' || authorRole === 'moderator')) {
         const promoteToAdminButton = document.createElement('button');
         promoteToAdminButton.textContent = 'zu Admin machen';
+        promoteToAdminButton.classList.add('promoteToAdminButton');
         actionsDiv.appendChild(promoteToAdminButton);
     }
 
     if (rolePermissions.canDemoteMod && authorRole === 'moderator') {
         const demoteModButton = document.createElement('button');
         demoteModButton.textContent = 'zu Nutzer herabstufen';
+        demoteModButton.classList.add('demoteModButton');
         actionsDiv.appendChild(demoteModButton);
     }
 
     if (rolePermissions.canDemoteAdmin && authorRole === 'admin') {
         const demoteAdminButton = document.createElement('button');
         demoteAdminButton.textContent = 'zu Moderator herabstufen';
+        demoteAdminButton.classList.add('demoteAdminButton');
         actionsDiv.appendChild(demoteAdminButton);
     }
 
@@ -190,12 +195,14 @@ function getContentManagementButtons(managerRole, authorRole, isAuthor) {
     if (isAuthor || rolePermissions.canEditContent) {
     const editContentButton = document.createElement('button');
     editContentButton.textContent = 'Bearbeiten';
+    editContentButton.classList.add('editContentButton');
     actionsDiv.appendChild(editContentButton);
     }
 
     if (isAuthor || (rolePermissions.canDeleteContent && (managerRole === 'admin' || (authorRole !== 'admin' && authorRole !== 'mod')))) {
     const deleteContentButton = document.createElement('button');
     deleteContentButton.textContent = 'Löschen';
+    deleteContentButton.classList.add('deleteContentButton');
     actionsDiv.appendChild(deleteContentButton);
     }
 
