@@ -1,5 +1,6 @@
 // TODO: Maybe make a class for the post too
 // TODO: File is a mess
+// TODO: change editPost to toggleEditPost
 
 // Global variables
 
@@ -12,6 +13,8 @@ let authorUsername = null;
 
 let post = null;
 let postId = null;
+
+let editPostVisible = false;
 
 // Rich Text Editor
 const commentQuill = new Quill('#createCommentEditor', quillSettingsComment);
@@ -39,8 +42,6 @@ async function onLoad(){
     document.querySelector("#downvoteButton").addEventListener("click", (event) => vote(event, postId, -1));
 
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
-    document.querySelector("#editPostButton").addEventListener("click", () => editPost(postId));
-    document.querySelector("#deletePostButton").addEventListener("click", () => deletePost(postId));
 
     // Load post, tags and comments
     await toggleSiteVisibility();
@@ -60,16 +61,8 @@ async function toggleSiteVisibility(){
     upvoteButton.style.display = currentUserId ? 'inline-block' : 'none';  
     downvoteButton.style.display = currentUserId ? 'inline-block' : 'none';
 
-    // If the user is an admin/moderator or the author, display the delete button
-    const deletePostButton = document.getElementById('deletePostButton');
-    if (currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUsername === authorUsername)){
-        deletePostButton.style.display = 'inline-block';
-    }
-
-    // If the user is the author, display the edit button and create edit post editor
-    const editPostButton = document.getElementById('editPostButton');
+    // If the user is the author create edit post editor
     if (currentUserId && currentUsername === authorUsername){
-        editPostButton.style.display = 'inline-block';
         postQuill = new Quill('#editPostEditor', quillSettingsPost);
     }
 
@@ -81,9 +74,11 @@ async function toggleSiteVisibility(){
 
     // Add event listeners to the post management buttons if they exist
     const editButton = postManagementButtons.querySelector(".editContentButton");
+    const submitEditButton = postManagementButtons.querySelector(".submitEditContentButton");
     const deleteButton = postManagementButtons.querySelector(".deleteContentButton");
 
-    editButton && editButton.addEventListener("click", () => editPost(postId));
+    editButton && editButton.addEventListener("click", () => toggleEditPost(postId));
+    submitEditButton && submitEditButton.addEventListener("click", () => submitEditPostFunction(postId));
     deleteButton && deleteButton.addEventListener("click", () => deletePost(postId));
 }
 
@@ -190,11 +185,7 @@ async function loadComments(post_id){
         await commentObject.init(comment["comment_id"], comment["content"], comment["author_id"], comment["post_id"], comment["created_at"]);
         commentObjects.push(commentObject);
 
-        // Toggle visibility of see more button
-        if(currentUserId && (currentUserRole === "admin" || currentUserRole === "moderator" || currentUserId === comment["user_id"])){
-            commentObject.seeMoreButton.style.display = "inline-block";
-        }
-        // Append
+        // Insert comment into HTML
         document.querySelector("#commentList").appendChild(commentObject.commentContainer);
     }
 }
@@ -226,26 +217,29 @@ async function createComment(event, post_id){
     location.reload();
 }
 
-async function editPost(post_id){
+async function toggleEditPost(post_id){
+    editPostVisible = !editPostVisible;
     // Get the post content
-    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/");
-    const postData = await response.json();
-    const postContent = postData["post"]["content"];
+    const postContent = post["content"];
 
-    // Hide the post content and button
+    // Toggle the post content
     const postContentElement = document.querySelector("#postContent");
-    postContentElement.setAttribute("style", "display: none;");
-    const editPostButton = document.querySelector("#editPostButton");
-    editPostButton.setAttribute("style", "display: none;");
+    postContentElement.style.display = editPostVisible ? "none" : "block";
 
-    // Show text editor with the post content
+    // Toggle text editor with the post content
     const editPostDiv = document.querySelector("#editPost");
-    editPostDiv.style.display = "block";
+    editPostDiv.style.display = editPostVisible ? "block" : "none";
     postQuill.root.innerHTML = postContent;
+
+    // Toggle text of "bearbeiten" button
+    const editPostButton = document.querySelector("#postManagementButtonsContainer").querySelector(".editContentButton");
+    if(editPostButton){
+        editPostButton.textContent = editPostVisible ? "Zurück" : "Bearbeiten";
+    }
     
-    // Add event listener to the submit button
-    const submitEditPost= document.querySelector("#submitEditPost");
-    submitEditPost.addEventListener("click", () => submitEditPostFunction(post_id));
+    // Toggle submit button
+    const submitEditPost = document.querySelector("#postManagementButtonsContainer").querySelector(".submitEditContentButton");
+    submitEditPost.style.display = editPostVisible ? "inline-block" : "none";
 }
 
 async function submitEditPostFunction(post_id){
@@ -328,7 +322,6 @@ class Comment {
         this.isAuthor = authorId === currentUserId;
         this.createdAt = createdAt;
 
-        this.seeMoreVisible = false;
         this.editCommentVisible = false;
 
         this.commentContainer = document.createElement('div');
@@ -365,37 +358,17 @@ class Comment {
     }
 
     loadButtons(){
-        // Create elements
-        this.seeMoreButton = document.createElement('button');
-        this.seeMoreButton.textContent = "...";
-        this.seeMoreButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
-
-        this.editButton = document.createElement('button');
-        this.editButton.textContent = "Edit";
-        this.editButton.style.display = "none";
-
-        this.deleteButton = document.createElement('button');
-        this.deleteButton.textContent = "Delete";
-        this.deleteButton.style.display = "none";
-
-        // Insert elements
-        this.commentContainer.prepend(this.deleteButton);
-        this.commentContainer.prepend(this.editButton);
-        this.commentContainer.prepend(this.seeMoreButton);
-
-        // Add event listeners
-        this.seeMoreButton.addEventListener("click", () => this.toggleButtons());
-        this.editButton.addEventListener("click", () => this.toggleEditComment());
-        this.deleteButton.addEventListener("click", () => this.deleteComment());
-
         // Content Management Buttons
-        const contentManagementButtons = getContentManagementButtons(currentUserRole, this.authorRole, this.isAuthor);
-        this.commentContainer.appendChild(contentManagementButtons);
+        this.contentManagementButtons = getContentManagementButtons(currentUserRole, this.authorRole, this.isAuthor);
+        this.commentContainer.appendChild(this.contentManagementButtons);
+
         // Add event listeners to the content management buttons if they exist
-        const editButton = contentManagementButtons.querySelector(".editContentButton");
-        const deleteButton = contentManagementButtons.querySelector(".deleteContentButton");
+        const editButton = this.contentManagementButtons.querySelector(".editContentButton");
+        const submitEditButton = this.contentManagementButtons.querySelector(".submitEditContentButton");
+        const deleteButton = this.contentManagementButtons.querySelector(".deleteContentButton");
 
         editButton && editButton.addEventListener("click", () => this.toggleEditComment());
+        submitEditButton && submitEditButton.addEventListener("click", () => this.submitEditComment());
         deleteButton && deleteButton.addEventListener("click", () => this.deleteComment());
 
         // User Management Buttons
@@ -425,41 +398,23 @@ class Comment {
         // Hide it initially
         this.editorContainer.style.display = "none";
         this.quillToolbar.container.style.display = "none";
-
-        // Create submit button
-        this.submitEdit = document.createElement('button');
-        this.submitEdit.textContent = "Senden";
-        this.submitEdit.style.display = "none";
-
-        // Insert elements
-        this.commentContainer.appendChild(this.submitEdit);
-
-        // Add event listeners
-        this.submitEdit.addEventListener("click", () => this.submitEditComment());
-    }
-
-    toggleButtons(){
-        this.seeMoreVisible = !this.seeMoreVisible;
-        // Toggle delete button
-        this.deleteButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
-        // Only show the edit button if the user is the author of the comment
-        if (this.authorId === currentUserId){
-            this.editButton.style.display = this.seeMoreVisible ? "inline-block" : "none";
-        }
     }
 
     toggleEditComment(){
         this.editCommentVisible = !this.editCommentVisible;
-        // Toggle the comment content and buttons of the current comment
+        // Toggle the comment content
         this.commentContainer.querySelector("#commentContent").style.display = this.editCommentVisible ? "none" : "inline-block";
-        this.editButton.textContent = this.editCommentVisible ? "Zurück" : "Edit";
 
+        // Toggle the editor
         this.editorContainer.style.display = this.editCommentVisible ? "block" : "none";
         this.quillToolbar.container.style.display = this.editCommentVisible ? "block" : "none";
         this.quill.root.innerHTML = this.content;
 
-        // Toggle submit button
-        this.submitEdit.style.display = this.editCommentVisible ? "inline-block" : "none";
+        // Toggle the text of the edit button
+        this.contentManagementButtons.querySelector(".editContentButton").textContent = this.editCommentVisible ? "Zurück" : "Bearbeiten";
+
+        // Toggle the submit button
+        this.contentManagementButtons.querySelector(".submitEditContentButton").style.display = this.editCommentVisible ? "inline-block" : "none";
     }
 
     async submitEditComment(){

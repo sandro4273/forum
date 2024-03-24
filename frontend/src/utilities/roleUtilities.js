@@ -197,6 +197,12 @@ function getContentManagementButtons(managerRole, authorRole, isAuthor) {
     editContentButton.textContent = 'Bearbeiten';
     editContentButton.classList.add('editContentButton');
     actionsDiv.appendChild(editContentButton);
+
+    const submitEditContentButton = document.createElement('button');
+    submitEditContentButton.textContent = 'Speichern';
+    submitEditContentButton.classList.add('submitEditContentButton');
+    submitEditContentButton.style.display = 'none';
+    actionsDiv.appendChild(submitEditContentButton);
     }
 
     if (isAuthor || (rolePermissions.canDeleteContent && (managerRole === 'admin' || (authorRole !== 'admin' && authorRole !== 'mod')))) {
