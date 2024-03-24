@@ -173,6 +173,7 @@ function getUserManagementButtons(managerRole, authorRole) {
 function getContentManagementButtons(managerRole, authorRole, isAuthor) {
     // Create the main div.
     const div = document.createElement('div');
+    div.style.display = 'inline-block';
 
     // Get the permissions for the role.
     const rolePermissions = roles[managerRole];
