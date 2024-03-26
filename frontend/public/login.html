@@ -6,7 +6,9 @@
     <script type="text/javascript" src="../src/constants.js"></script>
 </head>
 <body>
+<div class="page">
     <h1>Anmelden</h1>
+    <p >Willkommen! Melde dich beim Forum an</p>
     <form name="login">
         <label for="username">E-Mail</label><br>
         <input type="text" id="username" name="username" required><br> <br>
@@ -16,7 +18,8 @@
 
         <button id="submitButton" type="button">Anmelden</button>
     </form>
-    <p id="errorMessage" style="color: red; display: none;">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
+    <p class="errorMessage" id="errorMessage" style="color: red; display: none;">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
+</div>
 </body>
 
 <script type="text/javascript" src="../src/scripts/login.js"></script>
