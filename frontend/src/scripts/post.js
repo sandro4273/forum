@@ -22,6 +22,9 @@ async function onLoad(){
         currentUsername = await getUsername(currentUserId);
         currentUserRole = await getRole(currentUserId);
     }
+    else {
+        currentUserRole = "guest";
+    }
     console.log("Logged in as: " + currentUsername)
 
     // Load post data
@@ -40,7 +43,7 @@ async function onLoad(){
     await displayPost(post);
     await loadTags(postId);
     await displayVotes(postId, currentUserId);
-    await displayComments(postId);
+    await displayComments(postId, currentUserId);
 }
 
 async function configureUIElements(currentUserId, postAuthorId){
@@ -119,7 +122,7 @@ function getPostIdFromUrl() {
     return urlParams.get('id');
 }
 
-async function displayComments(post_id){
+async function displayComments2(post_id, currentUserId){
     // load comments
     const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/comments/");
     const commentsData = await response.json();
@@ -131,11 +134,29 @@ async function displayComments(post_id){
         // Create comment object
         const comment = comments[i];
         const commentObject = new Comment();
-        await commentObject.init(comment["comment_id"], comment["content"], comment["author_id"], comment["post_id"], comment["created_at"]);
+        await commentObject.init(currentUserId, comment["comment_id"], comment["content"], comment["author_id"], comment["post_id"], comment["creation_date"]);
         commentObjects.push(commentObject);
 
         // Insert comment into HTML
         document.querySelector("#commentList").appendChild(commentObject.commentContainer);
+    }
+}
+
+async function displayComments(post_id, currentUserId){
+    // load comments
+    const commentsArray = await getComments(post_id);
+    
+    // Create Comment divs for each comment
+    for(let i = 0; i < commentsArray.length; i++){
+        const comment = commentsArray[i];
+        // Create comment div
+        const commentDiv = await createCommentDiv(comment, currentUserId);
+
+        // Insert buttons for user and content management
+        await insertButtons(commentDiv, currentUserId, comment["author_id"]);
+
+        // Insert comment into HTML
+        document.querySelector("#commentList").appendChild(commentDiv);
     }
 }
 

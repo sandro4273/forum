@@ -76,8 +76,16 @@ const colors = {
 
 /**
  * Returns the role of a user.
+ * @param {number} user_id - The user's ID.
+ * @returns {string} The user's role.
  */
 async function getRole(user_id){
+    // Return guest role if user_id null
+    if (!user_id) {
+        return "guest";
+    }
+
+    // Get the role of the user with the given user_id.
     const response = await fetch(`${BACKENDURL}users/id/${user_id}/?fields=role`);
     const data = await response.json();
     return data["user"]["role"];
