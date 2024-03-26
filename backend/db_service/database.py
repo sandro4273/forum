@@ -28,7 +28,7 @@ class Database:
         self.conn.close()
 
 
-VALID_ROLES = ["user", "moderator", "admin"]
+VALID_ROLES = ["admin", "moderator", "user", "banned"]
 
 
 # ------------------------- Existence Checks -------------------------
