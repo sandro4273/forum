@@ -4,7 +4,6 @@ async function onLoad() {
     const chatId = getChatIdFromUrl();
     const chatResponse = await fetch(`${BACKENDURL}chats/id/${chatId}/`);
     const chatData = await chatResponse.json();
-        console.log(chatData);
     const chat = chatData["chat"];
     const user1Id = chat["user1"];
     const user2Id = chat["user2"];
@@ -132,7 +131,6 @@ async function sendMessage(event) {
 
     return messageData;
 }
-
 
 // Entry point - Execute onLoad when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());

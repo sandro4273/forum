@@ -15,6 +15,10 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script type="text/javascript" src="../src/quillSettings.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <!-- MathJax library for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 
@@ -47,9 +51,9 @@
     <div class="sidebar">SIDEBAR</div>
 
     <div id="post">
-        <h2 id="postTitle"></h2>
+        <h2 id="postTitle" class="tex2jax_ignore"></h2>
         <hr>
-        <p id="postContent"></p><br>
+        <div id="postContent"></div><br>
     </div>
     <button id="editPostButton" style="display:none;">Post bearbeiten</button> 
     <button id="deletePostButton" style="display:none;">Post löschen</button>
