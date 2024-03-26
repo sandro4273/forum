@@ -1,3 +1,8 @@
+/**
+ * @file roleUtilities.js
+ * This file contains utility functions for managing user roles and permissions.
+ */
+
 // Maps roles to permissions.
 const roles = {
     admin: {
@@ -93,6 +98,8 @@ async function getRole(user_id){
 
 /**
  * Returns the color associated with a role.
+ * @param {string} role - The role.
+ * @returns {string} The color associated with the role.
  */
 function getRoleColor(role){
     return colors[role];
