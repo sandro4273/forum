@@ -114,7 +114,7 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
     if (posts.length === 10) {
         const loadMoreButton = document.createElement('button');
         loadMoreButton.textContent = "Load more";
-        loadMoreButton.addEventListener("click", () => loadPosts(searchInput, offset + 10));
+        loadMoreButton.addEventListener("click", () => loadPosts(searchInput, offset + 10, sort_type));
         postList.append(loadMoreButton);
     }
 }
