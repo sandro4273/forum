@@ -88,7 +88,10 @@ async function displayPost(post){
     
     // insert post into HTML
     document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${authorUsername} <span style="color: ${roleColor}">(${authorRole})</span>`;
-    document.querySelector("#postContent").innerHTML = postContent;
+    let postElement = document.querySelector("#postContent")
+    postElement.innerHTML = postContent;
+
+    renderMathJax(postElement)
 }
 
 async function displayTags(postId){
@@ -145,7 +148,6 @@ async function displayVotes(postId, currentUserId){
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
-}
 
 async function displayComments(post_id, currentUserId){
     // load comments
@@ -163,6 +165,8 @@ async function displayComments(post_id, currentUserId){
         // Insert comment into HTML
         document.querySelector("#commentList").appendChild(commentDiv);
     }
+    // Render MathJax
+    renderMathJax(commentList)
 }
 
 async function toggleEditPost(post){
@@ -190,5 +194,20 @@ async function toggleEditPost(post){
     submitEditPost.style.display = editPostVisible ? "inline-block" : "none";
 }
 
+/**
+* Render MathJax in a given element. Requires MathJax to be loaded.
+* @param element The element in which MathJax should be rendered.
+*/
+function renderMathJax(element){
+    // Check if MathJax is loaded
+    if (!window.MathJax || !element) return;
+
+    // Tell MathJax to update the document
+    MathJax.typesetPromise([element])
+        .catch(function (err) {
+            console.error('MathJax rendering error: ' + err);
+      });
+}
+  
 // execute onLoad when page is loaded
 window.addEventListener("DOMContentLoaded", onLoad());
