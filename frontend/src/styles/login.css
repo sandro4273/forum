@@ -1,8 +1,15 @@
 .page{
   display: flex;
+  flex-direction: column;
+  align-items: center;
+
 }
 
 .errorMessage{
   color: red;
   display: none;
+}
+
+.willkommen{
+  margin-bottom: 50px;
 }
