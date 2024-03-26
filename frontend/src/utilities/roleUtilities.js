@@ -114,6 +114,7 @@ function getRoleColor(role){
 function getUserManagementButtons(managerRole, authorRole) {
     // Create the main div.
     const div = document.createElement('div');
+    div.style.display = 'inline-block';
 
     // Get the permissions for the manager's role.
     const rolePermissions = roles[managerRole];
@@ -129,7 +130,7 @@ function getUserManagementButtons(managerRole, authorRole) {
 
     // Add a click event listener to the "..." button that toggles the visibility of the action buttons.
     toggleButton.addEventListener('click', () => {
-        actionsDiv.style.display = actionsDiv.style.display === 'none' ? 'block' : 'none';
+        actionsDiv.style.display = actionsDiv.style.display === 'none' ? 'inline-block' : 'none';
     });
 
     // Create the action buttons based on the manager's permissions and add them to the actions div.
