@@ -82,7 +82,7 @@ const colors = {
 /**
  * Returns the role of a user.
  * @param {number} user_id - The user's ID.
- * @returns {string} The user's role.
+ * @returns {string} The role of the user or "guest" if the user is not logged in.
  */
 async function getRole(user_id){
     // Return guest role if user_id null

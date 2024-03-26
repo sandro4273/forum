@@ -48,11 +48,11 @@ async function submitEditPostFunction(postId, postDiv){
  * @param {number} post_id - The id of the post to delete
  * @returns {Promise<void>}
  */
-async function deletePost(post_id){
+async function deletePost(postId){
     // Send the delete request
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + "posts/id/" + post_id + "/delete/", {
+        BACKENDURL + "posts/id/" + postId + "/delete/", {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${auth_token}`
