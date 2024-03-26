@@ -1,10 +1,18 @@
 from typing import Optional  # For optional data types
+from enum import Enum  # For creating enumerations
 
 from pydantic import (
     BaseModel,  # For creating pydantic data models
     EmailStr,  # For validating email addresses
     field_validator  # For validating data fields
 )
+
+
+class SortType(Enum):
+    RECOMMENDED = 0
+    NEW = 1
+    POPULAR = 2
+    CONTROVERSIAL = 3
 
 
 class User(BaseModel):
