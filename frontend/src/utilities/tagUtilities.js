@@ -1,17 +1,17 @@
-async function loadTags(post_id){
-    // load tags
+/**
+ * @file tagUtilities.js
+ * This file contains utility functions for tag-related operations.
+ */
+
+/**
+ * Get tags for a post
+ * @param {number} post_id
+ * @returns {Array}
+ */
+async function getTags(post_id){
     const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/tags/");
     const tagsData = await response.json();
     const tags = tagsData["tags"];
 
-    // Check if there are any tags
-    document.querySelector("#tags").style.display = tags.length > 0 ? "block" : "none";
-    // Create HTML elements for each tag
-    const tagList = document.querySelector("#tags");
-
-    for(let i = 0; i < tags.length; i++){
-        const tagElement = document.createElement('span');
-        tagElement.textContent = tags[i] + "  |  ";
-        tagList.appendChild(tagElement);
-    }
+    return tags;
 }

@@ -39,14 +39,14 @@ async function onLoad(){
     document.querySelector("#submitComment").addEventListener("click", (event) => createComment(event, postId));
 
     // Load post, tags and comments
-    await configureUIElements(currentUserId, authorId);
+    await configureUIElements(currentUserId, post);
     await displayPost(post);
-    await loadTags(postId);
+    await displayTags(postId);
     await displayVotes(postId, currentUserId);
     await displayComments(postId, currentUserId);
 }
 
-async function configureUIElements(currentUserId, postAuthorId){
+async function configureUIElements(currentUserId, post){
     // If a user is logged in, display the comment form and vote buttons
     const commentForm = document.getElementById('commentForm');
     commentForm.style.display = currentUserId ? 'block' : 'none';
@@ -57,14 +57,14 @@ async function configureUIElements(currentUserId, postAuthorId){
     downvoteButton.style.display = currentUserId ? 'inline-block' : 'none';
 
     // If the user is the author create edit post editor
-    if (currentUserId === postAuthorId){
+    if (currentUserId === post["author_id"]){
         postQuill = new Quill('#editPostEditor', quillSettingsPost);
     }
 
     // Post Management Buttons
     const container = document.getElementById('postManagementButtonsContainer');
-    const authorRole = await getRole(postAuthorId);
-    const postManagementButtons = getContentManagementButtons(currentUserRole, authorRole, currentUserId === postAuthorId);
+    const authorRole = await getRole(post["author_id"]);
+    const postManagementButtons = getContentManagementButtons(currentUserRole, authorRole, currentUserId === post["author_id"]);
     container.appendChild(postManagementButtons);
 
     // Add event listeners to the post management buttons if they exist
@@ -72,8 +72,8 @@ async function configureUIElements(currentUserId, postAuthorId){
     const submitEditButton = postManagementButtons.querySelector(".submitEditContentButton");
     const deleteButton = postManagementButtons.querySelector(".deleteContentButton");
 
-    editButton && editButton.addEventListener("click", () => toggleEditPost(postId));
-    submitEditButton && submitEditButton.addEventListener("click", () => submitEditPostFunction(postId));
+    editButton && editButton.addEventListener("click", () => toggleEditPost(post));
+    submitEditButton && submitEditButton.addEventListener("click", () => submitEditPostFunction(post["post_id"], document.querySelector("#post")));
     deleteButton && deleteButton.addEventListener("click", () => deletePost(postId));
 }
 
@@ -90,6 +90,32 @@ async function displayPost(post){
     // insert post into HTML
     document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${authorUsername} <span style="color: ${roleColor}">(${authorRole})</span>`;
     document.querySelector("#postContent").innerHTML = postContent;
+}
+
+async function displayTags(postId){
+    // Get tags of the post
+    const tags = await getTags(postId);
+    
+    // Get the place to insert the tags
+    const tagList = document.querySelector("#tags");
+
+    // Check if there are any tags
+    if (tags.length === 0){
+        tagList.style.display = "none";
+        return;
+    }
+
+    // Create HTML elements for each tag and insert them
+    for(let i = 0; i < tags.length; i++){
+        const tagElement = document.createElement('span');
+        tagElement.textContent = tags[i];
+        tagElement.style.border = "1px solid black";
+        tagElement.style.padding = "2px";
+        tagElement.style.margin = "3px";
+        tagList.appendChild(tagElement);
+
+        // TODO: Add event listener to tagElement so that it redirects to a search for the tag
+    }
 }
 
 async function displayVotes(postId, currentUserId){
@@ -122,26 +148,6 @@ function getPostIdFromUrl() {
     return urlParams.get('id');
 }
 
-async function displayComments2(post_id, currentUserId){
-    // load comments
-    const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/comments/");
-    const commentsData = await response.json();
-    const comments = commentsData["comments"];
-
-    // Create Comment objects for each comment
-    let commentObjects = [];
-    for(let i = 0; i < comments.length; i++){
-        // Create comment object
-        const comment = comments[i];
-        const commentObject = new Comment();
-        await commentObject.init(currentUserId, comment["comment_id"], comment["content"], comment["author_id"], comment["post_id"], comment["creation_date"]);
-        commentObjects.push(commentObject);
-
-        // Insert comment into HTML
-        document.querySelector("#commentList").appendChild(commentObject.commentContainer);
-    }
-}
-
 async function displayComments(post_id, currentUserId){
     // load comments
     const commentsArray = await getComments(post_id);
@@ -160,7 +166,7 @@ async function displayComments(post_id, currentUserId){
     }
 }
 
-async function toggleEditPost(){
+async function toggleEditPost(post){
     editPostVisible = !editPostVisible;
     // Get the post content
     const postContent = post["content"];

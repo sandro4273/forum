@@ -2,6 +2,7 @@
  * Create a comment
  * @param {Event} event
  * @param {number} post_id
+ * @returns {Promise<void>}
  */
 async function createComment(event, post_id){
     event.preventDefault();
