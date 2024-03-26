@@ -1,5 +1,5 @@
 from typing import Optional  # For optional data types
-from enum import Enum  # For creating enumerations
+from enum import IntEnum  # For creating enumerations
 
 from pydantic import (
     BaseModel,  # For creating pydantic data models
@@ -8,7 +8,7 @@ from pydantic import (
 )
 
 
-class SortType(Enum):
+class SortType(IntEnum):
     RECOMMENDED = 0
     NEW = 1
     POPULAR = 2

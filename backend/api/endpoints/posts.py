@@ -44,7 +44,6 @@ async def get_posts(
     Returns:
         A list of post objects (dictionaries).
     """
-    print("search:", search, "amount:", amount, "offset:", offset, "sort:", sort)
 
     return {"posts": db.get_posts(search, amount, offset, sort)}
 
