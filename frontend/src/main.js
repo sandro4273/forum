@@ -100,7 +100,7 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
 
-    // Clear the post list if the offset is 0 (meaning a new search was made)
+    // Clear the post list if the offset is 0 (meaning a new search was made or the sort type changed)
     if (offset === 0) postList.innerHTML = "";
 
     await updatePostList(posts);
@@ -131,6 +131,9 @@ async function searchBarPressed(event){
     }
 }
 
+/**
+ * Calls loadPosts with the selected sort type. Also considers the search input
+ */
 async function sortingChanged(event){
     const sortTypeToInt = {
         "recommended": 0,
