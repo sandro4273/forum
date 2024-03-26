@@ -4,9 +4,47 @@
     <meta charset="UTF-8">
     <title>Anmelden</title>
     <script type="text/javascript" src="../src/constants.js"></script>
+    <link rel="stylesheet" href="../src/styles/login.css">
+    <link rel="stylesheet" href="../src/styles/general.css">
+    <link rel="stylesheet" href="../src/styles/header.css">
+    <link rel="stylesheet" href="../src/styles/sidebar.css">
 </head>
 <body>
-    <h1>Anmelden</h1>
+    <div class="header">
+        <div class="left-section">
+            <a class="home-button" href="index.html">
+                <img src="../src/assets/icons/home.svg">
+            <a class="direct-messages-button" href="chatOverview.html">
+                <img src="../src/assets/icons/direct messages.png"></a>
+            </a>
+        </div>
+        <div class="middle-section">
+            <input class="search-bar" id="searchBar" type="text" placeholder="Search">
+        </div>
+        <div class="right-section">
+            <div id="authButtons">
+                <a class="login-button" href="login.html">Anmelden</a>
+                <a class="register-button" href="signup.html">Registrieren</a>
+            </div>
+            <div id="loggedInUser" style="display:none;">
+                Eingeloggt als <span id="username"></span> (<span id="email"></span>)
+                <button id="logoutButton" type="button">Abmelden</button>
+                
+                
+            </div>
+        </div>
+
+    </div>
+    <div class="sidebar">
+        <div>kategorie 1</div>
+        <div>kategorie 2</div>
+        <div>kategorie 3</div>
+        <div>kategorie 4</div>
+        <div>kategorie 5</div>
+    </div>
+    <div class="page">
+    <h1 class="anmelden">Anmelden</h1>
+    <p class="willkommen">Willkommen! Melde dich beim Forum an</p>
     <form name="login">
         <label for="username">E-Mail</label><br>
         <input type="text" id="username" name="username" required><br> <br>
@@ -14,9 +52,10 @@
         <label for="password">Passwort</label><br>
         <input type="password" id="password" name="password" required><br> <br>
 
-        <button id="submitButton" type="button">Anmelden</button>
+        <a id="submitButton" type="button" class="abmelden-button">Anmelden</a>
     </form>
-    <p id="errorMessage" style="color: red; display: none;">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
+    <p class="errorMessage" id="errorMessage">Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.</p>
+</div>
 </body>
 
 <script type="text/javascript" src="../src/scripts/login.js"></script>

@@ -2,7 +2,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1em;
-  border: 1px solid black;
 }
 .post{
   border:1px solid black;
