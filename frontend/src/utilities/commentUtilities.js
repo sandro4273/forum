@@ -4,11 +4,8 @@
  * @param {number} post_id
  * @returns {Promise<void>}
  */
-async function createComment(event, post_id){
+async function createComment(event, post_id, content){
     event.preventDefault();
-
-    // Extract content from form
-    const content = commentQuill.root.innerHTML;
 
     const body = {
         "content": content
