@@ -148,6 +148,7 @@ async function displayVotes(postId, currentUserId){
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
+}
 
 async function displayComments(post_id, currentUserId){
     // load comments
@@ -206,7 +207,7 @@ function renderMathJax(element){
     MathJax.typesetPromise([element])
         .catch(function (err) {
             console.error('MathJax rendering error: ' + err);
-      });
+        });
 }
   
 // execute onLoad when page is loaded
