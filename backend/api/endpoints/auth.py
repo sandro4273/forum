@@ -1,5 +1,5 @@
 import os
-import json  # For parsing the SECRET_KEY from the config.json file
+import json  # For parsing the SECRET_KEY from the config.json file and roles.json
 
 import jwt  # JSON Web Token for user authentication
 from jwt import PyJWTError  # Gets thrown in case the JWT is not valid
@@ -188,6 +188,23 @@ async def get_current_user(current_user_id: Annotated[int, Depends(get_current_u
     """
 
     return db.get_user_by_id(current_user_id)
+
+
+def get_role_permissions(user_role):
+    """
+    Returns the permissions of each role.
+    """
+    roles_path = os.path.join(CURRENT_DIR, '../../roles.json')
+
+    with open(roles_path) as f:
+        roles = json.load(f)
+
+    role_permissions = roles[user_role]
+    
+    if not role_permissions: # If the role does not exist
+        return [] # Return an empty list
+    
+    return role_permissions 
 
 
 # ------------------------- Post Requests -------------------------

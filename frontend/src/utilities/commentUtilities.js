@@ -135,7 +135,7 @@ async function insertButtons(commentDiv, currentUserId, authorId){
     const demoteModButton = userManagementButtons.querySelector(".demoteModButton");
     const demoteAdminButton = userManagementButtons.querySelector(".demoteAdminButton");
 
-    banButton && banButton.addEventListener("click", () => console.log("Ban user"));
+    banButton && banButton.addEventListener("click", () => banUser(authorId));
     promoteToModButton && promoteToModButton.addEventListener("click", () => promoteToMod(authorId));
     promoteToAdminButton && promoteToAdminButton.addEventListener("click", () => promoteToAdmin(authorId));
     demoteModButton && demoteModButton.addEventListener("click", () => demoteMod(authorId));
