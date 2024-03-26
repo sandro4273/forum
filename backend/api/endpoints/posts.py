@@ -177,7 +177,12 @@ async def create_post(post: Post, current_user_id: Annotated[int, Depends(get_cu
     Returns:
         The ID of the post (integer).
     """
-
+    # Validate if the user is not banned
+    role = db.get_user_by_id(current_user_id).role
+    if role == "banned":
+        raise HTTPException(status_code=403, detail="You are banned and cannot create posts")
+    
+    # Create the post
     post_id = db.create_post(current_user_id, post.title, post.content)
 
     # Check if post creation was successful
@@ -202,6 +207,10 @@ async def create_comment(post_id: int, comment: Comment, current_user_id: Annota
     Returns:
         The comment object containing the content of the comment.
     """
+    # Validate if the user is not banned
+    role = db.get_user_by_id(current_user_id).role
+    if role == "banned":
+        raise HTTPException(status_code=403, detail="You are banned and cannot create comments")
 
     # Raise an error if the post does not exist or the user ID is not valid
     if not (db.get_post_by_id(post_id) and current_user_id):
