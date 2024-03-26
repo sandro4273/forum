@@ -38,23 +38,29 @@
             </a>
         </div>
         <div class="middle-section">
-            <input class="search-bar" type="text" placeholder="Search">
+            <input class="search-bar" id="searchBar" type="text" placeholder="Search">
         </div>
         <div class="right-section">
             <div id="authButtons">
-                <a href="login.html">Anmelden</a>
-                <a href="signup.html">Registrieren</a>
+                <a class="login-button" href="login.html">Anmelden</a>
+                <a class="register-button" href="signup.html">Registrieren</a>
             </div>
-            <div id="loggedInUser" style="display:none;">
+            <div id="loggedInUser" class="loggedinuser">
                 Eingeloggt als <span id="username"></span> (<span id="email"></span>)
-                <button id="logoutButton" type="button">Abmelden</button>
+                <a id="logoutButton" type="button" class="abmelden-button">Abmelden</a>
                 
                 
             </div>
         </div>
 
     </div>
-    <div class="sidebar">SIDEBAR</div>
+    <div class="sidebar">
+        <div>kategorie 1</div>
+        <div>kategorie 2</div>
+        <div>kategorie 3</div>
+        <div>kategorie 4</div>
+        <div>kategorie 5</div>
+    </div>
 
     <div id="post">
         <h2 id="postTitle"></h2>
