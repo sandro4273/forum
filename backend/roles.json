@@ -1,0 +1,52 @@
+{
+    "admin": {
+        "canBanUser": true,
+        "canPromoteToMod": true,
+        "canPromoteToAdmin": true,
+        "canDemoteMod": true,
+        "canDemoteAdmin": false,
+        "canCreateContent": true,
+        "canEditContent": false,
+        "canDeleteContent": true
+    },
+    "moderator": {
+        "canBanUser": true,
+        "canPromoteToMod": false,
+        "canPromoteToAdmin": false,
+        "canDemoteMod": false,
+        "canDemoteAdmin": false,
+        "canCreateContent": true,
+        "canEditContent": false,
+        "canDeleteContent": true
+    },
+    "user": {
+        "canBanUser": false,
+        "canPromoteToMod": false,
+        "canPromoteToAdmin": false,
+        "canDemoteMod": false,
+        "canDemoteAdmin": false,
+        "canCreateContent": true,
+        "canEditContent": false,
+        "canDeleteContent": false
+    },
+    "guest": {
+        "canBanUser": false,
+        "canPromoteToMod": false,
+        "canPromoteToAdmin": false,
+        "canDemoteMod": false,
+        "canDemoteAdmin": false,
+        "canCreateContent": false,
+        "canEditContent": false,
+        "canDeleteContent": false
+    },
+    "banned": {
+        "canBanUser": false,
+        "canPromoteToMod": false,
+        "canPromoteToAdmin": false,
+        "canDemoteMod": false,
+        "canDemoteAdmin": false,
+        "canCreateContent": false,
+        "canEditContent": false,
+        "canDeleteContent": false
+    }
+}

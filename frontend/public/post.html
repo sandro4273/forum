@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post</title>
     <script type="text/javascript" src="../src/constants.js"></script>
-    <script type="text/javascript" src="../src/scripts/roles.js"></script>
+    <script type="text/javascript" src="../src/utilities/userUtilities.js"></script>
+    <script type="text/javascript" src="../src/utilities/roleUtilities.js"></script>
+    <script type="text/javascript" src="../src/utilities/votingUtilities.js"></script>
+    <script type="text/javascript" src="../src/utilities/tagUtilities.js"></script>
+    <script type="text/javascript" src="../src/utilities/postUtilities.js"></script>
+    <script type="text/javascript" src="../src/utilities/commentUtilities.js"></script>
     <link rel="stylesheet" href="../src/styles/general.css">
     <link rel="stylesheet" href="../src/styles/header.css">
     <link rel="stylesheet" href="../src/styles/sidebar.css">
@@ -59,16 +64,19 @@
     <div id="post">
         <h2 id="postTitle"></h2>
         <hr>
-        <div id="postContent"></div><br>
-    </div>
-    <button id="editPostButton" style="display:none;">Post bearbeiten</button> 
-    <button id="deletePostButton" style="display:none;">Post löschen</button>
-    <div id="editPost" style="display:none;">
-        <div class="editor" id="editPostEditor"></div><br>
-        <button id="submitEditPost">Absenden</button>
+        <p id="postContent"></p><br>
+        <div id="editPost" style="display:none">
+            <div id="editPostEditor">
+                <!-- Rich Text Editor -->
+            </div>
+        </div>
+        <div id="postManagementButtonsContainer">
+            <!-- Here Buttosn for editing or deleting the Post are inserted depending on the users role -->
+        </div>
+
     </div>
     
-    <div id="tags" style="display:none;">
+    <div id="tags" style="display:block;">
         <hr>
         <span><b>Tags:   |</b></span>
         <!-- Liste von Tags -->
