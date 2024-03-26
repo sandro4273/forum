@@ -16,6 +16,21 @@ let post = null;
 const commentQuill = new Quill('#createCommentEditor', quillSettingsComment);
 let postQuill = null;
 
+/**
+ * Render MathJax in a given element. Requires MathJax to be loaded.
+ * @param element The element in which MathJax should be rendered.
+ */
+function renderMathJax(element){
+    // Check if MathJax is loaded
+    if (!window.MathJax || !element) return;
+
+    // Tell MathJax to update the document
+    MathJax.typesetPromise([element])
+        .catch(function (err) {
+            console.error('MathJax rendering error: ' + err);
+        });
+}
+
 // Funktion wird ausgeführt wenn Seite geladen ist
 async function onLoad(){
     let postId = getPostIdFromUrl();
@@ -118,7 +133,10 @@ async function loadPost(){
     
     // insert post into HTML
     document.querySelector("#postTitle").innerHTML = `${postTitle}  ---  ${authorUsername} <span style="color: ${roleColor}">(${authorRole})</span>`;
-    document.querySelector("#postContent").innerHTML = postContent;
+    let postElement = document.querySelector("#postContent")
+    postElement.innerHTML = postContent;
+
+    renderMathJax(postElement)
 }
 
 async function loadTags(post_id){
@@ -181,7 +199,10 @@ async function loadComments(post_id){
             commentObject.seeMoreButton.style.display = "inline-block";
         }
         // Append
-        document.querySelector("#commentList").appendChild(commentObject.commentContainer);
+        let commentList = document.querySelector("#commentList")
+        commentList.appendChild(commentObject.commentContainer);
+
+        renderMathJax(commentList)
     }
 }
 
