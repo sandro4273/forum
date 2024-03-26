@@ -196,7 +196,7 @@ def get_post_by_id(post_id) -> Optional[Post]:
 
 
 def get_posts(search, amount, offset, sort_type) -> list[Post]:
-    sql = "SELECT * FROM posts"
+    sql = "SELECT posts.*, COALESCE(SUM(vote), 0) AS total_votes FROM posts LEFT JOIN posts_votes ON posts.post_id = posts_votes.post_id"
     parameters = ()
 
     if search:
@@ -204,13 +204,13 @@ def get_posts(search, amount, offset, sort_type) -> list[Post]:
         parameters = (f"%{search}%", f"%{search}%")
 
     if sort_type == SortType.NEW:
-        sql += " ORDER BY creation_date DESC"
+        sql += " GROUP BY posts.post_id ORDER BY creation_date DESC"
     elif sort_type == SortType.POPULAR:
-        sql += " ORDER BY (SELECT SUM(vote) FROM posts_votes WHERE post_id = posts.post_id) DESC"
+        sql += " GROUP BY posts.post_id ORDER BY total_votes DESC"
     elif sort_type == SortType.CONTROVERSIAL:
-        sql += " ORDER BY (SELECT SUM(vote) FROM posts_votes WHERE post_id = posts.post_id) ASC"
+        sql += " GROUP BY posts.post_id ORDER BY total_votes ASC"
     else:  # SortType.RECOMMENDED
-        sql += " ORDER BY RANDOM()"
+        sql += " GROUP BY posts.post_id ORDER BY RANDOM()"
 
     sql += " LIMIT ? OFFSET ?"
     parameters += (amount, offset)
@@ -220,6 +220,7 @@ def get_posts(search, amount, offset, sort_type) -> list[Post]:
         results = cur.fetchall()
 
     return [Post(**result) for result in results]
+
 
 
 def get_tags_of_post(post_id) -> list[str]:

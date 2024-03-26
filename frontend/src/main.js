@@ -65,6 +65,11 @@ async function getUserDetails(user_id) {
 async function updatePostList(posts){
     const postList = document.getElementById("postList");
 
+    if (posts.length === 0) {
+        console.log("No posts found")
+        return;
+    }
+
     for (const post of posts) {
         const author_id = post["author_id"];
 
@@ -86,8 +91,10 @@ async function updatePostList(posts){
 async function loadPosts(searchInput = "", offset=0, sort_type=0){
     let postList = document.getElementById("postList");
 
-    let endpoint = `${BACKENDURL}posts/?offset=${offset}`;
-    if (searchInput) endpoint = `${BACKENDURL}posts/?search=${searchInput}&offset=${offset}`;
+    let endpoint = `${BACKENDURL}posts/?`;
+    if (searchInput) endpoint += `search=${searchInput}&`;
+
+    endpoint += `offset=${offset}&sort=${sort_type}`;
 
     const postsResponse = await fetch(endpoint);
     const postsData = await postsResponse.json();
@@ -124,6 +131,19 @@ async function searchBarPressed(event){
     }
 }
 
+async function sortingChanged(event){
+    const sortTypeToInt = {
+        "recommended": 0,
+        "new": 1,
+        "popular": 2,
+        "controversial": 3
+    };
+
+    const sort_type = sortTypeToInt[event.target.value];
+    const searchInput = document.getElementById("searchBar").value;
+    await loadPosts(searchInput, 0, sort_type);
+}
+
 /**
  * Logs out the user by removing the token from the local storage
  */
@@ -140,6 +160,7 @@ function onLoad() {
     document.querySelector("#searchBar")
             .addEventListener("keypress", (event) => searchBarPressed(event));
     document.getElementById("logoutButton").addEventListener("click", logout);
+    document.getElementById("sortDropdown").addEventListener("change", sortingChanged);
 
     // Display current user and load posts
     showCurrentUser();
