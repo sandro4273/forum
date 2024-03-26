@@ -5,7 +5,7 @@
 import os  # For retrieving the database path
 import sqlite3  # SQLite for the database
 from typing import Optional  # For optional parameters
-from backend.db_service.models import User, Post, Comment  # Models for data transfer
+from backend.db_service.models import SortType, User, Post, Comment  # Models for data transfer
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(CURRENT_DIR, "data/forum.db")
@@ -195,24 +195,30 @@ def get_post_by_id(post_id) -> Optional[Post]:
     return Post(**result)
 
 
-def get_posts(amount, offset) -> list[Post]:
-    sql = "SELECT * FROM posts LIMIT ? OFFSET ?"
+def get_posts(search, amount, offset, sort_type) -> list[Post]:
+    sql = "SELECT * FROM posts"
+    parameters = ()
+
+    if search:
+        sql += " WHERE LOWER(TRIM(title)) LIKE ? OR LOWER(TRIM(content)) LIKE ?"
+        parameters = (f"%{search}%", f"%{search}%")
+
+    if sort_type == SortType.NEW:
+        sql += " ORDER BY creation_date DESC"
+    elif sort_type == SortType.POPULAR:
+        sql += " ORDER BY (SELECT SUM(vote) FROM posts_votes WHERE post_id = posts.post_id) DESC"
+    elif sort_type == SortType.CONTROVERSIAL:
+        sql += " ORDER BY (SELECT SUM(vote) FROM posts_votes WHERE post_id = posts.post_id) ASC"
+    else:  # SortType.RECOMMENDED
+        sql += " ORDER BY RANDOM()"
+
+    sql += " LIMIT ? OFFSET ?"
+    parameters += (amount, offset)
 
     with Database() as cur:
-        cur.execute(sql, (amount, offset))
+        cur.execute(sql, parameters)
         results = cur.fetchall()
 
-    return [Post(**result) for result in results]
-
-
-def get_posts_by_search(search, amount, offset):
-    search = search.lower().strip()
-    sql = "SELECT * FROM posts WHERE LOWER(TRIM(title)) LIKE ? OR LOWER(TRIM(content)) LIKE ? LIMIT ? OFFSET ?"
-
-    with Database() as cur:
-        cur.execute(sql, (f"%{search}%", f"%{search}%", amount, offset))
-        results = cur.fetchall()
-        
     return [Post(**result) for result in results]
 
 

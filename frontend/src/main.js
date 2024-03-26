@@ -77,45 +77,19 @@ async function updatePostList(posts){
 }
 
 /**
- * Loads all posts and displays them. If there are more than 10 posts, a button to load more is displayed.
+ * Loads posts from the backend and displays them
+ * @param {string} searchInput - The search input
+ * @param {number} offset - The offset for the posts
+ * @param {number} sort_type - The sort type for the posts
+ * @returns {Promise<void>}
  */
-async function loadPosts(){
+async function loadPosts(searchInput = "", offset=0, sort_type=0){
     let postList = document.getElementById("postList");
 
-    // postList.children.length is 0 at the beginning
-    const postsResponse= await fetch(BACKENDURL + "posts/?offset=" + postList.children.length)
-    const postsData = await postsResponse.json();
-    const posts = postsData["posts"];
+    let endpoint = `${BACKENDURL}posts/?offset=${offset}`;
+    if (searchInput) endpoint = `${BACKENDURL}posts/?search=${searchInput}&offset=${offset}`;
 
-    await updatePostList(posts);
-
-    // If there was a load more button, remove it
-    if (document.querySelector("#loadMoreButton")) {
-        document.querySelector("#loadMoreButton").remove();
-    }
-
-    // If 10 posts are displayed, display a button to load more
-    if (posts.length === 10) {
-        const loadMoreButton = document.createElement('button');
-        loadMoreButton.id = "loadMoreButton";
-        loadMoreButton.textContent = "Load more";
-        loadMoreButton.addEventListener("click", loadPosts);
-        postList.append(loadMoreButton);
-    }
-}
-
-/**
- * Searches for posts based on the search input and displays them.
- */
-async function searchPosts(event, offset=0){
-    let postList = document.getElementById("postList");
-
-    // If the event is not the enter key or coming from the load more button, return
-    if (!(event === "next" || event.key === "Enter")) {
-        return;
-    }
-    const searchInput = document.getElementById("searchBar").value;
-    const postsResponse = await fetch(`${BACKENDURL}posts/search/?search=${searchInput}&offset=${offset}`);
+    const postsResponse = await fetch(endpoint);
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
 
@@ -133,8 +107,20 @@ async function searchPosts(event, offset=0){
     if (posts.length === 10) {
         const loadMoreButton = document.createElement('button');
         loadMoreButton.textContent = "Load more";
-        loadMoreButton.addEventListener("click", () => searchPosts("next", offset=offset + 10));
+        loadMoreButton.addEventListener("click", () => loadPosts(searchInput, offset + 10));
         postList.append(loadMoreButton);
+    }
+}
+
+/**
+ * Calls loadPosts with contents of the search bar if the enter key is pressed
+ * @param {Event} event - The key press event
+ * @returns {Promise<void>}
+ */
+async function searchBarPressed(event){
+    if (event.key === "Enter") {
+        const searchInput = document.getElementById("searchBar").value;
+        await loadPosts(searchInput);
     }
 }
 
@@ -152,7 +138,7 @@ async function logout(){
 function onLoad() {
     // Add event listeners
     document.querySelector("#searchBar")
-            .addEventListener("keypress", (event) => searchPosts(event));
+            .addEventListener("keypress", (event) => searchBarPressed(event));
     document.getElementById("logoutButton").addEventListener("click", logout);
 
     // Display current user and load posts
