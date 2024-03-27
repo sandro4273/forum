@@ -117,6 +117,7 @@ async function displayTags(postId){
         tagElement.style.border = "1px solid black";
         tagElement.style.padding = "2px";
         tagElement.style.margin = "3px";
+        tagElement.style.display = "inline-block";
         tagList.appendChild(tagElement);
 
         // TODO: Add event listener to tagElement so that it redirects to a search for the tag
