@@ -5,6 +5,16 @@
 // Rich Text Editor
 const quill = new Quill('#postContentEditor', quillSettingsPost);
 
+/**
+ * Executed when the DOM is fully loaded. Adds an event listener to the submit button of the post form.
+ */
+function onLoad(){
+    // Display the current user
+    showCurrentUser();
+    // Add event listener to the submit button
+    document.querySelector("#submitButton").addEventListener("click", submitPostForm);
+}
+
 async function submitPostForm(){
     // Extract text and title from form
     const post_title = document.forms["createPost"]["postTitle"].value;
@@ -39,12 +49,6 @@ async function submitPostForm(){
     window.location.href = "/frontend/public/post.html?id=" + post_id;
 }
 
-/**
- * Executed when the DOM is fully loaded. Adds an event listener to the submit button of the post form.
- */
-function onLoad(){
-    document.querySelector("#submitButton").addEventListener("click", submitPostForm);
-}
 
 // Entry point - Execute onLoad when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
