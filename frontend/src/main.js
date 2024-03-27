@@ -34,7 +34,7 @@ async function updatePostList(posts){
         const { username, userRole, roleColor } = await getUserDetails(author_id);
 
         const postElement = document.createElement('p');
-        postElement.innerHTML = `<div class="post"><a style="text-decoration: none;color:black" href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}">${post["title"]}</a><div> ${username} <span style="color: ${roleColor}">(${userRole})</span></div></div>`;
+postElement.innerHTML = `<a class="post" href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}"><p style="text-decoration: underline white; color:black;">${post["title"]}</p><div style="text-decoration: underline white;"> ${username} <span style="text-decoration: underline white;color: ${roleColor}">(${userRole})</span></div></a>`;
         postList.append(postElement);
     }
 }

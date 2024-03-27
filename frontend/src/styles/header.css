@@ -69,20 +69,20 @@
   align-items: center;
 }
 
-.login-button,.register-button,.abmelden-button{
+.login-button,.register-button,.anmelden-button,.abmelden-button{
   text-decoration: none;
   color: black;
-  margin-right: 30px;
+  margin: 20px 30px;
   padding:6px 7px;
   border-radius: 6px;
   transition: background-color 0.15s;
 
 }
 
-.login-button:hover,.register-button:hover,.abmelden-button:hover{
+.login-button:hover,.register-button:hover,.anmelden-button:hover,.abmelden-button:hover{
   background-color: rgb(200, 200, 200)
 }
-.login-button:active,.register-button:active,.abmelden-button:active{
+.login-button:active,.register-button:active,.anmelden-button:active,.abmelden-button:active{
   background-color: rgb(178, 178, 178);
 }
 
