@@ -25,7 +25,8 @@
   transition: background-color 0.15s;
   position: absolute;
   right: 0;
-  top: 65px;
+  top: 59px;
+  right: 10px;
 }
 
 .post-button:hover{
