@@ -69,7 +69,7 @@
   align-items: center;
 }
 
-.login-button,.register-button,.abmelden-button{
+.login-button,.register-button,.anmelden-button{
   text-decoration: none;
   color: black;
   margin: 20px 30px;
@@ -79,10 +79,10 @@
 
 }
 
-.login-button:hover,.register-button:hover,.abmelden-button:hover{
+.login-button:hover,.register-button:hover,.anmelden-button:hover{
   background-color: rgb(200, 200, 200)
 }
-.login-button:active,.register-button:active,.abmelden-button:active{
+.login-button:active,.register-button:active,.anmelden-button:active{
   background-color: rgb(178, 178, 178);
 }
 
