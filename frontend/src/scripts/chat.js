@@ -20,7 +20,7 @@ async function onLoad() {
     const partnerId = currentUserId === user1Id ? user2Id : user1Id;
 
     // Set chat title
-    const partnerUsername = await getUsernameById(partnerId);
+    const partnerUsername = await getUsername(partnerId);
     const chatTitle = document.querySelector("#chatTitle");
     chatTitle.textContent = "Chat mit " + partnerUsername
 
@@ -32,31 +32,6 @@ async function onLoad() {
 function getChatIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
-}
-
-async function getUsernameById(user_id) {
-    const response = await fetch(`${BACKENDURL}users/id/${user_id}/?fields=username`);
-    const data = await response.json();
-    return data["user"]["username"];
-}
-
-async function getCurrentUserId() {
-    const auth_token = localStorage.getItem("AuthToken");
-    const response = await fetch(
-        `${BACKENDURL}users/me/?fields=user_id`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${auth_token}`
-            }
-        }
-    );
-
-    // If no user is logged in, return null
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    return data["user"]["user_id"];
 }
 
 async function loadMessages(chat_id) {
@@ -74,7 +49,7 @@ async function loadMessages(chat_id) {
 
         // get username of sender
         const sentById = message["sent_by"];
-        const username = await getUsernameById(sentById);
+        const username = await getUsername(sentById);
 
         // Create a container for the comment
         const messageContainer = document.createElement('div');

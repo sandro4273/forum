@@ -29,6 +29,12 @@ async def get_chat_by_id(chat_id: int):
     Returns:
         A chat object (dictionary).
     """
+    chat = db.get_chat_by_id(chat_id)
+    
+    # Check if chat exists
+    if chat is None:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    
     return {"chat": db.get_chat_by_id(chat_id)}
 
 

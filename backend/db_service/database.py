@@ -397,13 +397,23 @@ def update_comment_content(comment_id, new_content):
 # Returns a boolean which states whether the deletion was successful
 
 def delete_post_with_comments(post_id):
-    sql = "DELETE FROM posts WHERE post_id = ?"
     with Database() as cur:
+        # Delete Post
+        sql = "DELETE FROM posts WHERE post_id = ?"
         cur.execute(sql, (post_id,))
 
-        # Delete Comments of Post
+        # Also delete Comments of Post
         sql = "DELETE FROM comments WHERE post_id = ?"
         cur.execute(sql, (post_id,))
+
+        # Also delete votes of post
+        sql = "DELETE FROM posts_votes WHERE post_id = ?"
+        cur.execute(sql, (post_id,))
+
+        # Also delete tags of post
+        sql = "DELETE FROM post_tags WHERE post_id = ?"
+        cur.execute(sql, (post_id,))
+
         return cur.rowcount > 0
 
 
