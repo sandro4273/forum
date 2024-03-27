@@ -10,7 +10,6 @@ function onLoad() {
     // Add event listeners
     document.querySelector("#searchBar")
             .addEventListener("keypress", (event) => searchBarPressed(event));
-    document.getElementById("logoutButton").addEventListener("click", logout);
     document.getElementById("sortDropdown").addEventListener("change", sortingChanged);
 
     // Display current user and load posts
@@ -104,14 +103,6 @@ async function sortingChanged(event){
     const sort_type = sortTypeToInt[event.target.value];
     const searchInput = document.getElementById("searchBar").value;
     await loadPosts(searchInput, 0, sort_type);
-}
-
-/**
- * Logs out the user by removing the token from the local storage
- */
-async function logout(){
-    localStorage.removeItem("AuthToken");
-    window.location.reload();
 }
 
 // Entry point - Execute onLoad when the DOM is fully loaded
