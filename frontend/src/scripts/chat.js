@@ -1,5 +1,8 @@
 // Executed when chat.html is loaded
 async function onLoad() {
+    // Display the current user
+    showCurrentUser();
+    
     // Get partner username
     const chatId = getChatIdFromUrl();
     const chatResponse = await fetch(`${BACKENDURL}chats/id/${chatId}/`);

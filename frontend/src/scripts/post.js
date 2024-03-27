@@ -12,6 +12,9 @@ let editPostVisible = false;
 
 // gets executed when the page is loaded
 async function onLoad(){
+    // Display the current user
+    showCurrentUser();
+
     // Load post data
     const postId = getPostIdFromUrl();
     const post = await getPost(postId);

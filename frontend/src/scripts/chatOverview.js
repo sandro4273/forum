@@ -1,4 +1,18 @@
 /**
+ * Executed when the DOM is fully loaded. Loads all chats of the user.
+ */
+function onLoad() {
+    // Display the current user
+    showCurrentUser();
+
+    // Add event listeners
+    document.querySelector("#createChatButton").addEventListener("click", createChat);
+
+    // Load chats
+    loadChats();
+}
+
+/**
  * Fetches all chats of the user and renders them in the chat overview page.
  */
 async function loadChats() {
@@ -91,13 +105,6 @@ async function createChat() {
     }
 }
 
-/**
- * Executed when the DOM is fully loaded. Loads all chats of the user.
- */
-function onLoad() {
-    document.querySelector("#createChatButton").addEventListener("click", createChat);
-    loadChats();
-}
 
 // Entry point - Execute onLoad when the DOM is fully loaded
 window.addEventListener("DOMContentLoaded", onLoad());
