@@ -40,6 +40,9 @@ async function showCurrentUser(){
     // Display the logout button and hide the authentication buttons
     document.getElementById("authButtons").style.display = "none";
     document.getElementById("loggedInUser").style.display = "block";
+
+    // Add event listener to the logout button
+    document.getElementById("logoutButton").addEventListener("click", logout);
 }
 
 /**
@@ -53,4 +56,12 @@ async function getUserDetails(user_id) {
     const userRole = data["user"]["role"];
     const roleColor = getRoleColor(userRole);
     return { username, userRole, roleColor };
+}
+
+/**
+ * Logs out the user by removing the token from the local storage
+ */
+async function logout(){
+    localStorage.removeItem("AuthToken");
+    window.location.reload();
 }
