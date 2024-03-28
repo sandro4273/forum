@@ -8,6 +8,8 @@ from pydantic import (
 )
 
 
+# TODO: Roles should have an enum
+
 class SortType(IntEnum):
     """
     Enumerates the possible sorting types for posts.

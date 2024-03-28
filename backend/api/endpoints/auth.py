@@ -68,6 +68,8 @@ def is_privileged(current_user_id: int) -> bool:
 
     Returns:
         True if the user is an admin or moderator. Otherwise, False.
+
+    TODO: This function should be removed and replaced with get_role_permissions().
     """
 
     current_user_role = db.get_public_user_by_id(current_user_id).role
@@ -142,7 +144,7 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
     if user or verify_password(password, user["password"]):
         return user
 
-    return None
+    return None  # User does not exist or password is incorrect
 
 
 async def get_current_user_id(token: Annotated[str, Depends(oauth2_scheme)]) -> int:
