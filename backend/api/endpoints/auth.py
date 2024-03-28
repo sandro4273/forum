@@ -1,4 +1,4 @@
-import os
+import os  # For file path operations
 import json  # For parsing the SECRET_KEY from the config.json file and roles.json
 
 import jwt  # JSON Web Token for user authentication
@@ -54,7 +54,7 @@ ALGORITHM = "HS256"  # Algorithm used for encoding the token
 
 # Time after which the token expires (in minutes)
 # TODO: Change to a lower value for production. (1440 minutes = 24 hours)
-# Maybe a refresh system for the token is needed.
+# TODO: Maybe a refresh system for the token is needed.
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 

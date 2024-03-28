@@ -2,8 +2,8 @@
 # Luca Flühler, Lucien Ruffet, Sandro Kuster
 # Beschreibung: API für das Forum mit FastAPI
 
-from fastapi import APIRouter
-from .endpoints import users, posts, chats, comments, auth
+from fastapi import APIRouter  # Needed to connect the endpoints
+from .endpoints import users, posts, chats, comments, auth  # Import all endpoint routers
 
 api_router = APIRouter()
 
