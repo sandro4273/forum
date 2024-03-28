@@ -152,3 +152,13 @@ class ChatMessage(BaseModel):
     author_id: Optional[int] = None
     content: Optional[str] = None
     creation_date: Optional[str] = None
+
+
+class Chat(BaseModel):
+    """
+    Contains the chat_id and the two users that are in the chat.
+    """
+    chat_id: Optional[int] = None
+    user1: Optional[int] = None
+    user2: Optional[int] = None
+    other_username: Optional[str] = None
