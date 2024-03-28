@@ -1,4 +1,4 @@
-from typing import Optional  # For optional data types
+from typing import Optional  # For optional data types: data that can also be None
 from enum import IntEnum  # For creating enumerations
 
 from pydantic import (
@@ -9,6 +9,9 @@ from pydantic import (
 
 
 class SortType(IntEnum):
+    """
+    Enumerates the possible sorting types for posts.
+    """
     RECOMMENDED = 0
     NEW = 1
     POPULAR = 2
@@ -107,6 +110,7 @@ class SignupData(BaseModel):
            not any(c in special_characters for c in v):
             raise ValueError("Password must have at least one uppercase letter, one lowercase letter, one digit and a "
                              "special character")
+
         return v
 
 
