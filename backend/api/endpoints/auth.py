@@ -201,8 +201,8 @@ def get_role_permissions(user_role):
 
     role_permissions = roles[user_role]
     
-    if not role_permissions: # If the role does not exist
-        return [] # Return an empty list
+    if not role_permissions:  # If the role does not exist
+        return []  # Return an empty list
     
     return role_permissions 
 
