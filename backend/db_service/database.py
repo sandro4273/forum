@@ -45,7 +45,7 @@ VALID_ROLES = ["admin", "moderator", "user", "banned"]
 # ------------------------- Utility Functions -------------------------
 def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
     """
-    Filter the posts to recommend to the user.
+    Sort posts by recommendation based on the user's liked tags.
 
     Args:
         posts: The list of posts to filter.
@@ -448,6 +448,20 @@ def get_post_by_id(post_id) -> Optional[Post]:
 
 
 def get_posts(search, amount, offset, sort_type, current_user_id) -> list[Post]:
+    """
+    Fetch posts from the database.
+
+    Args:
+        search: The search term to filter the posts by.
+        amount: The amount of posts to fetch.
+        offset: The offset for the posts to fetch.
+        sort_type: The sorting type of the posts.
+        current_user_id: The id of the current user.
+
+    Returns:
+        A list of post objects.
+    """
+
     sql = """
         SELECT posts.*, COALESCE(SUM(vote), 0) AS total_votes 
         FROM posts 
