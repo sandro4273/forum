@@ -178,6 +178,31 @@ async def get_current_user_id(token: Annotated[str, Depends(oauth2_scheme)]) -> 
         raise credentials_exception
 
 
+async def get_optional_current_user_id(token: Annotated[str, Depends(oauth2_scheme)]) -> Optional[int]:
+    """
+    Returns the ID of the current user using the Bearer token from the Authorization header.
+    If the token is not valid, None is returned instead of raising an exception.
+
+    Args:
+        token: The Bearer token from the Authorization header.
+
+    Returns:
+        The user ID (integer).
+    """
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("sub")
+
+        if not user_id:  # Token is not valid
+            return None
+
+        return user_id
+
+    except PyJWTError:  # Token is not valid
+        return None
+
+
 async def get_current_user(current_user_id: Annotated[int, Depends(get_current_user_id)]) -> Optional[User]:
     """
     Returns the current user.
