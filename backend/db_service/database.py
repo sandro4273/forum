@@ -74,13 +74,14 @@ def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
     if not results:
         return []
 
+    # Filter posts which the user has already voted on
+    new_posts = [post for post in posts if get_vote_of_user(post.post_id, user_id) not in [-1, 1]]
+
     # Retrieve the liked keywords / tags
     keywords = [keyword for keyword, _ in results]
 
     # Retrieve the weights (normalized frequency) of the keywords
-    frequencies = [frequency for _, frequency in results]
-    max_frequency = max(frequencies)
-    weights = [frequency/max_frequency for frequency in frequencies]
+    weights = [frequency for _, frequency in results]
 
     # Retrieve post title + content as texts
     stop_words = set(stopwords.words('english'))
@@ -90,7 +91,7 @@ def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
             for word in nltk.word_tokenize(post.title + ' - ' + post.content)
             if word.isalnum() and word.lower() not in stop_words
         ])
-        for post in posts
+        for post in new_posts
     ]
 
     # Create a TF-IDF vectorizer
@@ -101,7 +102,7 @@ def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
 
     # Calculate scores for each text
     posts_scores = []
-    for i, post in enumerate(posts):
+    for i, post in enumerate(new_posts):
         # Get the TF-IDF scores for the text
         tfidf_scores = tfidf_matrix[i].toarray()[0]
 
@@ -117,8 +118,7 @@ def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
     # Extract recommended posts without scores
     recommended_posts = [post for post, score in posts_scores if score > 0.0]
 
-    # Filter out posts that the user has already voted on
-    return [post for post in recommended_posts if get_vote_of_user(post.post_id, user_id) not in [-1, 1]]
+    return recommended_posts
 
 
 # ------------------------- Existence Checks -------------------------
