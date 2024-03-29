@@ -11,7 +11,8 @@ import nltk
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# Download NLTK resources
+# Download NLTK resources. This only needs to be done once.
+# These are required for the TF-IDF vectorizer to get recommended posts.
 nltk.download('punkt')
 nltk.download('stopwords')
 
@@ -67,6 +68,11 @@ def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
     with Database() as cur:
         cur.execute(sql, (user_id,))
         results = cur.fetchall()
+
+    # We need to handle the case that a user has not liked any posts yet
+    # For now, we return an empty list. In the future, we could return popular posts.
+    if not results:
+        return []
 
     # Retrieve the liked keywords / tags
     keywords = [keyword for keyword, _ in results]
