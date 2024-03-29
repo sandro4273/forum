@@ -7,6 +7,14 @@ import sqlite3  # SQLite for the database
 from typing import Optional  # For optional parameters
 from backend.db_service.models import SortType, User, Post, Comment, Chat  # Models for data transfer
 
+import nltk
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Download NLTK resources
+nltk.download('punkt')
+nltk.download('stopwords')
+
 # Path to the database file (forum.db)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(CURRENT_DIR, "data/forum.db")
@@ -31,6 +39,80 @@ class Database:
 
 # Roles that a user can have
 VALID_ROLES = ["admin", "moderator", "user", "banned"]
+
+
+# ------------------------- Utility Functions -------------------------
+def sort_posts_by_recommendation(posts: list[Post], user_id: int) -> list[Post]:
+    """
+    Filter the posts to recommend to the user.
+
+    Args:
+        posts: The list of posts to filter.
+        user_id: The id of the user to recommend posts to.
+
+    Returns:
+        A list of recommended posts.
+    """
+
+    sql = """
+        SELECT tags.tag_name, COUNT(*) AS frequency
+        FROM posts
+        JOIN post_tags ON posts.post_id = post_tags.post_id
+        JOIN posts_votes ON posts.post_id = posts_votes.post_id
+        JOIN tags ON post_tags.tag_id = tags.tag_id
+        WHERE posts_votes.user_id = ? AND posts_votes.vote = 1
+        GROUP BY tags.tag_name;
+    """
+
+    with Database() as cur:
+        cur.execute(sql, (user_id,))
+        results = cur.fetchall()
+
+    # Retrieve the liked keywords / tags
+    keywords = [keyword for keyword, _ in results]
+
+    # Retrieve the weights (normalized frequency) of the keywords
+    frequencies = [frequency for _, frequency in results]
+    max_frequency = max(frequencies)
+    weights = [frequency/max_frequency for frequency in frequencies]
+
+    # Retrieve post title + content as texts
+    stop_words = set(stopwords.words('english'))
+    preprocessed_texts = [
+        ' '.join([
+            word.lower()
+            for word in nltk.word_tokenize(post.title + ' - ' + post.content)
+            if word.isalnum() and word.lower() not in stop_words
+        ])
+        for post in posts
+    ]
+
+    # Create a TF-IDF vectorizer
+    vectorizer = TfidfVectorizer(vocabulary=keywords)
+
+    # Fit the vectorizer on the preprocessed texts
+    tfidf_matrix = vectorizer.fit_transform(preprocessed_texts)
+
+    # Calculate scores for each text
+    posts_scores = []
+    for i, post in enumerate(posts):
+        # Get the TF-IDF scores for the text
+        tfidf_scores = tfidf_matrix[i].toarray()[0]
+
+        # Compute the weighted score for the text
+        score = sum(tfidf_scores[j]*weights[j] for j in range(len(keywords)))
+
+        # Append text and score to the result list
+        posts_scores.append((post, score))
+
+    # Sort the results by score
+    posts_scores.sort(key=lambda x: x[1], reverse=True)
+
+    # Extract recommended posts without scores
+    recommended_posts = [post for post, score in posts_scores if score > 0.0]
+
+    # Filter out posts that the user has already voted on
+    return [post for post in recommended_posts if get_vote_of_user(post.post_id, user_id) not in [-1, 1]]
 
 
 # ------------------------- Existence Checks -------------------------
@@ -359,7 +441,7 @@ def get_post_by_id(post_id) -> Optional[Post]:
     return Post(**result)
 
 
-def get_posts(search, amount, offset, sort_type) -> list[Post]:
+def get_posts(search, amount, offset, sort_type, current_user_id) -> list[Post]:
     sql = """
         SELECT posts.*, COALESCE(SUM(vote), 0) AS total_votes 
         FROM posts 
@@ -379,17 +461,26 @@ def get_posts(search, amount, offset, sort_type) -> list[Post]:
     elif sort_type == SortType.CONTROVERSIAL:
         sql += " GROUP BY posts.post_id ORDER BY total_votes ASC"
     else:  # SortType.RECOMMENDED
-        sql += " GROUP BY posts.post_id ORDER BY RANDOM()"
+        # Get all posts for now, we will filter them later
+        sql += " GROUP BY posts.post_id"
 
     # Limit the amount of posts and offset the results
-    sql += " LIMIT ? OFFSET ?"
-    parameters += (amount, offset)
+    if sort_type != SortType.RECOMMENDED:
+        sql += " LIMIT ? OFFSET ?"
+        parameters += (amount, offset)
 
     with Database() as cur:
         cur.execute(sql, parameters)
         results = cur.fetchall()
 
-    return [Post(**result) for result in results]
+    posts = [Post(**result) for result in results]
+
+    # If the sort type is recommended, return the recommended posts
+    if sort_type == SortType.RECOMMENDED and current_user_id is not None:
+        recommended_posts = sort_posts_by_recommendation(posts, current_user_id)
+        return recommended_posts[offset:offset + amount]
+
+    return posts
 
 
 def get_tags_of_post(post_id) -> list[str]:
