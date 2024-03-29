@@ -462,13 +462,12 @@ def get_posts(search, amount, offset, sort_type, current_user_id) -> list[Post]:
 
     if sort_type == SortType.NEW:
         sql += " GROUP BY posts.post_id ORDER BY creation_date DESC"
-    elif sort_type == SortType.POPULAR:
-        sql += " GROUP BY posts.post_id ORDER BY total_votes DESC"
     elif sort_type == SortType.CONTROVERSIAL:
         sql += " GROUP BY posts.post_id ORDER BY total_votes ASC"
-    else:  # SortType.RECOMMENDED
-        # Get all posts for now, we will filter them later
-        sql += " GROUP BY posts.post_id"
+    else:  # SortType.RECOMMENDED or SortType.POPULAR
+        # This is the sorting by popular. We use this as a default and fall back to it if
+        # no posts can be recommended.
+        sql += " GROUP BY posts.post_id ORDER BY total_votes DESC"
 
     # Limit the amount of posts and offset the results
     if sort_type != SortType.RECOMMENDED:
@@ -484,7 +483,12 @@ def get_posts(search, amount, offset, sort_type, current_user_id) -> list[Post]:
     # If the sort type is recommended, return the recommended posts
     if sort_type == SortType.RECOMMENDED and current_user_id is not None:
         recommended_posts = sort_posts_by_recommendation(posts, current_user_id)
-        return recommended_posts[offset:offset + amount]
+
+        if recommended_posts:
+            return recommended_posts[offset:offset + amount]
+
+        # If no posts can be recommended, fall back to popular posts
+        return posts[offset:offset + amount]
 
     return posts
 
