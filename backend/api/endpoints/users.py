@@ -37,10 +37,9 @@ def filter_user_fields(user: User, fields: Optional[List[str]]) -> User:
     if not fields:
         return user
 
-    print(fields)
     user_dict = user.dict()
     filtered_user_dict = {field: user_dict[field] for field in fields if field in user_dict}
-    print(filtered_user_dict)
+
     return User(**filtered_user_dict)
 
 
