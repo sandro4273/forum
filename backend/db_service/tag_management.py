@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält Funktionen zur Verwaltung von Tags. Tags sind Schlüsselwörter, die einem Post zugeordnet werden
+können, um diesen zu kategorisieren. Tags können aus dem Titel und dem Inhalt eines Posts extrahiert werden.
+"""
+
 from backend.db_service.database import create_tag  # Function to create a tag in the database
 import yake  # YAKE keyword extractor
 import spacy  # SpaCy Natural Language Processing library

@@ -1,3 +1,12 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Post-Endpunkte der API. Die Endpunkte umfassen das Erstellen, Bearbeiten und Löschen von Posts,
+das Erstellen, Bearbeiten und Löschen von Kommentaren, das Abstimmen für Posts und das Abrufen von Posts, Kommentaren und
+Tags.
+"""
+
 from fastapi import (
     Depends,  # For requiring parameters, e.g. the current user ID
     APIRouter,  # For distributing endpoints into separate files

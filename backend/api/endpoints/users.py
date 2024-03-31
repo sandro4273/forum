@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Benutzer-Endpunkte der API. Die Endpunkte umfassen das Abrufen von Benutzerinformationen, das
+Bannen, das Befördern und das Degradieren von Benutzern.
+"""
+
 from typing import (
     Annotated,  # For type hinting
     Optional,  # For optional data types
@@ -11,7 +19,12 @@ from fastapi import (
     Query  # For query parameters
 )
 
-from backend.api.endpoints.auth import get_current_user, get_current_user_id, get_role_permissions  # For retrieving the logged-in user and permissions
+from backend.api.endpoints.auth import (
+    get_current_user_id,  # For retrieving the logged-in user id
+    get_current_user,  # For retrieving the logged-in user
+    get_role_permissions  # For checking the permissions of the current user
+)
+
 from backend.db_service.models import User  # Models for data transfer
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
