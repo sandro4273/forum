@@ -1,4 +1,7 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
  * @file roleUtilities.js
  * This file contains utility functions for managing user roles and permissions.
  */

@@ -1,7 +1,11 @@
-// Programmierprojekt Forum, 06.03.2024
-// Luca Flühler, Lucien Ruffet, Sandro Kuster
-// Beschreibung: Hauptseite des Forums
-
+/**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file main.js
+ * This file contains the main script for the frontend. It allows users to search for posts, sort posts, and load
+ * more posts.
+ */
 
 /**
  * Entry point of the script

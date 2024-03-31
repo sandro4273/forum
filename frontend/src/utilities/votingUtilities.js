@@ -1,6 +1,10 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
  * @file votingUtilities.js
- * This file contains utility functions for voting on posts.
+ * This file contains utility functions for voting on posts. It allows users to vote on a post and get the vote of the
+ * current user on a post.
  */
 
 /**
