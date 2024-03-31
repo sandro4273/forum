@@ -1,4 +1,13 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file commentUtilities.js
+ * This file contains utility functions for comments. It allows users to create, edit, and delete comments.
+ * It also provides functions to get comments and create comment divs.
+ */
+
+/**
  * Create a comment
  * @param {Event} event
  * @param {number} post_id

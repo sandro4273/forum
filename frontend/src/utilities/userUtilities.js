@@ -1,6 +1,11 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
  * @file userUtilities.js
- * This file contains utility functions for user-related operations.
+ * This file contains utility functions for user-related operations. It allows users to get the username of a user,
+ * get the user ID of the current user, ban a user, promote a user to moderator or admin, and demote a user from
+ * moderator or admin.
  */
 
 /**

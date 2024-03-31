@@ -1,8 +1,7 @@
-// Programmierprojekt Forum, 06.03.2024
-// Luca Flühler, Lucien Ruffet, Sandro Kuster
-// Beschreibung: Hauptseite des Forums
-
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
  * @file post.js
  * This file contains the logic for the post page.
  * It displays a post, its tags and comments, and allows users to vote on the post, comment on the post, and edit the post.

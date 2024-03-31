@@ -1,3 +1,11 @@
+/**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file chat.js
+ * This file contains the logic for the chat page. It displays a chat with a partner and allows users to send messages.
+ */
+
 // Executed when chat.html is loaded
 async function onLoad() {
     // Display the current user
