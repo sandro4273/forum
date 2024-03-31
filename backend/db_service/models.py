@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Datenmodelle, welche innerhalb des Backends zum Datenaustausch verwendet werden. Anhand von
+Pydantic-Modellen werden die Datenstrukturen validiert und definiert.
+"""
+
 from typing import Optional  # For optional data types: data that can also be None
 from enum import IntEnum  # For creating enumerations
 

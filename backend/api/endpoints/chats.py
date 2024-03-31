@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Chat-Endpunkte der API. Die Endpunkte umfassen das Erstellen eines Chats, das Abrufen eines Chats
+anhand der ID, das Abrufen aller Nachrichten eines Chats und das Erstellen einer Nachricht in einem Chat.
+"""
+
 from typing import Annotated  # For receiving data from the request body
 
 from fastapi import (

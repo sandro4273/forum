@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Authentifizierungs-Endpunkte der API. Die Authentifizierung erfolgt über JSON Web Tokens (JWT).
+Die Endpunkte umfassen die Erstellung eines Benutzers, das Einloggen eines Benutzers und das Überprüfen des Tokens.
+"""
+
 import os  # For file path operations
 import json  # For parsing the SECRET_KEY from the config.json file and roles.json
 

@@ -1,6 +1,10 @@
-# Programmierprojekt Forum, 06.03.2024
-# Luca Flühler, Lucien Ruffet, Sandro Kuster
-# Beschreibung: Datenbank-Service für das Forum
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul stellt die Datenbank-Services für das Forum bereit. Es ermöglicht das Erstellen, Lesen, Aktualisieren und
+Löschen von Benutzern, Beiträgen, Kommentaren und Chats. Zudem können Beiträge nach Empfehlungen sortiert werden.
+"""
 
 import os  # For retrieving the database path
 import sqlite3  # SQLite for the database
