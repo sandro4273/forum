@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Kommentar-Endpunkte der API. Die Endpunkte umfassen das Aktualisieren und Löschen von
+Kommentaren.
+"""
+
 from typing import Annotated  # For receiving data from the request body
 
 from fastapi import (
@@ -7,7 +15,11 @@ from fastapi import (
     Body,  # For receiving data from the request body
 )
 
-from backend.api.endpoints.auth import get_current_user_id, is_privileged  # For user authentication
+from backend.api.endpoints.auth import (
+    get_current_user_id,  # For retrieving the logged-in user id
+    is_privileged  # For checking if user is admin or moderator
+)
+
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
 # API router for the comment endpoints

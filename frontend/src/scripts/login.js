@@ -1,4 +1,15 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file login.js
+ * This file contains the logic for the login page. It allows users to log in to the forum using OAuth2.
+ *
+ * OAuth2 is a protocol that allows a user to log in to a website using a third-party service (e.g., Google, Facebook).
+ * (https://oauth.net/2/)
+ */
+
+/**
  * Handles the login form submission. Sends a POST request to the backend with the login form data.
  */
 async function submitLoginForm(event){

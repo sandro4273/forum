@@ -1,7 +1,11 @@
-// Programmierprojekt Forum, 06.03.2024
-// Luca Flühler, Lucien Ruffet, Sandro Kuster
-// Beschreibung: Hauptseite des Forums
-
+/**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file main.js
+ * This file contains the main script for the frontend. It allows users to search for posts, sort posts, and load
+ * more posts.
+ */
 
 /**
  * Entry point of the script
@@ -54,7 +58,15 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
 
     endpoint += `offset=${offset}&sort=${sort_type}`;
 
-    const postsResponse = await fetch(endpoint);
+    const auth_token = localStorage.getItem("AuthToken");
+    const postsResponse = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${auth_token}`
+        }
+    });
+
     const postsData = await postsResponse.json();
     const posts = postsData["posts"];
 

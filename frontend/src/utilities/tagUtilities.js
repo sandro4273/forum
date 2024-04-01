@@ -1,7 +1,11 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
  * @file tagUtilities.js
- * This file contains utility functions for tag-related operations.
+ * This file contains utility functions for tag-related operations. It allows users to get tags for a post.
  */
+
 
 /**
  * Get tags for a post

@@ -1,4 +1,13 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file chatOverview.js
+ * This file contains the logic for the chat overview page. It displays all chats of the user and allows the user to
+ * create a new chat.
+ */
+
+/**
  * Executed when the DOM is fully loaded. Loads all chats of the user.
  */
 function onLoad() {

@@ -1,12 +1,21 @@
-from backend.db_service.database import create_tag
-import yake
-import spacy
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält Funktionen zur Verwaltung von Tags. Tags sind Schlüsselwörter, die einem Post zugeordnet werden
+können, um diesen zu kategorisieren. Tags können aus dem Titel und dem Inhalt eines Posts extrahiert werden.
+"""
+
+from backend.db_service.database import create_tag  # Function to create a tag in the database
+import yake  # YAKE keyword extractor
+import spacy  # SpaCy Natural Language Processing library
 
 # Load spaCy model
 # Download first: python -m spacy download en_core_web_sm
 nlp = spacy.load("en_core_web_sm")
 
 # YAKE keyword extractor
+# Keywords must not be longer than 2 words and the top 10 keywords are extracted
 yake_extractor = yake.KeywordExtractor(lan='en', n=2, top=10)
 
 
@@ -34,6 +43,16 @@ def closest_noun(word):
 
 
 def lemmatize_words(word_list):
+    """
+    Lemmatizes a list of words using SpaCy.
+
+    Args:
+        word_list: A list of words (strings).
+
+    Returns:
+        A list of lemmatized words (strings).
+    """
+
     # Join the list of words into a single string
     text = ' '.join(word_list)
 
@@ -105,13 +124,13 @@ def assign_tags_to_post(post_title, post_content):
     """
 
     # Extract keywords from post
-    TEXT = post_title + ": " + post_content
-    text_keywords = filter_keywords(extract_keywords(TEXT))
+    text = post_title + ": " + post_content
+    text_keywords = filter_keywords(extract_keywords(text))
 
-    # Create tags from keywords. Manipulates the database.
+    # Create tags from keywords
     tags = []
     for keyword in text_keywords:
-        create_tag(keyword)
+        create_tag(keyword)  # Adds tag to database (if it doesn't exist already)
         tags.append(keyword)
 
     return tags

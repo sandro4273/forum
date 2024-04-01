@@ -1,3 +1,12 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Post-Endpunkte der API. Die Endpunkte umfassen das Erstellen, Bearbeiten und Löschen von Posts,
+das Erstellen, Bearbeiten und Löschen von Kommentaren, das Abstimmen für Posts und das Abrufen von Posts, Kommentaren und
+Tags.
+"""
+
 from fastapi import (
     Depends,  # For requiring parameters, e.g. the current user ID
     APIRouter,  # For distributing endpoints into separate files
@@ -6,10 +15,14 @@ from fastapi import (
     Query  # For query parameters
 )
 
-from typing import Annotated  # For receiving data from the request body
+from typing import (
+    Annotated,  # For type hinting
+    Optional,  # For optional data types
+)
 
 from backend.api.endpoints.auth import (
     get_current_user_id,  # For retrieving the logged-in user id
+    get_optional_current_user_id,  # For retrieving the logged-in user id if available
     is_privileged  # For checking if user is admin or moderator
 )
 
@@ -27,6 +40,7 @@ router = APIRouter(
 # ------------------------- Get Requests -------------------------
 @router.get("/")
 async def get_posts(
+    current_user_id: Annotated[int, Depends(get_optional_current_user_id)],
     search: str = Query(None),
     amount: int = Query(10),
     offset: int = Query(0),
@@ -40,12 +54,13 @@ async def get_posts(
         amount: The amount of posts to return (integer).
         offset: The offset for the posts to return (integer).
         sort: The sorting type (SortType).
+        current_user_id: The ID of the current user (integer). Optional.
 
     Returns:
         A list of post objects (dictionaries).
     """
 
-    return {"posts": db.get_posts(search, amount, offset, sort)}
+    return {"posts": db.get_posts(search, amount, offset, sort, current_user_id)}
 
 
 @router.get("/id/{post_id}/")
