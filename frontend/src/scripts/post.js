@@ -9,32 +9,16 @@
 
 let editPostVisible = false;
 
-// gets executed when the page is loaded
-async function onLoad(){
-    // Display the current user
-    showCurrentUser();
-
-    // Load post data
-    const postId = getPostIdFromUrl();
-    const post = await getPost(postId);
-    const authorId = post["author_id"];
-
-    // Load user data
-    const currentUserId = await getCurrentUserId();
-    const currentUsername = await getUsername(currentUserId);
-    console.log("Logged in as: " + currentUsername)
-
-    // Load page elements
-    await configureUIElements(currentUserId, post);
-    await displayPost(post);
-    await displayTags(postId);
-    await displayVotes(postId, currentUserId);
-    await displayComments(postId, currentUserId);
-}
-
+/**
+ * Configure the UI elements for the post page.
+ * @param currentUserId - The ID of the current user
+ * @param post - The post object
+ * @returns {Promise<void>}
+ */
 async function configureUIElements(currentUserId, post){
     // If a user is logged in, display the comment form and create Rich Text Editor for comments
     const commentForm = document.getElementById('commentForm');
+
     if (currentUserId){
         commentForm.style.display = currentUserId ? 'block' : 'none';
         
@@ -77,6 +61,11 @@ async function configureUIElements(currentUserId, post){
     deleteButton && deleteButton.addEventListener("click", () => deletePost(post["post_id"]));
 }
 
+/**
+ * Display the post
+ * @param post - The post object
+ * @returns {Promise<void>}
+ */
 async function displayPost(post){
     // load title and content
     const postTitle = post["title"];
@@ -96,6 +85,11 @@ async function displayPost(post){
     renderMathJax(postElement)
 }
 
+/**
+ * Display the tags of a post
+ * @param postId - The ID of the post
+ * @returns {Promise<void>}
+ */
 async function displayTags(postId){
     // Get tags of the post
     const tags = await getTags(postId);
@@ -123,6 +117,12 @@ async function displayTags(postId){
     }
 }
 
+/**
+ * Display the votes of a post
+ * @param postId
+ * @param currentUserId
+ * @returns {Promise<void>}
+ */
 async function displayVotes(postId, currentUserId){
     const voteCount = document.querySelector("#voteCount");
     const upvoteButton = document.querySelector("#upvoteButton");
@@ -130,10 +130,9 @@ async function displayVotes(postId, currentUserId){
 
     // Load votes
     const response = await fetch(BACKENDURL + "posts/id/" + postId + "/votes/");
-    const votes = await response.json() || 0;
 
     // Display vote count
-    voteCount.textContent = votes;
+    voteCount.textContent = await response.json() || 0;
 
     // Display the vote of the current user
     if(currentUserId){
@@ -148,31 +147,59 @@ async function displayVotes(postId, currentUserId){
     }
 }
 
+/**
+ * Get the post ID from the URL
+ * @returns {number|null}
+ */
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
+    const postIdString = urlParams.get('id');
+
+    // Check if postId exists and is valid
+    if (!postIdString) return null;
+
+    // Convert the postId to an integer (base 10)
+    const postId = parseInt(postIdString, 10);
+
+    // Check if the parsed value is an integer.
+    if (Number.isNaN(postId)) return null;
+
+    return postId;
 }
 
+/**
+ * Display the comments of a post
+ * @param post_id - The ID of the post
+ * @param currentUserId - The ID of the current user
+ * @returns {Promise<void>}
+ */
 async function displayComments(post_id, currentUserId){
     // load comments
     const commentsArray = await getComments(post_id);
+    const commentsList = document.querySelector("#commentList");
     
     // Create Comment divs for each comment
     for(let i = 0; i < commentsArray.length; i++){
         const comment = commentsArray[i];
         // Create comment div
-        const commentDiv = await createCommentDiv(comment, currentUserId);
+        const commentDiv = await createCommentDiv(comment);
 
         // Insert buttons for user and content management
         await insertButtons(commentDiv, currentUserId, comment["author_id"]);
 
         // Insert comment into HTML
-        document.querySelector("#commentList").appendChild(commentDiv);
+        commentsList.appendChild(commentDiv);
     }
+
     // Render MathJax
-    renderMathJax(commentList)
+    renderMathJax(commentsList)
 }
 
+/**
+ * Toggle the edit post view
+ * @param post
+ * @returns {Promise<void>}
+ */
 async function toggleEditPost(post){
     editPostVisible = !editPostVisible;
     // Get the post content
@@ -212,6 +239,31 @@ function renderMathJax(element){
             console.error('MathJax rendering error: ' + err);
         });
 }
+
+/**
+ * Initialize the post page.
+ */
+async function initialize(){
+    // Display the current user
+    await displayAuthStatus();
+
+    // Load post data
+    const postId = getPostIdFromUrl();
+    const post = await getPost(postId);
+
+    // Load user data
+    const userDetails = await getCurrentUserDetails(["user_id", "username"]);
+    const currentUserId = userDetails !== null ? userDetails["user_id"] : null;
+    const currentUsername = userDetails !== null ? userDetails["username"] : null;
+    console.log("Logged in as: " + currentUsername)
+
+    // Load page elements
+    await configureUIElements(currentUserId, post);
+    await displayPost(post);
+    await displayTags(postId);
+    await displayVotes(postId, currentUserId);
+    await displayComments(postId, currentUserId);
+}
   
-// execute onLoad when page is loaded
-window.addEventListener("DOMContentLoaded", onLoad());
+// Entry point - Execute initialize() when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", initialize);

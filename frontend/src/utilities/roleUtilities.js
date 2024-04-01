@@ -111,7 +111,8 @@ function getRoleColor(role){
 /**
  * Returns a div containing a "..." button and a set of action buttons based on the user's role.
  * The action buttons are initially hidden and are shown or hidden when the "..." button is clicked.
- * @param {string} role - The user's role.
+ * @param {string} managerRole - The role of the user who is managing the other user.
+ * @param {string} authorRole - The role of the author
  * @returns {HTMLElement} The div containing the "..." button and the action buttons.
  */
 function getUserManagementButtons(managerRole, authorRole) {
@@ -186,7 +187,9 @@ function getUserManagementButtons(managerRole, authorRole) {
 /**
  * Returns a div containing a "..." button and a set of content management buttons based on the user's role.
  * The content management buttons are initially hidden and are shown or hidden when the "..." button is clicked.
- * @param {string} role - The user's role.
+ * @param {string} managerRole - The role of the user who is managing the content.
+ * @param {string} authorRole - The role of the author of the content.
+ * @param {boolean} isAuthor - Whether the user is the author of the content.
  * @returns {HTMLElement} The div containing the "..." button and the content management buttons.
  */
 function getContentManagementButtons(managerRole, authorRole, isAuthor) {

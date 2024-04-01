@@ -10,6 +10,33 @@
  */
 
 /**
+ * Displays an error message on the login page.
+ * @param message
+ */
+function displayErrorMessage(message) {
+    document.getElementById("errorMessage").textContent = message;
+    document.getElementById("errorMessage").style.display = "block";
+}
+
+/**
+ * Validates the login form. Checks if the email and password fields are not empty.
+ * @param loginForm - The login form element
+ * @returns {boolean}
+ */
+function validateLoginForm(loginForm) {
+    const email = loginForm.elements["username"].value;
+    const password = loginForm.elements["password"].value;
+
+    // Check if email and password are not empty
+    if (email.trim() === "" || password.trim() === "") {
+        displayErrorMessage("Bitte geben Sie eine gültige E-Mail-Adresse und ein Passwort ein.");
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Handles the login form submission. Sends a POST request to the backend with the login form data.
  */
 async function submitLoginForm(event){
@@ -17,30 +44,36 @@ async function submitLoginForm(event){
 
     // OAuth2 requires FormData in the request body. Therefore, we create a FormData object from the login form
     const loginForm = document.forms["login"];
-    const body = new FormData(loginForm);
+    if (!validateLoginForm(loginForm)) return;
 
+    const body = new FormData(loginForm);
     const response = await fetch(BACKENDURL + "auth/login/", {
         method: "POST",
         body: body,
     });
 
-    if (!response.ok) { // If login was not successful, display an error message
-        document.getElementById("errorMessage").style.display = "block";
-        return;
+    // Display an error message if the login was not successful
+    if (!response.ok) {
+        displayErrorMessage("Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.");
     }
 
-    // If login was successful, store the access token in the local storage and redirect to the chat overview
+    // Successful login
     const res = await response.json();
     localStorage.setItem("AuthToken", res["access_token"]);
+
+    // Clear the form
+    loginForm.reset();
+
+    // Redirect to the home page
     window.location.href = "/frontend/public/index.html";
 }
 
 /**
  * Executed when the DOM is fully loaded. Adds an event listener to the submit button of the login form.
  */
-function onLoad(){
+function initialize(){
     document.querySelector("#submitButton").addEventListener("click", submitLoginForm);
 }
 
-// Entry point - Execute onLoad when the DOM is fully loaded
-window.addEventListener("DOMContentLoaded", onLoad);
+// Entry point - Execute initialize when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", initialize);
