@@ -7,64 +7,80 @@
  * functions to get user details and display the current user.
  */
 
+// Stores user data in a cache to avoid unnecessary requests
+const USER_CACHE = {};
+
 /**
- * Displays the username and email of the logged-in user. Otherwise, displays the authentication buttons.
+ * Toggle the display of the authentication buttons and the user info.
  */
-async function showCurrentUser(){
-    const auth_token = localStorage.getItem("AuthToken");
+function toggleAuthDisplay(isLoggedIn) {
+    document.getElementById("authButtons").style.display = isLoggedIn ? "none" : "block";
+    document.getElementById("loggedInUser").style.display = isLoggedIn ? "block" : "none";
+}
 
-    if (!auth_token) {
-        // Display authentication buttons and hide the user info
-        document.getElementById("authButtons").style.display = "block";
-        document.getElementById("loggedInUser").style.display = "none";
-        return;
-    }
+/**
+ * Checks the authentication status of the user.
+ * @returns {Promise<Object|null>}
+ */
+async function checkAuthenticationStatus() {
+    const authToken = localStorage.getItem("AuthToken");
 
-    // If a token is found, check if it is valid and retrieve the user info
-    const response = await fetch(
-        BACKENDURL + `users/me/?fields=username,email`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${auth_token}`
-        }
-    });
+    // No token means user is not logged in
+    if (!authToken) return null;
 
-    if (!response.ok) {
-        // Token is invalid, remove it from local storage
+    try {
+        return await getCurrentUserDetails(["username", "email"]);
+    } catch (error) { // Token is invalid, remove it from local storage
         localStorage.removeItem("AuthToken");
-
-        // Display authentication buttons and hide the user info
-        document.getElementById("authButtons").style.display = "block";
-        document.getElementById("loggedInUser").style.display = "none";
-        return;
+        return null;
     }
+}
+
+/**
+ * Handles user authentication display:
+ * - Checks for logged-in status.
+ * - Displays user info or authentication buttons accordingly.
+ */
+async function displayAuthStatus() {
+    const userDetails = await checkAuthenticationStatus();
+    const isLoggedIn = userDetails !== null;
+
+    toggleAuthDisplay(isLoggedIn); // Update UI visibility
+
+    // If user is logged in, display user info. If not we're done.
+    if (!isLoggedIn) return;
+
+    const { username, email } = userDetails;
 
     // Display the user info
-    const userData = await response.json();
-    const user = userData["user"];
-    document.getElementById("username").textContent = user["username"];
-    document.getElementById("email").textContent = user["email"];
-
-    // Display the logout button and hide the authentication buttons
-    document.getElementById("authButtons").style.display = "none";
-    document.getElementById("loggedInUser").style.display = "block";
+    document.getElementById("username").textContent = username;
+    document.getElementById("email").textContent = email;
 
     // Add event listener to the logout button
     document.getElementById("logoutButton").addEventListener("click", logout);
 }
 
 /**
- * Returns the username and role of a user.
+ * Returns the username, user role, and role color of a user.
+ * @param {number} user_id - The ID of the user
+ * @returns {Promise<{username: string, userRole: string, roleColor: string}>}
  */
 async function getUserDetails(user_id) {
+    // Check if the user is already in the cache
+    if (user_id in USER_CACHE) return USER_CACHE[user_id];
+
     const response = await fetch(`${BACKENDURL}users/id/${user_id}/?fields=username,role`);
     const data = await response.json();
 
     const username = data["user"]["username"];
     const userRole = data["user"]["role"];
     const roleColor = getRoleColor(userRole);
-    return { username, userRole, roleColor };
+    const userDetails = { username, userRole, roleColor };
+
+    // Add the user to the cache
+    USER_CACHE[user_id] = userDetails;
+
+    return userDetails;
 }
 
 /**
@@ -72,5 +88,5 @@ async function getUserDetails(user_id) {
  */
 async function logout(){
     localStorage.removeItem("AuthToken");
-    window.location.reload();
+    window.location.reload(); // Reload the page to update the header
 }

@@ -9,13 +9,11 @@
 
 /**
  * Get tags for a post
- * @param {number} post_id
+ * @param {number} post_id - The id of the post to get tags for
  * @returns {Array}
  */
 async function getTags(post_id){
     const response = await fetch(BACKENDURL + "posts/id/" + post_id + "/tags/");
     const tagsData = await response.json();
-    const tags = tagsData["tags"];
-
-    return tags;
+    return tagsData["tags"];
 }
