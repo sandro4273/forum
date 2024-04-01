@@ -1,4 +1,13 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file headerUtilities.js
+ * This file contains utility functions for the header. It allows users to log in and log out. It also provides
+ * functions to get user details and display the current user.
+ */
+
+/**
  * Displays the username and email of the logged-in user. Otherwise, displays the authentication buttons.
  */
 async function showCurrentUser(){

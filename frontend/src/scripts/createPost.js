@@ -1,6 +1,15 @@
 /**
-* Handles the post form submission. Sends a POST request to the backend with the post form data.
-*/
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file createPost.js
+ * This file contains the logic for the create post page. It allows users to create a new post.
+ * It uses the Quill Rich Text Editor to create and edit posts.
+ *
+ * The Quill Rich Text Editor is a third-party library that allows users to create and edit rich text.
+ * (https://quilljs.com/)
+ */
+
 
 // Rich Text Editor
 const quill = new Quill('#postContentEditor', quillSettingsPost);
@@ -15,6 +24,9 @@ function onLoad(){
     document.querySelector("#submitButton").addEventListener("click", submitPostForm);
 }
 
+/**
+* Handles the post form submission. Sends a POST request to the backend with the post form data.
+*/
 async function submitPostForm(){
     // Extract text and title from form
     const post_title = document.forms["createPost"]["postTitle"].value;

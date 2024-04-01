@@ -1,4 +1,12 @@
-import os
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Authentifizierungs-Endpunkte der API. Die Authentifizierung erfolgt über JSON Web Tokens (JWT).
+Die Endpunkte umfassen die Erstellung eines Benutzers, das Einloggen eines Benutzers und das Überprüfen des Tokens.
+"""
+
+import os  # For file path operations
 import json  # For parsing the SECRET_KEY from the config.json file and roles.json
 
 import jwt  # JSON Web Token for user authentication
@@ -54,7 +62,7 @@ ALGORITHM = "HS256"  # Algorithm used for encoding the token
 
 # Time after which the token expires (in minutes)
 # TODO: Change to a lower value for production. (1440 minutes = 24 hours)
-# Maybe a refresh system for the token is needed.
+# TODO: Maybe a refresh system for the token is needed.
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 
@@ -68,6 +76,8 @@ def is_privileged(current_user_id: int) -> bool:
 
     Returns:
         True if the user is an admin or moderator. Otherwise, False.
+
+    TODO: This function should be removed and replaced with get_role_permissions().
     """
 
     current_user_role = db.get_public_user_by_id(current_user_id).role
@@ -142,7 +152,7 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
     if user or verify_password(password, user["password"]):
         return user
 
-    return None
+    return None  # User does not exist or password is incorrect
 
 
 async def get_current_user_id(token: Annotated[str, Depends(oauth2_scheme)]) -> int:
@@ -176,6 +186,31 @@ async def get_current_user_id(token: Annotated[str, Depends(oauth2_scheme)]) -> 
         raise credentials_exception
 
 
+async def get_optional_current_user_id(token: Annotated[str, Depends(oauth2_scheme)]) -> Optional[int]:
+    """
+    Returns the ID of the current user using the Bearer token from the Authorization header.
+    If the token is not valid, None is returned instead of raising an exception.
+
+    Args:
+        token: The Bearer token from the Authorization header.
+
+    Returns:
+        The user ID (integer).
+    """
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("sub")
+
+        if not user_id:  # Token is not valid
+            return None
+
+        return user_id
+
+    except PyJWTError:  # Token is not valid
+        return None
+
+
 async def get_current_user(current_user_id: Annotated[int, Depends(get_current_user_id)]) -> Optional[User]:
     """
     Returns the current user.
@@ -201,8 +236,8 @@ def get_role_permissions(user_role):
 
     role_permissions = roles[user_role]
     
-    if not role_permissions: # If the role does not exist
-        return [] # Return an empty list
+    if not role_permissions:  # If the role does not exist
+        return []  # Return an empty list
     
     return role_permissions 
 

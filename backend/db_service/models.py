@@ -1,4 +1,12 @@
-from typing import Optional  # For optional data types
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Datenmodelle, welche innerhalb des Backends zum Datenaustausch verwendet werden. Anhand von
+Pydantic-Modellen werden die Datenstrukturen validiert und definiert.
+"""
+
+from typing import Optional  # For optional data types: data that can also be None
 from enum import IntEnum  # For creating enumerations
 
 from pydantic import (
@@ -8,7 +16,12 @@ from pydantic import (
 )
 
 
+# TODO: Roles should have an enum
+
 class SortType(IntEnum):
+    """
+    Enumerates the possible sorting types for posts.
+    """
     RECOMMENDED = 0
     NEW = 1
     POPULAR = 2
@@ -107,6 +120,7 @@ class SignupData(BaseModel):
            not any(c in special_characters for c in v):
             raise ValueError("Password must have at least one uppercase letter, one lowercase letter, one digit and a "
                              "special character")
+
         return v
 
 
@@ -148,3 +162,13 @@ class ChatMessage(BaseModel):
     author_id: Optional[int] = None
     content: Optional[str] = None
     creation_date: Optional[str] = None
+
+
+class Chat(BaseModel):
+    """
+    Contains the chat_id and the two users that are in the chat.
+    """
+    chat_id: Optional[int] = None
+    user1: Optional[int] = None
+    user2: Optional[int] = None
+    other_username: Optional[str] = None

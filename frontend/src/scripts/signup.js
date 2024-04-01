@@ -1,4 +1,13 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
+ * @file signup.js
+ * This file contains the logic for the signup page. It allows users to sign up for an account which creates a new user
+ * in the database.
+ */
+
+/**
  * Handles the signup form submission. Sends a POST request to the backend with the signup form data.
  */
 async function submitSignupForm(){

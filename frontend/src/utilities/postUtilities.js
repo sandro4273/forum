@@ -1,6 +1,10 @@
 /**
+ * Programmierprojekt Forum, 2024-04-01
+ * Luca Flühler, Lucien Ruffet, Sandro Kuster
+ *
  * @file postUtilities.js
- * This file contains utility functions for post-related operations.
+ * This file contains utility functions for post-related operations. It allows users to get a post, submit an edited
+ * post, and delete a post.
  */
 
 /**

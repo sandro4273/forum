@@ -1,3 +1,11 @@
+"""
+Programmierprojekt Forum, 2024-04-01
+Luca Flühler, Lucien Ruffet, Sandro Kuster
+
+Dieses Modul enthält die Benutzer-Endpunkte der API. Die Endpunkte umfassen das Abrufen von Benutzerinformationen, das
+Bannen, das Befördern und das Degradieren von Benutzern.
+"""
+
 from typing import (
     Annotated,  # For type hinting
     Optional,  # For optional data types
@@ -11,7 +19,12 @@ from fastapi import (
     Query  # For query parameters
 )
 
-from backend.api.endpoints.auth import get_current_user, get_current_user_id, get_role_permissions  # For retrieving the logged-in user and permissions
+from backend.api.endpoints.auth import (
+    get_current_user_id,  # For retrieving the logged-in user id
+    get_current_user,  # For retrieving the logged-in user
+    get_role_permissions  # For checking the permissions of the current user
+)
+
 from backend.db_service.models import User  # Models for data transfer
 from backend.db_service import database as db  # Allows the manipulation and reading of the database
 
@@ -37,10 +50,9 @@ def filter_user_fields(user: User, fields: Optional[List[str]]) -> User:
     if not fields:
         return user
 
-    print(fields)
     user_dict = user.dict()
     filtered_user_dict = {field: user_dict[field] for field in fields if field in user_dict}
-    print(filtered_user_dict)
+
     return User(**filtered_user_dict)
 
 
@@ -129,6 +141,7 @@ async def ban_user(user_id: int, current_user_id: Annotated[int, Depends(get_cur
     """
     Bans a user with the given user_id.
     """
+
     # Verify if the current user can ban this user
     current_user_role = db.get_user_by_id(current_user_id).role
     user_role = db.get_user_by_id(user_id).role
@@ -146,6 +159,7 @@ async def promote_user_to_moderator(user_id: int, current_user_id: Annotated[int
     """
     Promotes a user with the given user_id to moderator.
     """
+
     # Verify if the current user can promote this user
     current_user_role = db.get_user_by_id(current_user_id).role
     user_role = db.get_user_by_id(user_id).role
@@ -163,6 +177,7 @@ async def promote_user_to_admin(user_id: int, current_user_id: Annotated[int, De
     """
     Promotes a user with the given user_id to admin.
     """
+
     # Verify if the current user can promote this user
     current_user_role = db.get_user_by_id(current_user_id).role
     user_role = db.get_user_by_id(user_id).role
@@ -180,6 +195,7 @@ async def demote_moderator_to_user(user_id: int, current_user_id: Annotated[int,
     """
     Demotes a moderator with the given user_id to user.
     """
+
     # Verify if the current user can demote this user
     current_user_role = db.get_user_by_id(current_user_id).role
     user_role = db.get_user_by_id(user_id).role
@@ -197,6 +213,7 @@ async def demote_admin_to_moderator(user_id: int, current_user_id: Annotated[int
     """
     Demotes an admin with the given user_id to moderator.
     """
+
     # Verify if the current user can demote this user
     current_user_role = db.get_user_by_id(current_user_id).role
     user_role = db.get_user_by_id(user_id).role
