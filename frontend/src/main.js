@@ -38,9 +38,7 @@ async function updatePostList(posts){
         const { username, userRole, roleColor } = await getUserDetails(author_id);
 
         const postElement = document.createElement('div');
-        postElement.innerHTML = `<a class="post" href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}"><p style="text-decoration: underline white; color:black;">${post["title"]}</p><div style="text-decoration: underline white;color:black;"> ${username} <span style="text-decoration: underline white;color: ${roleColor}">(${userRole})</span></div></a><div class="votebox">
-        votevotevotevotevotevotevotevotevotevotevote
-    </div>`;
+        postElement.innerHTML = `<a class="post" style="position:relative;" href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}"><p style="text-decoration: underline white; color:black;">${post["title"]}</p><div style="text-decoration: underline white;color:black;"> ${username} <span style="text-decoration: underline white;color: ${roleColor}">(${userRole})</span></div></a>`;
         postList.append(postElement);
     }
 }
@@ -86,6 +84,7 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
     if (posts.length === 10) {
         const loadMoreButton = document.createElement('button');
         loadMoreButton.textContent = "Load more";
+        loadMoreButton.className = "loadmorebutton"
         loadMoreButton.addEventListener("click", () => loadPosts(searchInput, offset + 10, sort_type));
         postList.append(loadMoreButton);
     }
