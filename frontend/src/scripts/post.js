@@ -9,9 +9,16 @@
 
 let editPostVisible = false;
 
+/**
+ * Configure the UI elements for the post page.
+ * @param currentUserId - The ID of the current user
+ * @param post - The post object
+ * @returns {Promise<void>}
+ */
 async function configureUIElements(currentUserId, post){
     // If a user is logged in, display the comment form and create Rich Text Editor for comments
     const commentForm = document.getElementById('commentForm');
+
     if (currentUserId){
         commentForm.style.display = currentUserId ? 'block' : 'none';
         
@@ -54,6 +61,11 @@ async function configureUIElements(currentUserId, post){
     deleteButton && deleteButton.addEventListener("click", () => deletePost(post["post_id"]));
 }
 
+/**
+ * Display the post
+ * @param post - The post object
+ * @returns {Promise<void>}
+ */
 async function displayPost(post){
     // load title and content
     const postTitle = post["title"];
@@ -73,6 +85,11 @@ async function displayPost(post){
     renderMathJax(postElement)
 }
 
+/**
+ * Display the tags of a post
+ * @param postId - The ID of the post
+ * @returns {Promise<void>}
+ */
 async function displayTags(postId){
     // Get tags of the post
     const tags = await getTags(postId);
@@ -100,6 +117,12 @@ async function displayTags(postId){
     }
 }
 
+/**
+ * Display the votes of a post
+ * @param postId
+ * @param currentUserId
+ * @returns {Promise<void>}
+ */
 async function displayVotes(postId, currentUserId){
     const voteCount = document.querySelector("#voteCount");
     const upvoteButton = document.querySelector("#upvoteButton");
@@ -124,6 +147,10 @@ async function displayVotes(postId, currentUserId){
     }
 }
 
+/**
+ * Get the post ID from the URL
+ * @returns {number|null}
+ */
 function getPostIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     const postIdString = urlParams.get('id');
@@ -140,6 +167,12 @@ function getPostIdFromUrl() {
     return postId;
 }
 
+/**
+ * Display the comments of a post
+ * @param post_id - The ID of the post
+ * @param currentUserId - The ID of the current user
+ * @returns {Promise<void>}
+ */
 async function displayComments(post_id, currentUserId){
     // load comments
     const commentsArray = await getComments(post_id);
@@ -162,6 +195,11 @@ async function displayComments(post_id, currentUserId){
     renderMathJax(commentsList)
 }
 
+/**
+ * Toggle the edit post view
+ * @param post
+ * @returns {Promise<void>}
+ */
 async function toggleEditPost(post){
     editPostVisible = !editPostVisible;
     // Get the post content

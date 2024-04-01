@@ -6,45 +6,20 @@
  * This file contains the logic for the chat page. It displays a chat with a partner and allows users to send messages.
  */
 
-// Executed when chat.html is loaded
-async function onLoad() {
-    // Display the current user
-    await displayAuthStatus();
-    
-    // Get partner username
-    const chatId = getChatIdFromUrl();
-    const chatResponse = await fetch(`${BACKENDURL}chats/id/${chatId}/`);
-    const chatData = await chatResponse.json();
-    const chat = chatData["chat"];
-    const user1Id = chat["user1"];
-    const user2Id = chat["user2"];
-
-    // Must be logged in to access the chat
-    const currentUserId = await getCurrentUserId()
-
-    if (!currentUserId) return;
-
-    // Check if current user is permitted to access the chat
-    if (!(currentUserId === user1Id || currentUserId === user2Id)) return;
-
-    // Get partner id
-    const partnerId = currentUserId === user1Id ? user2Id : user1Id;
-
-    // Set chat title
-    const partnerUsername = await getUsername(partnerId);
-    const chatTitle = document.querySelector("#chatTitle");
-    chatTitle.textContent = "Chat mit " + partnerUsername
-
-    // Add event listener to send message button and load messages
-    document.querySelector("#sendMessage").addEventListener("click", sendMessage);
-    await loadMessages(chatId);
-}
-
+/**
+ * Get the chat ID from the URL.
+ * @returns {string} - The chat ID
+ */
 function getChatIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
 }
 
+/**
+ * Load all messages of a chat and display them in the chat window.
+ * @param chat_id
+ * @returns {Promise<void>}
+ */
 async function loadMessages(chat_id) {
     const messageList = document.querySelector("#messageList");
     messageList.innerHTML = ""; // Clear message list
@@ -87,6 +62,11 @@ async function loadMessages(chat_id) {
 
 }
 
+/**
+ * Send a message to the chat partner. The message is extracted from the input field and sent to the backend.
+ * @param event
+ * @returns {Promise<any>}
+ */
 async function sendMessage(event) {
     event.preventDefault();
 
@@ -118,5 +98,41 @@ async function sendMessage(event) {
     return messageData;
 }
 
-// Entry point - Execute onLoad when the DOM is fully loaded
-window.addEventListener("DOMContentLoaded", onLoad());
+/**
+ * Initialize the chat page.
+ */
+async function initialize() {
+    // Display the current user
+    await displayAuthStatus();
+
+    // Get partner username
+    const chatId = getChatIdFromUrl();
+    const chatResponse = await fetch(`${BACKENDURL}chats/id/${chatId}/`);
+    const chatData = await chatResponse.json();
+    const chat = chatData["chat"];
+    const user1Id = chat["user1"];
+    const user2Id = chat["user2"];
+
+    // Must be logged in to access the chat
+    const currentUserId = await getCurrentUserId()
+
+    if (!currentUserId) return;
+
+    // Check if current user is permitted to access the chat
+    if (!(currentUserId === user1Id || currentUserId === user2Id)) return;
+
+    // Get partner id
+    const partnerId = currentUserId === user1Id ? user2Id : user1Id;
+
+    // Set chat title
+    const partnerUsername = await getUsername(partnerId);
+    const chatTitle = document.querySelector("#chatTitle");
+    chatTitle.textContent = "Chat mit " + partnerUsername
+
+    // Add event listener to send message button and load messages
+    document.querySelector("#sendMessage").addEventListener("click", sendMessage);
+    await loadMessages(chatId);
+}
+
+// Entry point - Execute initialize() when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", initialize);
