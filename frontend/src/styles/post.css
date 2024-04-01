@@ -3,6 +3,25 @@
   grid-template-columns: 1fr 1fr;
   gap: 1em;
 }
+
+@media (max-width: 830px){
+  .post-grid{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 831px) and (max-width: 1199px){
+  .post-grid{
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (min-width: 1200px){
+  .post-grid{
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
 .post{
   border:1px solid black;
   height: 150px;
@@ -36,9 +55,44 @@
   background-color: black;
 }
 
+.voteboxbox{
+  position: relative;
+}
+
+.post-erstellen-button{
+  text-decoration: none;
+  color: black;
+  margin: 0px;
+  padding:6px 7px;
+  border-radius: 6px;
+  transition: background-color 0.15s;
+}
+
 .votebox{
   position: absolute;
-  bottom: 0px;
-  
+  bottom: 10px;
+  z-index: 1000;
   background-color: rgb(162, 162, 162);
+}
+
+.loadmorebutton{
+  background-color: rgb(220, 220, 220);
+  border:1px solid black;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+}
+
+.loadmorebutton:hover{
+  background-color: rgb(200, 200, 200)
+}
+
+.loadmorebutton:active{
+  background-color: rgb(178, 178, 178);
 }
