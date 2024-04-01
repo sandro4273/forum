@@ -10,7 +10,6 @@
  * (https://quilljs.com/)
  */
 
-
 // Rich Text Editor
 const quill = new Quill('#postContentEditor', quillSettingsPost);
 
