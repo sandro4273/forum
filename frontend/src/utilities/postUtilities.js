@@ -41,7 +41,6 @@ async function submitEditPostFunction(postId, postDiv){
         });
 
     await response.json();
-    
 
     // Reload the site
     location.reload();
@@ -49,19 +48,19 @@ async function submitEditPostFunction(postId, postDiv){
 
 /**
  * Delete a post
- * @param {number} post_id - The id of the post to delete
+ * @param {number} postId - The id of the post to delete
  * @returns {Promise<void>}
  */
 async function deletePost(postId){
     // Send the delete request
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + "posts/id/" + postId + "/delete/", {
-            method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${auth_token}`
-            },
-        });
+    BACKENDURL + "posts/id/" + postId + "/delete/", {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${auth_token}`
+        },
+    });
 
     // Redirect to the index page, but only if the request was successful
     if(response.ok){

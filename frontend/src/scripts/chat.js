@@ -9,7 +9,7 @@
 // Executed when chat.html is loaded
 async function onLoad() {
     // Display the current user
-    showCurrentUser();
+    await displayAuthStatus();
     
     // Get partner username
     const chatId = getChatIdFromUrl();
@@ -20,7 +20,7 @@ async function onLoad() {
     const user2Id = chat["user2"];
 
     // Must be logged in to access the chat
-    const currentUserId = await getCurrentUserId();
+    const currentUserId = await getCurrentUserId()
 
     if (!currentUserId) return;
 

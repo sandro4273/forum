@@ -15,16 +15,6 @@
 const quill = new Quill('#postContentEditor', quillSettingsPost);
 
 /**
- * Executed when the DOM is fully loaded. Adds an event listener to the submit button of the post form.
- */
-function onLoad(){
-    // Display the current user
-    showCurrentUser();
-    // Add event listener to the submit button
-    document.querySelector("#submitButton").addEventListener("click", submitPostForm);
-}
-
-/**
 * Handles the post form submission. Sends a POST request to the backend with the post form data.
 */
 async function submitPostForm(){
@@ -61,6 +51,17 @@ async function submitPostForm(){
     window.location.href = "/frontend/public/post.html?id=" + post_id;
 }
 
+/**
+ * Initializes the create post page. Displays the current user and adds an event listener to the submit button.
+ */
+async function initialize(){
+    // Display the current user
+    await displayAuthStatus();
 
-// Entry point - Execute onLoad when the DOM is fully loaded
-window.addEventListener("DOMContentLoaded", onLoad());
+    // Add event listener to the submit button
+    document.querySelector("#submitButton").addEventListener("click", submitPostForm);
+}
+
+
+// Entry point - Execute initialize() when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", initialize);

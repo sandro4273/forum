@@ -8,51 +8,13 @@
  */
 
 /**
- * Entry point of the script
- */
-function onLoad() {
-    // Add event listeners
-    document.querySelector("#searchBar")
-            .addEventListener("keypress", (event) => searchBarPressed(event));
-    document.getElementById("sortDropdown").addEventListener("change", sortingChanged);
-
-    // Display current user and load posts
-    showCurrentUser();
-    loadPosts();
-}
-
-/**
- * Updates the post list
- */
-async function updatePostList(posts){
-    const postList = document.getElementById("postList");
-
-    if (posts.length === 0) {
-        console.log("No posts found")
-        return;
-    }
-
-    for (const post of posts) {
-        const author_id = post["author_id"];
-
-        const { username, userRole, roleColor } = await getUserDetails(author_id);
-
-        const postElement = document.createElement('div');
-        postElement.innerHTML = `<a class="post" href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}"><p style="text-decoration: underline white; color:black;">${post["title"]}</p><div style="text-decoration: underline white;color:black;"> ${username} <span style="text-decoration: underline white;color: ${roleColor}">(${userRole})</span></div></a><div class="votebox">
-        votevotevotevotevotevotevotevotevotevotevote
-    </div>`;
-        postList.append(postElement);
-    }
-}
-
-/**
  * Loads posts from the backend and displays them
  * @param {string} searchInput - The search input
  * @param {number} offset - The offset for the posts
  * @param {number} sort_type - The sort type for the posts
  * @returns {Promise<void>}
  */
-async function loadPosts(searchInput = "", offset=0, sort_type=0){
+async function fetchAndDisplayPosts(searchInput = "", offset=0, sort_type=0){
     let postList = document.getElementById("postList");
 
     let endpoint = `${BACKENDURL}posts/?`;
@@ -60,12 +22,12 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
 
     endpoint += `offset=${offset}&sort=${sort_type}`;
 
-    const auth_token = localStorage.getItem("AuthToken");
+    const authToken = localStorage.getItem("AuthToken");
     const postsResponse = await fetch(endpoint, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${auth_token}`
+            "Authorization": `Bearer ${authToken}`
         }
     });
 
@@ -86,8 +48,30 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
     if (posts.length === 10) {
         const loadMoreButton = document.createElement('button');
         loadMoreButton.textContent = "Load more";
-        loadMoreButton.addEventListener("click", () => loadPosts(searchInput, offset + 10, sort_type));
+        loadMoreButton.addEventListener("click", () => fetchAndDisplayPosts(searchInput, offset + 10, sort_type));
         postList.append(loadMoreButton);
+    }
+}
+
+/**
+ * Updates the post list
+ */
+async function updatePostList(posts){
+    const postList = document.getElementById("postList");
+
+    if (posts.length === 0) {
+        console.log("No posts found")
+        return;
+    }
+
+    for (const post of posts) {
+        const author_id = post["author_id"];
+
+        const { username, userRole, roleColor } = await getUserDetails(author_id);
+
+        const postElement = document.createElement('div');
+        postElement.innerHTML = `<a class="post" href="${FRONTENDURL}frontend/public/post.html?id=${post["post_id"]}"><p style="text-decoration: underline white; color:black;">${post["title"]}</p><div style="text-decoration: underline white;color:black;"> ${username} <span style="text-decoration: underline white;color: ${roleColor}">(${userRole})</span></div></a><div class="votebox">votevotevotevotevotevotevotevotevotevotevote</div>`;
+        postList.append(postElement);
     }
 }
 
@@ -99,7 +83,7 @@ async function loadPosts(searchInput = "", offset=0, sort_type=0){
 async function searchBarPressed(event){
     if (event.key === "Enter") {
         const searchInput = document.getElementById("searchBar").value;
-        await loadPosts(searchInput);
+        await fetchAndDisplayPosts(searchInput);
     }
 }
 
@@ -116,8 +100,28 @@ async function sortingChanged(event){
 
     const sort_type = sortTypeToInt[event.target.value];
     const searchInput = document.getElementById("searchBar").value;
-    await loadPosts(searchInput, 0, sort_type);
+    await fetchAndDisplayPosts(searchInput, 0, sort_type);
+}
+
+/**
+ * Initializes the main application logic.
+ * - Attaches event listeners to search bar and sorting dropdown.
+ * - Displays the current user's information.
+ * - Fetches and displays the initial list of posts.
+ */
+async function initialize() {
+    try {
+        // Add event listeners
+        document.getElementById("searchBar")
+                .addEventListener("keypress", searchBarPressed);
+        document.getElementById("sortDropdown").addEventListener("change", sortingChanged);
+
+        await displayAuthStatus();
+        await fetchAndDisplayPosts(); // Initial loading
+    } catch (error) {
+        console.error("Error during initialization:", error);
+    }
 }
 
 // Entry point - Execute onLoad when the DOM is fully loaded
-window.addEventListener("DOMContentLoaded", onLoad());
+window.addEventListener("DOMContentLoaded", initialize);

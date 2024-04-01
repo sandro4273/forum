@@ -21,13 +21,13 @@ async function vote(event, postId, vote){
     // Send the vote request
     const auth_token = localStorage.getItem("AuthToken");
     const response = await fetch(
-        BACKENDURL + "posts/id/" + postId + "/vote/", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${auth_token}`
-            },
-            body: vote,
-        });
+    BACKENDURL + "posts/id/" + postId + "/vote/", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${auth_token}`
+        },
+        body: vote,
+    });
 }
 
 /**
