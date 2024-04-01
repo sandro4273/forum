@@ -8,20 +8,6 @@
  */
 
 /**
- * Executed when the DOM is fully loaded. Loads all chats of the user.
- */
-function onLoad() {
-    // Display the current user
-    showCurrentUser();
-
-    // Add event listeners
-    document.querySelector("#createChatButton").addEventListener("click", createChat);
-
-    // Load chats
-    loadChats();
-}
-
-/**
  * Fetches all chats of the user and renders them in the chat overview page.
  */
 async function loadChats() {
@@ -105,15 +91,27 @@ async function createChat() {
     // If there was an error, display an error message
     if (!chatResponse.ok) {
         const errorElement = document.querySelector("#error");
-        errorData = await chatResponse.json();
+        const errorData = await chatResponse.json();
         errorElement.textContent = errorData.detail;
 
         errorElement.setAttribute("style", "display: block");
         errorElement.setAttribute("style", "color: red");
-        return;
     }
 }
 
+/**
+ * Executed when the DOM is fully loaded. Loads all chats of the user.
+ */
+async function initialize() {
+    // Display the current user
+    await displayAuthStatus();
 
-// Entry point - Execute onLoad when the DOM is fully loaded
-window.addEventListener("DOMContentLoaded", onLoad());
+    // Add event listeners
+    document.querySelector("#createChatButton").addEventListener("click", createChat);
+
+    // Load chats
+    await loadChats();
+}
+
+// Entry point - Execute initialize() when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", initialize);

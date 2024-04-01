@@ -11,6 +11,7 @@
  * Create a comment
  * @param {Event} event
  * @param {number} post_id
+ * @param {string} content
  * @returns {Promise<void>}
  */
 async function createComment(event, post_id, content){

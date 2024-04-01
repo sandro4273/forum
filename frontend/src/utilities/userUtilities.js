@@ -20,23 +20,40 @@ async function getUsername(userId){
 }
 
 /**
- * Get the user ID of the current user
- * @returns {number} - The user ID of the current user or null if the user is not logged in
+ * Get details of the currently logged-in user.
+ * @param {string[]} fields - List of user fields to retrieve (e.g., 'user_id', 'username', 'email')
+ * @returns {Promise<object | null>} - User details object or null if an error occurs.
  */
-async function getCurrentUserId(){
-    const auth_token = localStorage.getItem("AuthToken");
+async function getCurrentUserDetails(fields) {
+    const authToken = localStorage.getItem("AuthToken");
+
+    // No token means user is not logged in
+    if (!authToken) return null;
+
     const response = await fetch(
-        BACKENDURL + `users/me/?fields=user_id`, {
+        BACKENDURL + `users/me/?fields=${fields.join(',')}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${auth_token}`
+            "Authorization": `Bearer ${authToken}`
         }
     });
-    const data = await response.json();
 
-    return response.ok ? data["user"]["user_id"] : null;
+    // The token was invalid
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    return data["user"]; // Return only the 'user' portion of the data
 }
+
+/**
+ * Get the user ID of the currently logged-in user.
+ */
+async function getCurrentUserId(){
+    const userDetails = await getCurrentUserDetails(["user_id"]);
+    return userDetails === null ? null : userDetails["user_id"];
+}
+
 
 async function banUser(userId){
     const auth_token = localStorage.getItem("AuthToken");
