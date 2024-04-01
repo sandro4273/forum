@@ -35,3 +35,10 @@
 .post-button:active{
   background-color: black;
 }
+
+.votebox{
+  position: absolute;
+  bottom: 0px;
+  
+  background-color: rgb(162, 162, 162);
+}
